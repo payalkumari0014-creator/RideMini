@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RideMini Driver</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f3f3f3;
+    color:#111;
+}
+
+.header{
+    background:#111;
+    color:white;
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:bold;
+}
+
+.driver-name{
+    font-size:14px;
+    opacity:.8;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
+    padding:20px;
+}
+
+.status-card{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:18px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.status-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.status-text{
+    font-size:20px;
+    font-weight:bold;
+}
+
+.online{
+    color:#16a34a;
+}
+
+.offline{
+    color:#dc2626;
+}
+
+.toggle{
+    width:60px;
+    height:32px;
+    background:#ccc;
+    border-radius:20px;
+    cursor:pointer;
+    position:relative;
+}
+
+.toggle.active{
+    background:#16a34a;
+}
+
+.toggle-circle{
+    width:26px;
+    height:26px;
+    background:white;
+    border-radius:50%;
+    position:absolute;
+    top:3px;
+    left:3px;
+    transition:.2s;
+}
+
+.toggle.active .toggle-circle{
+    left:31px;
+}
+
+.profile{
+    display:flex;
+    gap:15px;
+    align-items:center;
+    margin-top:20px;
+}
+
+.avatar{
+    width:55px;
+    height:55px;
+    border-radius:50%;
+    background:#111;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+}
+
+.profile h2{
+    font-size:18px;
+}
+
+.profile p{
+    color:#777;
+    margin-top:4px;
+}
+
+.section-title{
+    font-size:20px;
+    font-weight:bold;
+    margin:25px 0 12px;
+}
+
+.ride-card{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:15px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.ride-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.new-badge{
+    background:#111;
+    color:white;
+    padding:7px 12px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.fare{
+    font-size:24px;
+    font-weight:bold;
+}
+
+.location{
+    margin:14px 0;
+}
+
+.location-row{
+    display:flex;
+    gap:10px;
+    margin:12px 0;
+}
+
+.dot{
+    width:12px;
+    height:12px;
+    background:#111;
+    border-radius:50%;
+    margin-top:5px;
+}
+
+.location-text{
+    flex:1;
+}
+
+.label{
+    font-size:12px;
+    color:#777;
+    margin-bottom:3px;
+}
+
+.value{
+    font-size:16px;
+    font-weight:bold;
+}
+
+.info{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:15px 0;
+}
+
+.info-box{
+    background:#f5f5f5;
+    padding:12px;
+    border-radius:12px;
+}
+
+.info-box span{
+    display:block;
+    font-size:12px;
+    color:#777;
+}
+
+.info-box strong{
+    display:block;
+    margin-top:4px;
+}
+
+.buttons{
+    display:flex;
+    gap:10px;
+}
+
+button{
+    border:none;
+    padding:15px;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.accept{
+    background:#111;
+    color:white;
+    flex:2;
+}
+
+.reject{
+    background:#eee;
+    color:#111;
+    flex:1;
+}
+
+.empty{
+    background:white;
+    padding:35px 20px;
+    text-align:center;
+    border-radius:18px;
+    color:#777;
+}
+
+.loading{
+    text-align:center;
+    padding:20px;
+    color:#777;
+}
+
+.message{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#111;
+    color:white;
+    padding:13px 20px;
+    border-radius:25px;
+    display:none;
+    z-index:100;
+}
+
+@media(max-width:500px){
+
+    .container{
+        padding:15px;
+    }
+
+    .buttons{
+        flex-direction:column;
+    }
+
+    .accept,
+    .reject{
+        width:100%;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+
+    <div class="logo">
+        RideMini Driver
+    </div>
+
+    <div class="driver-name">
+        Rahul Kumar
+    </div>
+
+</div>
+
+
+<div class="container">
+
+
+    <!-- DRIVER STATUS -->
+
+    <div class="status-card">
+
+        <div class="status-row">
+
+            <div>
+                <div id="statusText" class="status-text online">
+                    ONLINE
+                </div>
+
+                <div style="color:#777;margin-top:5px;">
+                    You can receive ride requests
+                </div>
+            </div>
+
+            <div
+                id="toggle"
+                class="toggle active"
+                onclick="toggleOnline()"
+            >
+
+                <div class="toggle-circle"></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="profile">
+
+            <div class="avatar">
+                👨
+            </div>
+
+            <div>
+
+                <h2>Rahul Kumar</h2>
+
+                <p>
+                    🏍️ Bike · JH01AB1234 · ⭐ 4.8
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="section-title">
+        Ride Requests
+    </div>
+
+
+    <div id="rides">
+
+        <div class="loading">
+            Checking for new rides...
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<div id="message" class="message"></div>
+
+
+<script>
+
+const BACKEND_URL =
+    "https://ridemini.onrender.com";
+
+const DRIVER_ID = 1;
+
+let isOnline = true;
+
+let rides = [];
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+function showMessage(text){
+
+    const box =
+        document.getElementById("message");
+
+    box.innerText = text;
+
+    box.style.display = "block";
+
+    setTimeout(() => {
+
+        box.style.display = "none";
+
+    },3000);
+
+}
+
+
+/* =========================
+   ONLINE / OFFLINE
+========================= */
+
+async function toggleOnline(){
+
+    isOnline = !isOnline;
+
+    const toggle =
+        document.getElementById("toggle");
+
+    const statusText =
+        document.getElementById("statusText");
+
+    if(isOnline){
+
+        toggle.classList.add("active");
+
+        statusText.innerText = "ONLINE";
+
+        statusText.className =
+            "status-text online";
+
+    }else{
+
+        toggle.classList.remove("active");
+
+        statusText.innerText = "OFFLINE";
+
+        statusText.className =
+            "status-text offline";
+
+    }
+
+
+    try{
+
+        await fetch(
+            `${BACKEND_URL}/api/driver/${DRIVER_ID}/status`,
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+                    online:isOnline
+                })
+            }
+        );
+
+        showMessage(
+            isOnline
+            ? "You are now online"
+            : "You are now offline"
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+        showMessage(
+            "Server connection error"
+        );
+
+    }
+
+}
+
+
+/* =========================
+   GET RIDES
+========================= */
+
+async function getRides(){
+
+    if(!isOnline){
+
+        document.getElementById("rides").innerHTML =
+
+            `<div class="empty">
+                You are offline.<br>
+                Turn ON to receive rides.
+            </div>`;
+
+        return;
+
+    }
+
+
+    try{
+
+        const response =
+            await fetch(
+                `${BACKEND_URL}/api/rides`
+            );
+
+        const data =
+            await response.json();
+
+        if(!data.success){
+
+            return;
+
+        }
+
+        rides =
+            data.rides.filter(
+                ride =>
+                    ride.status === "searching" &&
+                    ride.ride_type === "Bike"
+            );
+
+
+        showRides();
+
+    }catch(error){
+
+        console.error(
+            "Ride fetch error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================
+   SHOW RIDES
+========================= */
+
+function showRides(){
+
+    const container =
+        document.getElementById("rides");
+
+
+    if(rides.length === 0){
+
+        container.innerHTML =
+
+            `<div class="empty">
+
+                <div style="font-size:40px;">
+                    🏍️
+                </div>
+
+                <div style="margin-top:10px;">
+                    No new ride requests
+                </div>
+
+                <div style="font-size:13px;margin-top:6px;">
+                    New requests will appear here
+                </div>
+
+            </div>`;
+
+        return;
+
+    }
+
+
+    container.innerHTML = "";
+
+
+    rides.forEach(ride => {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "ride-card";
+
+
+        card.innerHTML = `
+
+            <div class="ride-header">
+
+                <div class="new-badge">
+                    NEW RIDE
+                </div>
+
+                <div class="fare">
+                    ₹${ride.fare}
+                </div>
+
+            </div>
+
+
+            <div class="location">
+
+                <div class="location-row">
+
+                    <div class="dot"></div>
+
+                    <div class="location-text">
+
+                        <div class="label">
+                            PICKUP
+                        </div>
+
+                        <div class="value">
+                            ${ride.pickup}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="location-row">
+
+                    <div class="dot"></div>
+
+                    <div class="location-text">
+
+                        <div class="label">
+                            DROP
+                        </div>
+
+                        <div class="value">
+                            ${ride.drop_location}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="info">
+
+                <div class="info-box">
+
+                    <span>
+                        Distance
+                    </span>
+
+                    <strong>
+                        ${ride.distance_km} km
+                    </strong>
+
+                </div>
+
+
+                <div class="info-box">
+
+                    <span>
+                        Ride Type
+                    </span>
+
+                    <strong>
+                        ${ride.ride_type}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="buttons">
+
+                <button
+                    class="reject"
+                    onclick="rejectRide(${ride.id})"
+                >
+                    Reject
+                </button>
+
+                <button
+                    class="accept"
+                    onclick="acceptRide(${ride.id})"
+                >
+                    Accept Ride
+                </button>
+
+            </div>
+
+        `;
+
+
+        container.appendChild(card);
+
+    });
+
+}
+
+
+/* =========================
+   ACCEPT RIDE
+========================= */
+
+async function acceptRide(rideId){
+
+    try{
+
+        const response =
+            await fetch(
+                `${BACKEND_URL}/api/ride/${rideId}/accept`,
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+
+                    body:JSON.stringify({
+                        driver_id:DRIVER_ID
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if(data.success){
+
+            showMessage(
+                "Ride accepted successfully"
+            );
+
+            getRides();
+
+        }else{
+
+            showMessage(
+                data.message ||
+                "Unable to accept ride"
+            );
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        showMessage(
+            "Server connection error"
+        );
+
+    }
+
+}
+
+
+/* =========================
+   REJECT RIDE
+========================= */
+
+async function rejectRide(rideId){
+
+    try{
+
+        const response =
+            await fetch(
+                `${BACKEND_URL}/api/ride/${rideId}/reject`,
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":"application/json"
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if(data.success){
+
+            showMessage(
+                "Ride rejected"
+            );
+
+            getRides();
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        showMessage(
+            "Server connection error"
+        );
+
+    }
+
+}
+
+
+/* =========================
+   AUTO REFRESH
+========================= */
+
+getRides();
+
+setInterval(
+    getRides,
+    3000
+);
+
+</script>
+
+</body>
+</html>
