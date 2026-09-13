@@ -7,54 +7,56 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(__dirname));
 
 let rides = [];
 let nextRideId = 1;
 
-const drivers = [
+// Demo drivers
+let drivers = [
     {
         id: 1,
         name: "Rahul Kumar",
-        vehicle: "Bike",
-        vehicleNumber: "JH01AB1234",
+        vehicle_type: "Bike",
+        vehicle_number: "JH01AB1234",
         rating: 4.8,
         online: true
     },
     {
         id: 2,
         name: "Amit Kumar",
-        vehicle: "Auto",
-        vehicleNumber: "JH01AC5678",
+        vehicle_type: "Auto",
+        vehicle_number: "JH01AC5678",
         rating: 4.7,
         online: true
     },
     {
         id: 3,
         name: "Vikas Singh",
-        vehicle: "Cab",
-        vehicleNumber: "JH01CD9012",
+        vehicle_type: "Cab",
+        vehicle_number: "JH01CD9012",
         rating: 4.9,
         online: true
     }
 ];
 
+// Home
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
 });
 
+// Health
 app.get("/health", (req, res) => {
     res.json({
         success: true,
-        status: "online",
-        message: "RideMini server healthy"
+        message: "RideMini server healthy ❤️",
+        status: "online"
     });
 });
 
-
-/* =========================
-   BOOK RIDE
-========================= */
+// ===============================
+// BOOK RIDE
+// ===============================
 
 app.post("/api/ride", (req, res) => {
 
@@ -75,93 +77,58 @@ app.post("/api/ride", (req, res) => {
 
     const ride = {
         id: nextRideId++,
+
         pickup,
         drop_location,
+
         ride_type,
+
         distance_km: Number(distance_km) || 0,
+
         fare: Number(fare) || 0,
+
         status: "searching",
+
         driver: null,
+
         created_at: new Date().toISOString()
     };
 
     rides.push(ride);
 
-    console.log("NEW RIDE:", ride);
+    console.log("");
+    console.log("================================");
+    console.log("🚕 NEW RIDE REQUEST");
+    console.log("================================");
+    console.log("Ride ID:", ride.id);
+    console.log("Pickup:", ride.pickup);
+    console.log("Drop:", ride.drop_location);
+    console.log("Type:", ride.ride_type);
+    console.log("Fare:", ride.fare);
+    console.log("================================");
 
     res.json({
         success: true,
         ride_id: ride.id,
-        status: "searching"
+        status: "searching",
+        message: "Ride request sent to nearby drivers 🚕"
     });
-
-    setTimeout(() => {
-
-        const currentRide = rides.find(
-            r => r.id === ride.id
-        );
-
-        if (!currentRide) return;
-
-        const matchingDrivers = drivers.filter(
-            driver =>
-                driver.online &&
-                driver.vehicle.toLowerCase() ===
-                currentRide.ride_type.toLowerCase()
-        );
-
-        if (matchingDrivers.length === 0) {
-            console.log(
-                "No online driver for ride:",
-                currentRide.id
-            );
-            return;
-        }
-
-        const driver =
-            matchingDrivers[
-                Math.floor(
-                    Math.random() * matchingDrivers.length
-                )
-            ];
-
-        currentRide.status = "accepted";
-
-        currentRide.driver = {
-            id: driver.id,
-            name: driver.name,
-            vehicle: driver.vehicle,
-            vehicleNumber: driver.vehicleNumber,
-            rating: driver.rating
-        };
-
-        console.log(
-            "DRIVER ASSIGNED:",
-            driver.name,
-            "Ride:",
-            currentRide.id
-        );
-
-    }, 5000);
 });
 
-
-/* =========================
-   GET SINGLE RIDE
-========================= */
+// ===============================
+// GET SINGLE RIDE
+// ===============================
 
 app.get("/api/ride/:id", (req, res) => {
 
     const id = Number(req.params.id);
 
-    const ride = rides.find(
-        r => r.id === id
-    );
+    const ride = rides.find(r => r.id === id);
 
     if (!ride) {
         return res.status(404).json({
             success: false,
-            message: "Ride not found"
+            message: "Ride nahi mili"
         });
     }
 
@@ -171,10 +138,9 @@ app.get("/api/ride/:id", (req, res) => {
     });
 });
 
-
-/* =========================
-   GET ALL RIDES
-========================= */
+// ===============================
+// GET ALL RIDES
+// ===============================
 
 app.get("/api/rides", (req, res) => {
 
@@ -185,10 +151,9 @@ app.get("/api/rides", (req, res) => {
     });
 });
 
-
-/* =========================
-   DRIVER LIST
-========================= */
+// ===============================
+// GET DRIVERS
+// ===============================
 
 app.get("/api/drivers", (req, res) => {
 
@@ -198,34 +163,24 @@ app.get("/api/drivers", (req, res) => {
     });
 });
 
-
-/* =========================
-   DRIVER ONLINE / OFFLINE
-========================= */
+// ===============================
+// DRIVER ONLINE / OFFLINE
+// ===============================
 
 app.post("/api/driver/:id/status", (req, res) => {
 
     const id = Number(req.params.id);
 
-    const driver = drivers.find(
-        d => d.id === id
-    );
+    const driver = drivers.find(d => d.id === id);
 
     if (!driver) {
         return res.status(404).json({
             success: false,
-            message: "Driver not found"
+            message: "Driver nahi mila"
         });
     }
 
     driver.online = Boolean(req.body.online);
-
-    console.log(
-        "Driver:",
-        driver.name,
-        "Online:",
-        driver.online
-    );
 
     res.json({
         success: true,
@@ -233,35 +188,54 @@ app.post("/api/driver/:id/status", (req, res) => {
     });
 });
 
-
-/* =========================
-   DRIVER ACCEPT RIDE
-========================= */
+// ===============================
+// DRIVER ACCEPT RIDE
+// ===============================
 
 app.post("/api/ride/:rideId/accept", (req, res) => {
 
     const rideId = Number(req.params.rideId);
+
     const driverId = Number(req.body.driver_id);
 
-    const ride = rides.find(
-        r => r.id === rideId
-    );
+    const ride = rides.find(r => r.id === rideId);
 
-    const driver = drivers.find(
-        d => d.id === driverId
-    );
+    const driver = drivers.find(d => d.id === driverId);
 
     if (!ride) {
         return res.status(404).json({
             success: false,
-            message: "Ride not found"
+            message: "Ride nahi mili"
         });
     }
 
     if (!driver) {
         return res.status(404).json({
             success: false,
-            message: "Driver not found"
+            message: "Driver nahi mila"
+        });
+    }
+
+    if (!driver.online) {
+        return res.status(400).json({
+            success: false,
+            message: "Driver offline hai"
+        });
+    }
+
+    if (ride.status !== "searching") {
+        return res.status(400).json({
+            success: false,
+            message: "Ride already accepted/rejected hai"
+        });
+    }
+
+    // Check vehicle type
+    if (ride.ride_type !== driver.vehicle_type) {
+        return res.status(400).json({
+            success: false,
+            message:
+                "Driver vehicle ride type se match nahi karta"
         });
     }
 
@@ -270,40 +244,55 @@ app.post("/api/ride/:rideId/accept", (req, res) => {
     ride.driver = {
         id: driver.id,
         name: driver.name,
-        vehicle: driver.vehicle,
-        vehicleNumber: driver.vehicleNumber,
+        vehicle_type: driver.vehicle_type,
+        vehicle_number: driver.vehicle_number,
         rating: driver.rating
     };
 
+    ride.accepted_at = new Date().toISOString();
+
+    console.log("");
+    console.log("================================");
+    console.log("✅ RIDE ACCEPTED");
+    console.log("================================");
+    console.log("Ride ID:", ride.id);
+    console.log("Driver:", driver.name);
+    console.log("Vehicle:", driver.vehicle_number);
+    console.log("================================");
+
     res.json({
         success: true,
-        message: "Ride accepted",
+        message: "Ride accepted successfully",
         ride
     });
 });
 
-
-/* =========================
-   DRIVER REJECT RIDE
-========================= */
+// ===============================
+// DRIVER REJECT RIDE
+// ===============================
 
 app.post("/api/ride/:rideId/reject", (req, res) => {
 
     const rideId = Number(req.params.rideId);
 
-    const ride = rides.find(
-        r => r.id === rideId
-    );
+    const ride = rides.find(r => r.id === rideId);
 
     if (!ride) {
         return res.status(404).json({
             success: false,
-            message: "Ride not found"
+            message: "Ride nahi mili"
         });
     }
 
-    ride.status = "searching";
-    ride.driver = null;
+    if (ride.status !== "searching") {
+        return res.status(400).json({
+            success: false,
+            message: "Ride already process ho chuki hai"
+        });
+    }
+
+    ride.last_rejected_driver =
+        Number(req.body.driver_id) || null;
 
     res.json({
         success: true,
@@ -311,17 +300,18 @@ app.post("/api/ride/:rideId/reject", (req, res) => {
     });
 });
 
-
-/* =========================
-   SERVER START
-========================= */
+// ===============================
+// START SERVER
+// ===============================
 
 app.listen(PORT, "0.0.0.0", () => {
 
+    console.log("");
     console.log("================================");
-    console.log("RideMini Backend Started");
+    console.log("🚕 RideMini Backend Started");
     console.log("================================");
     console.log("Port:", PORT);
     console.log("Status: ONLINE");
-
+    console.log("Drivers:", drivers.length);
+    console.log("================================");
 });
