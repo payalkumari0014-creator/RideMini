@@ -1,25 +1,34 @@
-
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
-
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
+// Frontend serve karega
+app.use(express.static(path.join(__dirname)));
+
 let rides = [];
 let nextRideId = 1;
 
+// Home page
 app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
+});
+
+// Health check
+app.get("/health", (req, res) => {
     res.json({
         success: true,
-        message: "RideMini Backend is running 🚕",
+        message: "RideMini server healthy ❤️",
         status: "online"
     });
 });
 
+// Book ride
 app.post("/api/ride", (req, res) => {
 
     const {
@@ -39,9 +48,9 @@ app.post("/api/ride", (req, res) => {
 
     const ride = {
         id: nextRideId++,
-        pickup: pickup,
-        drop_location: drop_location,
-        ride_type: ride_type,
+        pickup,
+        drop_location,
+        ride_type,
         distance_km: Number(distance_km) || 0,
         fare: Number(fare) || 0,
         status: "searching",
@@ -61,10 +70,10 @@ app.post("/api/ride", (req, res) => {
     });
 });
 
+// Get single ride
 app.get("/api/ride/:id", (req, res) => {
 
     const id = Number(req.params.id);
-
     const ride = rides.find(r => r.id === id);
 
     if (!ride) {
@@ -76,27 +85,21 @@ app.get("/api/ride/:id", (req, res) => {
 
     res.json({
         success: true,
-        ride: ride
+        ride
     });
 });
 
+// Get all rides
 app.get("/api/rides", (req, res) => {
 
     res.json({
         success: true,
         count: rides.length,
-        rides: rides
+        rides
     });
 });
 
-app.get("/health", (req, res) => {
-
-    res.json({
-        success: true,
-        message: "RideMini server healthy ❤️"
-    });
-});
-
+// Start server
 app.listen(PORT, "0.0.0.0", () => {
 
     console.log("");
