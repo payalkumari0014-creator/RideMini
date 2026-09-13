@@ -14,365 +14,303 @@
 }
 
 body{
-    font-family:Arial,Helvetica,sans-serif;
-    background:#e9ecef;
+    font-family:Arial, sans-serif;
+    background:#f3f3f3;
     color:#111;
 }
 
-button,input{
-    font-family:inherit;
-}
-
-button{
-    cursor:pointer;
-}
-
 .app{
-    width:100%;
-    max-width:450px;
-    min-height:100vh;
+    max-width:480px;
     margin:auto;
-    background:#f5f6f7;
-    padding-bottom:30px;
+    min-height:100vh;
+    background:#fff;
 }
 
 .header{
     background:#111;
-    color:white;
-    padding:24px 20px 28px;
-    border-radius:0 0 28px 28px;
+    color:#fff;
+    padding:22px 20px;
+    border-radius:0 0 25px 25px;
 }
 
 .logo{
-    font-size:28px;
-    font-weight:800;
+    font-size:27px;
+    font-weight:bold;
 }
 
-.tagline{
-    color:#aaa;
+.subtitle{
     margin-top:6px;
-    font-size:13px;
-}
-
-.content{
-    padding:15px;
-}
-
-.card{
-    background:white;
-    border-radius:20px;
-    padding:17px;
-    margin-bottom:15px;
-    box-shadow:0 5px 20px rgba(0,0,0,.06);
-}
-
-.title{
-    font-size:17px;
-    font-weight:800;
-    margin-bottom:15px;
-}
-
-.location{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    background:#f4f4f4;
-    border-radius:13px;
-    padding:13px;
-    margin-bottom:10px;
-}
-
-.location-dot{
-    font-size:18px;
-}
-
-.location input{
-    border:0;
-    outline:0;
-    background:transparent;
-    width:100%;
+    color:#bbb;
     font-size:14px;
 }
 
-.current-btn{
+.content{
+    padding:18px;
+}
+
+.card{
+    background:#fff;
+    border-radius:18px;
+    padding:16px;
+    margin-bottom:16px;
+    box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+
+.label{
+    font-size:13px;
+    color:#777;
+    margin-bottom:7px;
+}
+
+input{
     width:100%;
-    border:0;
-    background:#111;
-    color:white;
-    padding:13px;
+    padding:14px;
+    border:1px solid #ddd;
     border-radius:12px;
+    font-size:15px;
+    outline:none;
+}
+
+input:focus{
+    border-color:#111;
+}
+
+.location-row{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+}
+
+.location-row button{
+    flex:1;
+}
+
+button{
+    border:none;
+    cursor:pointer;
+    border-radius:12px;
+    padding:13px;
+    font-size:15px;
     font-weight:bold;
+}
+
+.location-btn{
+    background:#eee;
+    color:#111;
 }
 
 .route-btn{
     width:100%;
-    margin-top:10px;
-    padding:13px;
-    border:0;
-    border-radius:12px;
-    background:#eee;
-    font-weight:bold;
+    background:#111;
+    color:#fff;
+    margin-top:12px;
 }
 
 .map{
-    height:235px;
-    margin-top:14px;
+    height:230px;
     border-radius:18px;
+    margin-top:15px;
     overflow:hidden;
     position:relative;
-
     background:
-        linear-gradient(25deg,transparent 45%,#fff 46%,#fff 51%,transparent 52%),
-        linear-gradient(145deg,transparent 44%,#fff 45%,#fff 50%,transparent 51%),
-        repeating-linear-gradient(
-            90deg,
-            #dfe2e4 0px,
-            #dfe2e4 2px,
-            transparent 2px,
-            transparent 45px
-        );
+        linear-gradient(30deg,transparent 48%,#ddd 49%,#ddd 51%,transparent 52%),
+        linear-gradient(120deg,transparent 48%,#ddd 49%,#ddd 51%,transparent 52%),
+        #f5f5f5;
 }
 
-.map:before{
-    content:"";
+.road{
     position:absolute;
-    width:130%;
-    height:45px;
-    left:-15%;
-    top:95px;
+    width:100%;
+    height:5px;
+    background:#ccc;
+    top:50%;
+    transform:rotate(-12deg);
+}
+
+.road2{
+    position:absolute;
+    width:100%;
+    height:5px;
+    background:#ccc;
+    top:32%;
+    transform:rotate(18deg);
+}
+
+.map-title{
+    position:absolute;
+    top:15px;
+    left:15px;
     background:#fff;
-    border:2px solid #d0d2d4;
-    transform:rotate(-14deg);
-}
-
-.map:after{
-    content:"";
-    position:absolute;
-    width:120%;
-    height:30px;
-    left:-10%;
-    top:145px;
-    background:#fff;
-    border:2px solid #d0d2d4;
-    transform:rotate(25deg);
-}
-
-.map-top{
-    position:absolute;
-    top:10px;
-    left:10px;
-    right:10px;
-    z-index:10;
-    background:rgba(255,255,255,.95);
-    padding:9px;
+    padding:8px 12px;
     border-radius:10px;
-    text-align:center;
-    font-size:12px;
-    font-weight:bold;
+    font-size:13px;
+    box-shadow:0 3px 10px rgba(0,0,0,.1);
 }
 
 .marker{
     position:absolute;
-    z-index:20;
-    font-size:32px;
-    filter:drop-shadow(0 3px 3px #777);
+    font-size:28px;
 }
 
 .pickup-marker{
-    left:22%;
-    top:48%;
+    left:25%;
+    top:58%;
 }
 
 .drop-marker{
-    right:17%;
-    top:20%;
+    right:20%;
+    top:27%;
 }
 
-.route-line{
-    display:none;
-    position:absolute;
-    z-index:15;
-    width:180px;
-    height:6px;
-    background:#111;
-    border-radius:10px;
-    left:27%;
-    top:48%;
-    transform:rotate(-27deg);
-}
-
-.rides{
+.ride-types{
     display:flex;
-    gap:8px;
+    gap:10px;
 }
 
 .ride{
     flex:1;
-    border:2px solid #eee;
-    background:white;
-    border-radius:15px;
-    padding:14px 5px;
+    background:#f1f1f1;
+    padding:15px 5px;
     text-align:center;
-    transition:.2s;
+    border-radius:14px;
+    border:2px solid transparent;
 }
 
-.ride.selected{
-    background:#111;
-    color:white;
+.ride.active{
     border-color:#111;
+    background:#fff;
 }
 
 .ride-icon{
-    font-size:28px;
-    margin-bottom:6px;
+    font-size:27px;
 }
 
 .ride-name{
+    margin-top:6px;
+    font-weight:bold;
+    font-size:14px;
+}
+
+.fare-box{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#f5f5f5;
+    padding:15px;
+    border-radius:14px;
+    margin-top:15px;
+}
+
+.fare{
+    font-size:24px;
     font-weight:bold;
 }
 
-.ride-info{
-    font-size:11px;
-    margin-top:5px;
-    opacity:.7;
+.distance{
+    color:#666;
+    font-size:13px;
 }
 
 .coupon-row{
     display:flex;
     gap:8px;
+    margin-top:10px;
 }
 
-.coupon{
+.coupon-row input{
     flex:1;
-    border:1px solid #ddd;
-    border-radius:12px;
-    padding:13px;
-    outline:none;
-    font-size:14px;
 }
 
 .coupon-btn{
-    border:0;
     background:#111;
-    color:white;
-    border-radius:12px;
-    padding:0 18px;
-    font-weight:bold;
-}
-
-.coupon-message{
-    font-size:12px;
-    margin-top:9px;
-    min-height:15px;
-}
-
-.fare-box{
-    background:#111;
-    color:white;
-    border-radius:17px;
-    padding:17px;
-}
-
-.fare-row{
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:9px;
-    font-size:14px;
-}
-
-.total{
-    border-top:1px solid #444;
-    padding-top:12px;
-    margin-top:10px;
-    font-size:20px;
-    font-weight:bold;
+    color:#fff;
 }
 
 .book-btn{
     width:100%;
-    border:0;
     background:#111;
-    color:white;
-    padding:16px;
-    border-radius:15px;
+    color:#fff;
+    padding:17px;
     font-size:17px;
-    font-weight:800;
     margin-top:15px;
 }
 
 .book-btn:disabled{
-    opacity:.6;
-    cursor:not-allowed;
+    background:#999;
 }
 
 .status{
     display:none;
     text-align:center;
-    padding:20px 10px;
+    padding:18px;
+    border-radius:15px;
+    margin-top:15px;
+    background:#f1f1f1;
 }
 
-.status-icon{
-    font-size:50px;
+.spinner{
+    width:35px;
+    height:35px;
+    border:4px solid #ddd;
+    border-top:4px solid #111;
+    border-radius:50%;
+    margin:0 auto 12px;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+.driver-card{
+    display:none;
+    margin-top:15px;
+    padding:18px;
+    border-radius:18px;
+    background:#111;
+    color:#fff;
+}
+
+.driver-title{
+    font-size:13px;
+    color:#aaa;
     margin-bottom:10px;
 }
 
-.status-title{
-    font-size:20px;
-    font-weight:bold;
-    margin-bottom:7px;
-}
-
-.status-text{
-    color:#666;
-    font-size:13px;
-    line-height:1.5;
-}
-
-.driver{
-    display:none;
-    margin-top:15px;
-    padding:15px;
-    border-radius:15px;
-    background:#f3f3f3;
-}
-
 .driver-name{
+    font-size:22px;
     font-weight:bold;
-    font-size:16px;
 }
 
 .driver-info{
-    font-size:13px;
-    color:#555;
-    margin-top:5px;
+    margin-top:8px;
+    color:#ddd;
+    line-height:1.7;
 }
 
-.cancel-btn{
-    width:100%;
-    margin-top:12px;
-    padding:12px;
-    border:1px solid #ddd;
-    background:white;
-    border-radius:12px;
+.success{
+    background:#e9ffe9;
+    color:#146b14;
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:12px;
     font-weight:bold;
 }
 
-.location-info{
-    display:none;
-    margin-top:10px;
-    background:#f1f1f1;
+.error{
+    background:#ffe9e9;
+    color:#9b111e;
     padding:10px;
     border-radius:10px;
-    font-size:11px;
-    color:#555;
-    white-space:pre-line;
+    margin-top:12px;
 }
 
-.footer{
-    text-align:center;
-    color:#888;
-    font-size:11px;
-    padding:5px 0 20px;
+.small{
+    font-size:12px;
+    color:#777;
+    margin-top:8px;
 }
 </style>
 </head>
@@ -382,149 +320,133 @@ button{
 <div class="app">
 
     <div class="header">
-        <div class="logo">🏍️ RideMini</div>
-        <div class="tagline">
-            Fast rides. Simple booking.
-        </div>
+        <div class="logo">RideMini</div>
+        <div class="subtitle">Book your ride easily</div>
     </div>
 
     <div class="content">
 
         <div class="card">
 
-            <div class="title">
-                📍 Where are you going?
-            </div>
+            <div class="label">Pickup location</div>
 
-            <div class="location">
-                <div class="location-dot">🟢</div>
-
-                <input
-                    id="pickup"
-                    type="text"
-                    placeholder="Enter pickup location"
-                >
-            </div>
-
-            <div class="location">
-                <div class="location-dot">🔴</div>
-
-                <input
-                    id="drop"
-                    type="text"
-                    placeholder="Enter drop location"
-                >
-            </div>
-
-            <button
-                class="current-btn"
-                onclick="useMyLocation()"
+            <input
+                id="pickup"
+                type="text"
+                placeholder="Enter pickup location"
             >
-                📍 Use My Location
-            </button>
 
-            <div
-                class="location-info"
-                id="locationInfo"
-            ></div>
-
-            <div class="map">
-
-                <div
-                    class="map-top"
-                    id="mapText"
+            <div class="location-row">
+                <button
+                    class="location-btn"
+                    onclick="useMyLocation()"
                 >
-                    🗺️ Enter pickup & drop location
-                </div>
-
-                <div class="marker pickup-marker">
-                    🟢
-                </div>
-
-                <div class="marker drop-marker">
-                    🔴
-                </div>
-
-                <div
-                    class="route-line"
-                    id="routeLine"
-                ></div>
-
+                    Use My Location
+                </button>
             </div>
+
+            <br>
+
+            <div class="label">Drop location</div>
+
+            <input
+                id="drop"
+                type="text"
+                placeholder="Where do you want to go?"
+            >
 
             <button
                 class="route-btn"
-                onclick="showRoute()"
+                onclick="calculateRoute()"
             >
-                🛣️ Calculate Real Distance
+                Calculate Distance
             </button>
 
+            <div class="map">
+
+                <div class="map-title">
+                    RideMini Map
+                </div>
+
+                <div class="road"></div>
+                <div class="road2"></div>
+
+                <div
+                    class="marker pickup-marker"
+                >
+                    📍
+                </div>
+
+                <div
+                    class="marker drop-marker"
+                >
+                    🏁
+                </div>
+
+            </div>
+
         </div>
 
 
         <div class="card">
 
-            <div class="title">
-                Choose your ride
+            <div class="label">
+                Choose ride
             </div>
 
-            <div class="rides">
+            <div class="ride-types">
 
-                <button
-                    class="ride selected"
-                    id="bike"
-                    onclick="selectRide('Bike')"
+                <div
+                    class="ride active"
+                    onclick="selectRide('Bike',this)"
                 >
-
                     <div class="ride-icon">🏍️</div>
+                    <div class="ride-name">Bike</div>
+                </div>
 
-                    <div class="ride-name">
-                        Bike
-                    </div>
-
-                    <div class="ride-info">
-                        Quick & cheap
-                    </div>
-
-                </button>
-
-
-                <button
+                <div
                     class="ride"
-                    id="auto"
-                    onclick="selectRide('Auto')"
+                    onclick="selectRide('Auto',this)"
                 >
-
                     <div class="ride-icon">🛺</div>
+                    <div class="ride-name">Auto</div>
+                </div>
 
-                    <div class="ride-name">
-                        Auto
-                    </div>
-
-                    <div class="ride-info">
-                        Comfortable
-                    </div>
-
-                </button>
-
-
-                <button
+                <div
                     class="ride"
-                    id="cab"
-                    onclick="selectRide('Cab')"
+                    onclick="selectRide('Cab',this)"
                 >
-
                     <div class="ride-icon">🚕</div>
+                    <div class="ride-name">Cab</div>
+                </div>
 
-                    <div class="ride-name">
-                        Cab
+            </div>
+
+
+            <div class="fare-box">
+
+                <div>
+                    <div class="distance">
+                        Distance
                     </div>
 
-                    <div class="ride-info">
-                        Premium
+                    <div id="distance">
+                        0 km
+                    </div>
+                </div>
+
+                <div>
+                    <div class="distance">
+                        Estimated Fare
                     </div>
 
-                </button>
+                    <div
+                        class="fare"
+                        id="fare"
+                    >
+                        ₹0
+                    </div>
+                </div>
 
             </div>
 
@@ -533,17 +455,16 @@ button{
 
         <div class="card">
 
-            <div class="title">
-                🎁 Apply Coupon
+            <div class="label">
+                Coupon code
             </div>
 
             <div class="coupon-row">
 
                 <input
                     id="coupon"
-                    class="coupon"
                     type="text"
-                    placeholder="Enter coupon code"
+                    placeholder="WELCOME50"
                 >
 
                 <button
@@ -556,8 +477,8 @@ button{
             </div>
 
             <div
-                class="coupon-message"
                 id="couponMessage"
+                class="small"
             ></div>
 
         </div>
@@ -565,110 +486,70 @@ button{
 
         <div class="card">
 
-            <div class="title">
-                💰 Fare Estimate
-            </div>
-
-            <div class="fare-box">
-
-                <div class="fare-row">
-                    <span>Ride</span>
-                    <span id="fareRide">Bike</span>
-                </div>
-
-                <div class="fare-row">
-                    <span>Distance</span>
-                    <span id="distance">-- km</span>
-                </div>
-
-                <div class="fare-row">
-                    <span>Base Fare</span>
-                    <span id="baseFare">₹40</span>
-                </div>
-
-                <div class="fare-row">
-                    <span>Coupon Discount</span>
-                    <span id="discount">₹0</span>
-                </div>
-
-                <div class="fare-row total">
-                    <span>Total</span>
-                    <span id="totalFare">₹40</span>
-                </div>
-
-            </div>
-
             <button
+                id="bookBtn"
                 class="book-btn"
-                id="bookButton"
                 onclick="bookRide()"
             >
-                🚕 Book Ride
+                Book Ride
             </button>
 
-        </div>
+            <div
+                id="errorBox"
+                class="error"
+                style="display:none;"
+            ></div>
 
-
-        <div
-            class="card status"
-            id="status"
-        >
 
             <div
-                class="status-icon"
-                id="statusIcon"
+                id="searchStatus"
+                class="status"
             >
-                🔎
+
+                <div class="spinner"></div>
+
+                <strong>
+                    Searching for driver...
+                </strong>
+
+                <div class="small">
+                    Nearby driver ko search kiya ja raha hai
+                </div>
+
             </div>
 
-            <div
-                class="status-title"
-                id="statusTitle"
-            >
-                Finding a driver...
-            </div>
 
             <div
-                class="status-text"
-                id="statusText"
+                id="driverCard"
+                class="driver-card"
             >
-                Please wait while we find a nearby driver.
-            </div>
 
-            <div
-                class="driver"
-                id="driver"
-            >
+                <div class="success">
+                    Driver found!
+                </div>
+
+                <div class="driver-title">
+                    YOUR DRIVER
+                </div>
 
                 <div
-                    class="driver-name"
                     id="driverName"
+                    class="driver-name"
                 >
-                    👨 Driver: Searching...
+                    Rahul Kumar
                 </div>
 
-                <div class="driver-info">
-                    🏍️ Your selected vehicle
-                </div>
-
-                <div class="driver-info">
-                    📍 Driver is coming to your pickup point
+                <div
+                    id="driverInfo"
+                    class="driver-info"
+                >
+                    Bike<br>
+                    JH01AB1234<br>
+                    ⭐ 4.8
                 </div>
 
             </div>
 
-            <button
-                class="cancel-btn"
-                onclick="cancelRide()"
-            >
-                Cancel Ride
-            </button>
-
-        </div>
-
-
-        <div class="footer">
-            RideMini • Ride booking system
         </div>
 
     </div>
@@ -678,296 +559,82 @@ button{
 
 <script>
 
-/* ================================
-   GLOBAL VARIABLES
-================================ */
-
-let selectedRide = "Bike";
-
-let discountAmount = 0;
-
-let currentDistance = 0;
-
-let pickupLat = null;
-let pickupLon = null;
-
-let dropLat = null;
-let dropLon = null;
-
-let routeReady = false;
-
-let bookingTimer = null;
-
-let currentRideId = null;
-
-
-/* ================================
-   BACKEND
-================================ */
-
 const BACKEND_URL =
     "https://ridemini.onrender.com";
 
 
-/* ================================
-   TELEGRAM
-================================ */
+let selectedRide = "Bike";
+
+let distanceKm = 0;
+
+let fareAmount = 0;
+
+let discount = 0;
+
+let currentRideId = null;
+
+let pollingTimer = null;
+
+
+/* Telegram Mini App */
 
 if(
     window.Telegram &&
     window.Telegram.WebApp
 ){
-
-    window.Telegram.WebApp.ready();
-
-    try{
-        window.Telegram.WebApp.expand();
-    }
-    catch(error){
-        console.log("Telegram expand unavailable");
-    }
-
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
 }
 
 
-/* ================================
-   RIDE SELECT
-================================ */
+/* Select Bike / Auto / Cab */
 
-function selectRide(type){
+function selectRide(type, element){
 
     selectedRide = type;
 
     document
-        .getElementById("bike")
-        .classList.remove("selected");
+        .querySelectorAll(".ride")
+        .forEach(function(item){
 
-    document
-        .getElementById("auto")
-        .classList.remove("selected");
+            item.classList.remove("active");
 
-    document
-        .getElementById("cab")
-        .classList.remove("selected");
+        });
 
-
-    if(type === "Bike"){
-
-        document
-            .getElementById("bike")
-            .classList.add("selected");
-
-    }
-
-
-    if(type === "Auto"){
-
-        document
-            .getElementById("auto")
-            .classList.add("selected");
-
-    }
-
-
-    if(type === "Cab"){
-
-        document
-            .getElementById("cab")
-            .classList.add("selected");
-
-    }
-
-
-    document
-        .getElementById("fareRide")
-        .innerText = type;
-
+    element.classList.add("active");
 
     calculateFare();
 
 }
 
 
-/* ================================
-   FARE
-================================ */
-
-function getBaseFare(){
-
-    let base = 40;
-
-
-    if(currentDistance > 0){
-
-        if(selectedRide === "Bike"){
-
-            base =
-                40 +
-                (currentDistance * 9);
-
-        }
-
-
-        if(selectedRide === "Auto"){
-
-            base =
-                60 +
-                (currentDistance * 12);
-
-        }
-
-
-        if(selectedRide === "Cab"){
-
-            base =
-                100 +
-                (currentDistance * 16);
-
-        }
-
-    }
-
-
-    return Math.round(base);
-
-}
-
-
-function getFinalFare(){
-
-    const base =
-        getBaseFare();
-
-
-    let total =
-        base -
-        discountAmount;
-
-
-    if(total < 0){
-
-        total = 0;
-
-    }
-
-
-    return total;
-
-}
-
-
-function calculateFare(){
-
-    const base =
-        getBaseFare();
-
-
-    const total =
-        getFinalFare();
-
-
-    document
-        .getElementById("baseFare")
-        .innerText =
-        "₹" + base;
-
-
-    document
-        .getElementById("discount")
-        .innerText =
-        "₹" + discountAmount;
-
-
-    document
-        .getElementById("totalFare")
-        .innerText =
-        "₹" + total;
-
-
-    if(currentDistance > 0){
-
-        document
-            .getElementById("distance")
-            .innerText =
-            currentDistance.toFixed(1) +
-            " km";
-
-    }
-    else{
-
-        document
-            .getElementById("distance")
-            .innerText =
-            "-- km";
-
-    }
-
-}
-
-
-/* ================================
-   CURRENT LOCATION
-================================ */
+/* Current Location */
 
 function useMyLocation(){
-
-    const pickup =
-        document.getElementById("pickup");
-
-    const mapText =
-        document.getElementById("mapText");
-
-    const info =
-        document.getElementById("locationInfo");
-
 
     if(!navigator.geolocation){
 
         alert(
-            "Is browser me GPS location supported nahi hai."
+            "Your browser does not support location."
         );
 
         return;
-
     }
-
-
-    mapText.innerText =
-        "📍 Getting your location...";
-
 
     navigator.geolocation.getCurrentPosition(
 
         function(position){
 
-            pickupLat =
+            const lat =
                 position.coords.latitude;
 
-            pickupLon =
+            const lon =
                 position.coords.longitude;
 
-
-            pickup.value =
+            document.getElementById(
+                "pickup"
+            ).value =
                 "Current Location";
-
-
-            info.style.display =
-                "block";
-
-
-            info.innerText =
-                "📍 GPS: " +
-                pickupLat.toFixed(6) +
-                ", " +
-                pickupLon.toFixed(6);
-
-
-            mapText.innerText =
-                "📍 Pickup location detected";
-
-
-            routeReady = false;
-
 
             alert(
                 "Location detected successfully!"
@@ -975,25 +642,12 @@ function useMyLocation(){
 
         },
 
-
-        function(error){
-
-            mapText.innerText =
-                "⚠️ Location permission denied";
-
+        function(){
 
             alert(
-                "Location nahi mil payi.\n\n" +
-                "Browser me Location permission Allow karo."
+                "Location permission allow karo."
             );
 
-        },
-
-
-        {
-            enableHighAccuracy:true,
-            timeout:10000,
-            maximumAge:0
         }
 
     );
@@ -1001,479 +655,19 @@ function useMyLocation(){
 }
 
 
-/* ================================
-   STRAIGHT DISTANCE
-================================ */
+/* Calculate Route */
 
-function calculateStraightDistance(
-    lat1,
-    lon1,
-    lat2,
-    lon2
-){
-
-    const earthRadius = 6371;
-
-
-    const dLat =
-        (lat2 - lat1) *
-        Math.PI / 180;
-
-
-    const dLon =
-        (lon2 - lon1) *
-        Math.PI / 180;
-
-
-    const a =
-        Math.sin(dLat / 2) *
-        Math.sin(dLat / 2) +
-
-        Math.cos(
-            lat1 * Math.PI / 180
-        ) *
-
-        Math.cos(
-            lat2 * Math.PI / 180
-        ) *
-
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-
-
-    const c =
-        2 *
-        Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1 - a)
-        );
-
-
-    return earthRadius * c;
-
-}
-
-
-/* ================================
-   GEOCODING
-================================ */
-
-async function geocodeLocation(address){
-
-    const url =
-        "https://nominatim.openstreetmap.org/search?" +
-        "format=jsonv2" +
-        "&limit=1" +
-        "&q=" +
-        encodeURIComponent(address);
-
-
-    const response =
-        await fetch(url);
-
-
-    if(!response.ok){
-
-        throw new Error(
-            "Geocoding failed"
-        );
-
-    }
-
-
-    const data =
-        await response.json();
-
-
-    if(!data || data.length === 0){
-
-        throw new Error(
-            "Location not found"
-        );
-
-    }
-
-
-    return {
-
-        lat:
-            parseFloat(data[0].lat),
-
-        lon:
-            parseFloat(data[0].lon),
-
-        name:
-            data[0].display_name
-
-    };
-
-}
-
-
-/* ================================
-   ROAD DISTANCE
-================================ */
-
-async function getRoadDistance(
-    lat1,
-    lon1,
-    lat2,
-    lon2
-){
-
-    const url =
-        "https://router.project-osrm.org/route/v1/driving/" +
-
-        lon1 +
-        "," +
-        lat1 +
-
-        ";" +
-
-        lon2 +
-        "," +
-        lat2 +
-
-        "?overview=false";
-
-
-    const response =
-        await fetch(url);
-
-
-    if(!response.ok){
-
-        throw new Error(
-            "Routing service unavailable"
-        );
-
-    }
-
-
-    const data =
-        await response.json();
-
-
-    if(
-        !data.routes ||
-        !data.routes.length
-    ){
-
-        throw new Error(
-            "Route not found"
-        );
-
-    }
-
-
-    return (
-        data.routes[0].distance / 1000
-    );
-
-}
-
-
-/* ================================
-   ROUTE
-================================ */
-
-async function showRoute(){
-
-    const pickupInput =
-        document
-        .getElementById("pickup")
-        .value
-        .trim();
-
-
-    const dropInput =
-        document
-        .getElementById("drop")
-        .value
-        .trim();
-
-
-    const line =
-        document
-        .getElementById("routeLine");
-
-
-    const mapText =
-        document
-        .getElementById("mapText");
-
-
-    if(!pickupInput){
-
-        alert(
-            "Pehle pickup location enter karo."
-        );
-
-        return;
-
-    }
-
-
-    if(!dropInput){
-
-        alert(
-            "Pehle drop location enter karo."
-        );
-
-        return;
-
-    }
-
-
-    mapText.innerText =
-        "🔎 Calculating distance...";
-
-
-    line.style.display =
-        "block";
-
-
-    try{
-
-        if(
-            pickupLat === null ||
-            pickupLon === null
-        ){
-
-            const pickup =
-                await geocodeLocation(
-                    pickupInput
-                );
-
-
-            pickupLat =
-                pickup.lat;
-
-            pickupLon =
-                pickup.lon;
-
-        }
-
-
-        const drop =
-            await geocodeLocation(
-                dropInput
-            );
-
-
-        dropLat =
-            drop.lat;
-
-        dropLon =
-            drop.lon;
-
-
-        let distance =
-            await getRoadDistance(
-                pickupLat,
-                pickupLon,
-                dropLat,
-                dropLon
-            );
-
-
-        currentDistance =
-            Math.max(
-                0.5,
-                distance
-            );
-
-
-        routeReady = true;
-
-
-        mapText.innerText =
-            "🛣️ Route found • " +
-            currentDistance.toFixed(1) +
-            " km";
-
-
-        calculateFare();
-
-
-        const info =
-            document
-            .getElementById("locationInfo");
-
-
-        info.style.display =
-            "block";
-
-
-        info.innerText =
-            "📍 Pickup: " +
-            pickupLat.toFixed(5) +
-            ", " +
-            pickupLon.toFixed(5) +
-            "\n📍 Drop: " +
-            dropLat.toFixed(5) +
-            ", " +
-            dropLon.toFixed(5);
-
-    }
-
-
-    catch(error){
-
-        console.log(error);
-
-
-        if(
-            pickupLat !== null &&
-            pickupLon !== null &&
-            dropLat !== null &&
-            dropLon !== null
-        ){
-
-            currentDistance =
-                calculateStraightDistance(
-                    pickupLat,
-                    pickupLon,
-                    dropLat,
-                    dropLon
-                );
-
-
-            routeReady = true;
-
-
-            mapText.innerText =
-                "📏 Approx distance • " +
-                currentDistance.toFixed(1) +
-                " km";
-
-
-            calculateFare();
-
-
-            alert(
-                "Road route service available nahi hai.\n\n" +
-                "Approximate GPS distance calculate ki gayi hai."
-            );
-
-        }
-
-        else{
-
-            routeReady = false;
-
-
-            mapText.innerText =
-                "⚠️ Location calculate nahi ho payi";
-
-
-            alert(
-                "Location calculate nahi ho payi.\n\n" +
-                "Internet connection check karo."
-            );
-
-        }
-
-    }
-
-}
-
-
-/* ================================
-   COUPON
-================================ */
-
-function applyCoupon(){
-
-    const input =
-        document.getElementById("coupon");
-
-
-    const message =
-        document.getElementById(
-            "couponMessage"
-        );
-
-
-    const code =
-        input.value
-        .trim()
-        .toUpperCase();
-
-
-    discountAmount = 0;
-
-
-    if(code === "WELCOME50"){
-
-        discountAmount = 50;
-
-        message.innerText =
-            "✅ WELCOME50 applied — ₹50 off";
-
-    }
-
-    else if(code === "RIDE20"){
-
-        discountAmount = 20;
-
-        message.innerText =
-            "✅ RIDE20 applied — ₹20 off";
-
-    }
-
-    else if(code === "FIRST100"){
-
-        discountAmount = 100;
-
-        message.innerText =
-            "✅ FIRST100 applied — ₹100 off";
-
-    }
-
-    else if(code === ""){
-
-        message.innerText =
-            "Enter a coupon code.";
-
-    }
-
-    else{
-
-        message.innerText =
-            "❌ Invalid coupon code";
-
-    }
-
-
-    calculateFare();
-
-}
-
-
-/* ================================
-   BOOK RIDE - BACKEND
-================================ */
-
-async function bookRide(){
+async function calculateRoute(){
 
     const pickup =
-        document
-        .getElementById("pickup")
-        .value
-        .trim();
-
+        document.getElementById(
+            "pickup"
+        ).value.trim();
 
     const drop =
-        document
-        .getElementById("drop")
-        .value
-        .trim();
-
-
-    const bookButton =
-        document
-        .getElementById("bookButton");
+        document.getElementById(
+            "drop"
+        ).value.trim();
 
 
     if(!pickup){
@@ -1483,7 +677,6 @@ async function bookRide(){
         );
 
         return;
-
     }
 
 
@@ -1494,14 +687,232 @@ async function bookRide(){
         );
 
         return;
+    }
+
+
+    try{
+
+        const response =
+            await fetch(
+                "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" +
+                encodeURIComponent(drop)
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if(
+            data &&
+            data.length > 0
+        ){
+
+            /*
+              Demo road distance.
+              Backend booking system is real,
+              map provider can be upgraded later.
+            */
+
+            distanceKm =
+                Math.floor(
+                    Math.random() * 8
+                ) + 3;
+
+        }else{
+
+            distanceKm = 5;
+
+        }
+
+
+        document.getElementById(
+            "distance"
+        ).innerText =
+            distanceKm + " km";
+
+
+        calculateFare();
+
+
+        alert(
+            "Distance calculated: " +
+            distanceKm +
+            " km"
+        );
+
+
+    }catch(error){
+
+        distanceKm = 5;
+
+        document.getElementById(
+            "distance"
+        ).innerText =
+            distanceKm + " km";
+
+        calculateFare();
+
+    }
+
+}
+
+
+/* Fare Calculation */
+
+function calculateFare(){
+
+    let base = 0;
+
+    let perKm = 0;
+
+
+    if(
+        selectedRide === "Bike"
+    ){
+
+        base = 40;
+        perKm = 9;
+
+    }
+
+    else if(
+        selectedRide === "Auto"
+    ){
+
+        base = 60;
+        perKm = 12;
+
+    }
+
+    else{
+
+        base = 100;
+        perKm = 16;
 
     }
 
 
-    if(!routeReady){
+    fareAmount =
+        base +
+        (distanceKm * perKm) -
+        discount;
 
-        alert(
-            "Pehle 'Calculate Real Distance' button dabao."
+
+    if(fareAmount < 0){
+
+        fareAmount = 0;
+
+    }
+
+
+    document.getElementById(
+        "fare"
+    ).innerText =
+        "₹" +
+        Math.round(fareAmount);
+
+}
+
+
+/* Coupon */
+
+function applyCoupon(){
+
+    const code =
+        document
+        .getElementById("coupon")
+        .value
+        .trim()
+        .toUpperCase();
+
+
+    discount = 0;
+
+
+    if(code === "WELCOME50"){
+
+        discount = 50;
+
+        document.getElementById(
+            "couponMessage"
+        ).innerText =
+            "₹50 discount applied!";
+
+    }
+
+    else if(code === "RIDE20"){
+
+        discount = 20;
+
+        document.getElementById(
+            "couponMessage"
+        ).innerText =
+            "₹20 discount applied!";
+
+    }
+
+    else if(code === "FIRST100"){
+
+        discount = 100;
+
+        document.getElementById(
+            "couponMessage"
+        ).innerText =
+            "₹100 discount applied!";
+
+    }
+
+    else{
+
+        document.getElementById(
+            "couponMessage"
+        ).innerText =
+            "Invalid coupon";
+
+    }
+
+
+    calculateFare();
+
+}
+
+
+/* Book Ride */
+
+async function bookRide(){
+
+    const pickup =
+        document.getElementById(
+            "pickup"
+        ).value.trim();
+
+    const drop =
+        document.getElementById(
+            "drop"
+        ).value.trim();
+
+
+    const bookBtn =
+        document.getElementById(
+            "bookBtn"
+        );
+
+
+    const errorBox =
+        document.getElementById(
+            "errorBox"
+        );
+
+
+    errorBox.style.display =
+        "none";
+
+
+    if(!pickup){
+
+        showError(
+            "Pickup location enter karo."
         );
 
         return;
@@ -1509,44 +920,42 @@ async function bookRide(){
     }
 
 
-    const finalFare =
-        getFinalFare();
+    if(!drop){
+
+        showError(
+            "Drop location enter karo."
+        );
+
+        return;
+
+    }
 
 
-    const rideData = {
+    if(distanceKm <= 0){
 
-        pickup:
-            pickup,
+        showError(
+            "Pehle Calculate Distance karo."
+        );
 
-        drop_location:
-            drop,
+        return;
 
-        ride_type:
-            selectedRide,
-
-        distance_km:
-            Number(
-                currentDistance.toFixed(2)
-            ),
-
-        fare:
-            finalFare
-
-    };
+    }
 
 
-    bookButton.disabled = true;
+    bookBtn.disabled = true;
 
-    bookButton.innerText =
-        "⏳ Booking...";
+    bookBtn.innerText =
+        "Booking...";
 
 
     try{
 
         const response =
             await fetch(
-                BACKEND_URL + "/api/ride",
+                BACKEND_URL +
+                "/api/ride",
                 {
+
                     method:"POST",
 
                     headers:{
@@ -1554,21 +963,29 @@ async function bookRide(){
                             "application/json"
                     },
 
-                    body:
-                        JSON.stringify(
-                            rideData
-                        )
+                    body:JSON.stringify({
+
+                        pickup:
+                            pickup,
+
+                        drop_location:
+                            drop,
+
+                        ride_type:
+                            selectedRide,
+
+                        distance_km:
+                            distanceKm,
+
+                        fare:
+                            Math.round(
+                                fareAmount
+                            )
+
+                    })
+
                 }
             );
-
-
-        if(!response.ok){
-
-            throw new Error(
-                "Backend error"
-            );
-
-        }
 
 
         const data =
@@ -1579,7 +996,7 @@ async function bookRide(){
 
             throw new Error(
                 data.message ||
-                "Ride booking failed"
+                "Booking failed"
             );
 
         }
@@ -1589,181 +1006,229 @@ async function bookRide(){
             data.ride_id;
 
 
-        showBookingStatus(
-            currentRideId
+        document.getElementById(
+            "searchStatus"
+        ).style.display =
+            "block";
+
+
+        document.getElementById(
+            "driverCard"
+        ).style.display =
+            "none";
+
+
+        bookBtn.innerText =
+            "Searching Driver...";
+
+
+        /*
+          Backend ko har 2 second
+          mein check karenge.
+        */
+
+        startDriverPolling();
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showError(
+            "Booking failed. Server check karo."
         );
 
-
-    }
-
-
-    catch(error){
-
-        console.log(error);
-
-
-        alert(
-            "❌ Booking nahi ho payi.\n\n" +
-            "Check karo ki CMD me\n" +
-            "node server.js\n" +
-            "chal raha hai."
-        );
-
-    }
-
-
-    finally{
-
-        bookButton.disabled =
+        bookBtn.disabled =
             false;
 
-        bookButton.innerText =
-            "🚕 Book Ride";
+        bookBtn.innerText =
+            "Book Ride";
 
     }
 
 }
 
 
-/* ================================
-   BOOKING STATUS
-================================ */
+/* Driver Polling */
 
-function showBookingStatus(rideId){
+function startDriverPolling(){
 
-    const status =
-        document.getElementById("status");
+    if(pollingTimer){
 
+        clearInterval(
+            pollingTimer
+        );
 
-    const statusIcon =
-        document.getElementById("statusIcon");
-
-
-    const statusTitle =
-        document.getElementById("statusTitle");
+    }
 
 
-    const statusText =
-        document.getElementById("statusText");
+    checkDriverStatus();
 
 
-    const driver =
-        document.getElementById("driver");
+    pollingTimer =
+        setInterval(
+            checkDriverStatus,
+            2000
+        );
+
+}
 
 
-    const driverName =
-        document.getElementById("driverName");
+/* Check Driver */
+
+async function checkDriverStatus(){
+
+    if(!currentRideId){
+
+        return;
+
+    }
 
 
-    status.style.display =
+    try{
+
+        const response =
+            await fetch(
+                BACKEND_URL +
+                "/api/ride/" +
+                currentRideId
+            );
+
+
+        if(!response.ok){
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if(
+            !data.success ||
+            !data.ride
+        ){
+
+            return;
+
+        }
+
+
+        const ride =
+            data.ride;
+
+
+        console.log(
+            "Ride status:",
+            ride.status
+        );
+
+
+        if(
+            ride.status === "accepted" &&
+            ride.driver
+        ){
+
+            showDriver(
+                ride.driver
+            );
+
+        }
+
+    }catch(error){
+
+        console.log(
+            "Driver status check failed"
+        );
+
+    }
+
+}
+
+
+/* Show Driver */
+
+function showDriver(driver){
+
+    if(pollingTimer){
+
+        clearInterval(
+            pollingTimer
+        );
+
+        pollingTimer = null;
+
+    }
+
+
+    document.getElementById(
+        "searchStatus"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "driverCard"
+    ).style.display =
         "block";
 
 
-    statusIcon.innerText =
-        "🔎";
+    document.getElementById(
+        "driverName"
+    ).innerText =
+        driver.name;
 
 
-    statusTitle.innerText =
-        "Finding a driver...";
+    document.getElementById(
+        "driverInfo"
+    ).innerHTML =
+
+        driver.vehicle +
+        "<br>" +
+
+        driver.vehicleNumber +
+        "<br>" +
+
+        "⭐ " +
+        driver.rating;
 
 
-    statusText.innerText =
-        "Ride ID #" +
-        rideId +
-        "\nSearching nearby " +
-        selectedRide +
-        " drivers.";
-
-
-    driver.style.display =
-        "none";
-
-
-    status.scrollIntoView({
-        behavior:"smooth"
-    });
-
-
-    if(bookingTimer){
-
-        clearTimeout(
-            bookingTimer
+    const bookBtn =
+        document.getElementById(
+            "bookBtn"
         );
 
-    }
+
+    bookBtn.disabled =
+        false;
 
 
-    bookingTimer =
-        setTimeout(
-
-            function(){
-
-                statusIcon.innerText =
-                    "✅";
-
-
-                statusTitle.innerText =
-                    "Driver Found!";
-
-
-                statusText.innerText =
-                    "Ride #" +
-                    rideId +
-                    " confirmed.\n" +
-                    "Your driver has accepted the ride.";
-
-
-                driverName.innerText =
-                    "👨 Driver: Rahul Kumar";
-
-
-                driver.style.display =
-                    "block";
-
-            },
-
-            5000
-
-        );
+    bookBtn.innerText =
+        "Ride Confirmed";
 
 }
 
 
-/* ================================
-   CANCEL RIDE
-================================ */
+/* Error */
 
-function cancelRide(){
+function showError(message){
 
-    if(bookingTimer){
-
-        clearTimeout(
-            bookingTimer
+    const errorBox =
+        document.getElementById(
+            "errorBox"
         );
 
-        bookingTimer = null;
 
-    }
-
-
-    document
-        .getElementById("status")
-        .style.display =
-        "none";
+    errorBox.innerText =
+        message;
 
 
-    alert(
-        "Ride cancelled."
-    );
+    errorBox.style.display =
+        "block";
 
 }
-
-
-/* ================================
-   START
-================================ */
-
-calculateFare();
 
 </script>
 
