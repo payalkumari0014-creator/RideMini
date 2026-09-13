@@ -1,5 +1,5 @@
-```html
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -138,7 +138,21 @@ button{
     padding:40px 15px;
     color:#777;
 }
+
+.loading{
+    text-align:center;
+    padding:25px;
+    color:#777;
+}
+
+.requestTime{
+    text-align:right;
+    color:#888;
+    font-size:12px;
+    margin-bottom:10px;
+}
 </style>
+
 </head>
 
 <body>
@@ -149,27 +163,44 @@ button{
 
 <div class="container">
 
-    <div class="profile">
-        <h2>👨‍✈️ Rahul Kumar</h2>
-        <p>🏍️ Bike • JH01AB1234</p>
-        <p>⭐ 4.8 Rating</p>
+```
+<div class="profile">
 
-        <div class="onlineBox">
-            <b id="onlineText">🟢 Online</b>
-            <button
-                class="toggle"
-                id="onlineBtn"
-                onclick="toggleOnline()">
-                Go Offline
-            </button>
-        </div>
+    <h2>👨‍✈️ Rahul Kumar</h2>
+
+    <p>🏍️ Bike • JH01AB1234</p>
+
+    <p>⭐ 4.8 Rating</p>
+
+    <div class="onlineBox">
+
+        <b id="onlineText">
+            🟢 Online
+        </b>
+
+        <button
+            class="toggle"
+            id="onlineBtn"
+            onclick="toggleOnline()">
+            Go Offline
+        </button>
+
     </div>
 
-    <div class="status" id="statusBox">
-        🔎 Looking for ride requests...
-    </div>
+</div>
 
-    <div id="rides"></div>
+
+<div class="status" id="statusBox">
+    🔎 Looking for ride requests...
+</div>
+
+
+<div id="rides">
+    <div class="loading">
+        🔎 Checking for rides...
+    </div>
+</div>
+```
 
 </div>
 
@@ -185,13 +216,26 @@ let isOnline = true;
 let activeRide = null;
 
 
-/* =========================
-   ONLINE / OFFLINE
-========================= */
+/*
+========================================
+LOCAL REQUEST CACHE
+========================================
+*/
+
+let pendingRides = new Map();
+
+let lastSuccessfulServerCheck = Date.now();
+
+
+/*
+========================================
+ONLINE / OFFLINE
+========================================
+*/
 
 async function toggleOnline(){
 
-    isOnline = !isOnline;
+    const newStatus = !isOnline;
 
     try{
 
@@ -203,7 +247,7 @@ async function toggleOnline(){
                     "Content-Type":"application/json"
                 },
                 body:JSON.stringify({
-                    online:isOnline
+                    online:newStatus
                 })
             }
         );
@@ -211,16 +255,33 @@ async function toggleOnline(){
         const data = await response.json();
 
         if(!data.success){
-            throw new Error(data.message);
+
+            throw new Error(
+                data.message || "Status update failed"
+            );
+
         }
+
+        isOnline = newStatus;
 
         updateOnlineUI();
 
+        if(isOnline){
+
+            loadRides();
+
+        }
+
     }catch(error){
 
-        alert("Driver status update failed");
+        console.log(
+            "Driver status error:",
+            error
+        );
 
-        isOnline = !isOnline;
+        alert(
+            "Driver status update failed"
+        );
 
     }
 }
@@ -234,233 +295,529 @@ function updateOnlineUI(){
     const button =
         document.getElementById("onlineBtn");
 
+
     if(isOnline){
 
-        text.innerText = "🟢 Online";
+        text.innerText =
+            "🟢 Online";
 
-        button.innerText = "Go Offline";
+        button.innerText =
+            "Go Offline";
 
         button.classList.remove("off");
 
     }else{
 
-        text.innerText = "⚫ Offline";
+        text.innerText =
+            "⚫ Offline";
 
-        button.innerText = "Go Online";
+        button.innerText =
+            "Go Online";
 
         button.classList.add("off");
 
-        document.getElementById("rides").innerHTML = "";
+        document.getElementById("rides").innerHTML = `
+            <div class="empty">
+                ⚫<br><br>
+                You are offline
+            </div>
+        `;
 
         document.getElementById("statusBox").innerText =
             "⚫ You are offline";
 
     }
+
 }
 
 
-/* =========================
-   LOAD RIDES
-========================= */
+/*
+========================================
+LOAD RIDES
+========================================
+*/
 
 async function loadRides(){
 
     if(!isOnline){
+
         return;
+
     }
+
 
     try{
 
         const response =
-            await fetch(`${BACKEND_URL}/api/rides`);
+            await fetch(
+                `${BACKEND_URL}/api/rides`,
+                {
+                    cache:"no-store"
+                }
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Server response error"
+            );
+
+        }
+
 
         const data =
             await response.json();
 
-        if(!data.success){
-            return;
-        }
 
-        const rides =
-            data.rides.filter(ride =>
-                ride.status === "searching" &&
-                ride.ride_type === "Bike"
+        if(!data.success){
+
+            throw new Error(
+                "Invalid server response"
             );
 
-        renderRides(rides);
+        }
+
+
+        /*
+        IMPORTANT:
+        Server successfully replied.
+        */
+
+        lastSuccessfulServerCheck =
+            Date.now();
+
+
+        const serverRides =
+            data.rides.filter(
+                ride =>
+                    ride.status === "searching" &&
+                    ride.ride_type === "Bike"
+            );
+
+
+        /*
+        Add / update rides in local cache
+        */
+
+        serverRides.forEach(
+            ride => {
+
+                pendingRides.set(
+                    ride.id,
+                    {
+                        ...ride,
+                        lastSeen:
+                            Date.now()
+                    }
+                );
+
+            }
+        );
+
+
+        /*
+        Remove rides that server has
+        explicitly changed from searching.
+        */
+
+        const serverRideMap =
+            new Map(
+                data.rides.map(
+                    ride => [
+                        ride.id,
+                        ride
+                    ]
+                )
+            );
+
+
+        for(
+            const [id, cachedRide]
+            of pendingRides
+        ){
+
+            const serverRide =
+                serverRideMap.get(id);
+
+
+            if(
+                serverRide &&
+                serverRide.status !== "searching"
+            ){
+
+                pendingRides.delete(id);
+
+            }
+
+        }
+
+
+        /*
+        If server temporarily returns
+        no searching rides, DON'T immediately
+        delete our visible request.
+        */
+
+        renderRides(
+            Array.from(
+                pendingRides.values()
+            )
+        );
+
 
     }catch(error){
 
-        console.log("Ride loading error:",error);
+        console.log(
+            "Ride loading error:",
+            error
+        );
+
+
+        /*
+        IMPORTANT FIX:
+
+        Temporary server/network error
+        ke time request ko remove nahi karenge.
+        */
+
+        if(pendingRides.size > 0){
+
+            document.getElementById(
+                "statusBox"
+            ).innerText =
+                "🔄 Reconnecting... Ride request محفوظ hai";
+
+            renderRides(
+                Array.from(
+                    pendingRides.values()
+                )
+            );
+
+        }else{
+
+            document.getElementById(
+                "statusBox"
+            ).innerText =
+                "🔄 Reconnecting to server...";
+
+        }
 
     }
+
 }
 
 
-/* =========================
-   SHOW RIDES
-========================= */
+/*
+========================================
+SHOW RIDES
+========================================
+*/
 
 function renderRides(rides){
 
     const box =
         document.getElementById("rides");
 
-    if(rides.length === 0){
 
-        if(!activeRide){
+    /*
+    ACTIVE RIDE
+    */
 
-            box.innerHTML = `
-                <div class="empty">
-                    🚕<br><br>
-                    No new ride requests
-                </div>
-            `;
-
-            document.getElementById("statusBox").innerText =
-                "🔎 Waiting for ride requests...";
-        }
+    if(activeRide){
 
         return;
+
     }
 
-    document.getElementById("statusBox").innerText =
-        `🚕 ${rides.length} new ride request`;
 
-    box.innerHTML = rides.map(ride => `
+    /*
+    NO RIDES
+    */
+
+    if(rides.length === 0){
+
+        box.innerHTML = `
+            <div class="empty">
+                🚕<br><br>
+                No new ride requests
+            </div>
+        `;
+
+        document.getElementById(
+            "statusBox"
+        ).innerText =
+            "🔎 Waiting for ride requests...";
+
+        return;
+
+    }
+
+
+    /*
+    RIDES AVAILABLE
+    */
+
+    document.getElementById(
+        "statusBox"
+    ).innerText =
+        `🚕 ${rides.length} new ride request${rides.length > 1 ? "s" : ""}`;
+
+
+    box.innerHTML =
+        rides.map(
+            ride => `
 
         <div class="ride">
 
-            <h3>🚕 New Ride #${ride.id}</h3>
+            <div class="requestTime">
+                🔔 New request
+            </div>
+
+            <h3>
+                🚕 New Ride #${ride.id}
+            </h3>
+
 
             <div class="location">
+
                 📍 <b>Pickup</b><br>
-                ${escapeHTML(ride.pickup)}
+
+                ${escapeHTML(
+                    ride.pickup
+                )}
+
             </div>
 
+
             <div class="location">
+
                 🏁 <b>Drop</b><br>
-                ${escapeHTML(ride.drop_location)}
+
+                ${escapeHTML(
+                    ride.drop_location
+                )}
+
             </div>
+
 
             <div class="info">
-                <span>📏 ${ride.distance_km} km</span>
-                <span>💰 ₹${ride.fare}</span>
+
+                <span>
+                    📏 ${ride.distance_km} km
+                </span>
+
+                <span>
+                    💰 ₹${ride.fare}
+                </span>
+
             </div>
+
 
             <button
                 class="accept"
                 onclick="acceptRide(${ride.id})">
+
                 ✅ Accept Ride
+
             </button>
+
 
             <button
                 class="reject"
                 onclick="rejectRide(${ride.id})">
+
                 ❌ Reject
+
             </button>
 
         </div>
 
-    `).join("");
+        `
+        ).join("");
+
 }
 
 
-/* =========================
-   ACCEPT
-========================= */
+/*
+========================================
+ACCEPT RIDE
+========================================
+*/
 
 async function acceptRide(rideId){
 
     try{
+
+        /*
+        Immediately stop showing
+        duplicate request.
+        */
 
         const response =
             await fetch(
                 `${BACKEND_URL}/api/ride/${rideId}/accept`,
                 {
                     method:"POST",
+
                     headers:{
                         "Content-Type":"application/json"
                     },
+
                     body:JSON.stringify({
                         driver_id:DRIVER_ID
                     })
                 }
             );
 
+
         const data =
             await response.json();
 
+
         if(!data.success){
 
-            alert(data.message);
+            alert(
+                data.message ||
+                "Ride accept failed"
+            );
+
+            loadRides();
 
             return;
+
         }
 
-        activeRide = data.ride;
+
+        /*
+        Remove from pending list
+        */
+
+        pendingRides.delete(
+            rideId
+        );
+
+
+        /*
+        Set active ride
+        */
+
+        activeRide =
+            data.ride;
+
 
         showActiveRide();
 
+
     }catch(error){
 
-        alert("Ride accept failed");
+        console.log(
+            "Accept error:",
+            error
+        );
+
+        alert(
+            "Ride accept failed. Internet/server check karo."
+        );
 
     }
+
 }
 
 
-/* =========================
-   ACTIVE RIDE
-========================= */
+/*
+========================================
+ACTIVE RIDE
+========================================
+*/
 
 function showActiveRide(){
 
     const box =
         document.getElementById("rides");
 
+
     box.innerHTML = `
 
         <div class="ride">
 
-            <h3>✅ Ride Accepted</h3>
+            <h3>
+                ✅ Ride Accepted
+            </h3>
+
 
             <div class="location">
+
                 📍 <b>Pickup</b><br>
-                ${escapeHTML(activeRide.pickup)}
+
+                ${escapeHTML(
+                    activeRide.pickup
+                )}
+
             </div>
 
+
             <div class="location">
+
                 🏁 <b>Drop</b><br>
-                ${escapeHTML(activeRide.drop_location)}
+
+                ${escapeHTML(
+                    activeRide.drop_location
+                )}
+
             </div>
+
 
             <div class="info">
-                <span>📏 ${activeRide.distance_km} km</span>
-                <span>💰 ₹${activeRide.fare}</span>
+
+                <span>
+                    📏 ${activeRide.distance_km} km
+                </span>
+
+                <span>
+                    💰 ₹${activeRide.fare}
+                </span>
+
             </div>
 
-            <p style="text-align:center;margin:15px 0;">
-                🚗 Driver is going to pickup
+
+            <p
+                style="
+                    text-align:center;
+                    margin:15px 0;
+                ">
+
+                🚗 Going to pickup location
+
             </p>
+
 
             <button
                 class="start"
                 onclick="startRide(${activeRide.id})">
+
                 🏍️ Start Ride
+
             </button>
 
         </div>
+
     `;
 
-    document.getElementById("statusBox").innerText =
+
+    document.getElementById(
+        "statusBox"
+    ).innerText =
         "🚕 Ride accepted";
+
 }
 
 
-/* =========================
-   START RIDE
-========================= */
+/*
+========================================
+START RIDE
+========================================
+*/
 
 async function startRide(rideId){
 
@@ -471,85 +828,147 @@ async function startRide(rideId){
                 `${BACKEND_URL}/api/ride/${rideId}/start`,
                 {
                     method:"POST",
+
                     headers:{
-                        "Content-Type":"application/json"
+                        "Content-Type":
+                            "application/json"
                     }
                 }
             );
 
+
         const data =
             await response.json();
 
+
         if(!data.success){
 
-            alert(data.message);
+            alert(
+                data.message ||
+                "Ride start failed"
+            );
 
             return;
+
         }
 
-        activeRide = data.ride;
+
+        activeRide =
+            data.ride;
+
 
         showStartedRide();
 
+
     }catch(error){
 
-        alert("Ride start failed");
+        console.log(
+            "Start error:",
+            error
+        );
+
+        alert(
+            "Ride start failed"
+        );
 
     }
+
 }
 
 
-/* =========================
-   STARTED RIDE
-========================= */
+/*
+========================================
+STARTED RIDE
+========================================
+*/
 
 function showStartedRide(){
 
     const box =
         document.getElementById("rides");
 
+
     box.innerHTML = `
 
         <div class="ride">
 
-            <h3>🏍️ Ride Started</h3>
+            <h3>
+                🏍️ Ride Started
+            </h3>
+
 
             <div class="location">
+
                 📍 <b>Pickup</b><br>
-                ${escapeHTML(activeRide.pickup)}
+
+                ${escapeHTML(
+                    activeRide.pickup
+                )}
+
             </div>
 
+
             <div class="location">
+
                 🏁 <b>Drop</b><br>
-                ${escapeHTML(activeRide.drop_location)}
+
+                ${escapeHTML(
+                    activeRide.drop_location
+                )}
+
             </div>
+
 
             <div class="info">
-                <span>📏 ${activeRide.distance_km} km</span>
-                <span>💰 ₹${activeRide.fare}</span>
+
+                <span>
+                    📏 ${activeRide.distance_km} km
+                </span>
+
+                <span>
+                    💰 ₹${activeRide.fare}
+                </span>
+
             </div>
 
-            <p style="text-align:center;margin:15px 0;">
-                🏍️ Passenger is on the way
+
+            <p
+                style="
+                    text-align:center;
+                    margin:15px 0;
+                ">
+
+                🏍️ Passenger ride in progress
+
             </p>
+
 
             <button
                 class="complete"
                 onclick="completeRide(${activeRide.id})">
+
                 🏁 Complete Ride
+
             </button>
 
         </div>
+
     `;
 
-    document.getElementById("statusBox").innerText =
+
+    document.getElementById(
+        "statusBox"
+    ).innerText =
         "🏍️ Ride in progress";
+
 }
 
 
-/* =========================
-   COMPLETE
-========================= */
+/*
+========================================
+COMPLETE RIDE
+========================================
+*/
 
 async function completeRide(rideId){
 
@@ -560,47 +979,92 @@ async function completeRide(rideId){
                 `${BACKEND_URL}/api/ride/${rideId}/complete`,
                 {
                     method:"POST",
+
                     headers:{
-                        "Content-Type":"application/json"
+                        "Content-Type":
+                            "application/json"
                     }
                 }
             );
 
+
         const data =
             await response.json();
 
+
         if(!data.success){
 
-            alert(data.message);
+            alert(
+                data.message ||
+                "Ride complete failed"
+            );
 
             return;
+
         }
 
-        activeRide = null;
 
-        document.getElementById("statusBox").innerText =
+        activeRide =
+            null;
+
+
+        document.getElementById(
+            "statusBox"
+        ).innerText =
             "🏁 Ride completed";
 
-        document.getElementById("rides").innerHTML = `
+
+        document.getElementById(
+            "rides"
+        ).innerHTML = `
+
             <div class="empty">
+
                 🏁<br><br>
+
                 Ride completed successfully!
+
                 <br><br>
-                Waiting for next ride...
+
+                🔎 Waiting for next ride...
+
             </div>
+
         `;
+
+
+        /*
+        Immediately check for
+        another ride.
+        */
+
+        setTimeout(
+            loadRides,
+            1000
+        );
+
 
     }catch(error){
 
-        alert("Ride complete failed");
+        console.log(
+            "Complete error:",
+            error
+        );
+
+        alert(
+            "Ride complete failed"
+        );
 
     }
+
 }
 
 
-/* =========================
-   REJECT
-========================= */
+/*
+========================================
+REJECT RIDE
+========================================
+*/
 
 async function rejectRide(rideId){
 
@@ -611,63 +1075,133 @@ async function rejectRide(rideId){
                 `${BACKEND_URL}/api/ride/${rideId}/reject`,
                 {
                     method:"POST",
+
                     headers:{
-                        "Content-Type":"application/json"
-                    }
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:JSON.stringify({
+                        driver_id:DRIVER_ID
+                    })
                 }
             );
+
 
         const data =
             await response.json();
 
+
         if(!data.success){
 
-            alert(data.message);
+            alert(
+                data.message ||
+                "Reject failed"
+            );
 
             return;
+
         }
+
+
+        /*
+        Remove only the rejected ride.
+        */
+
+        pendingRides.delete(
+            rideId
+        );
+
+
+        renderRides(
+            Array.from(
+                pendingRides.values()
+            )
+        );
+
 
         loadRides();
 
+
     }catch(error){
 
-        alert("Reject failed");
+        console.log(
+            "Reject error:",
+            error
+        );
+
+        alert(
+            "Reject failed"
+        );
 
     }
+
 }
 
 
-/* =========================
-   SECURITY
-========================= */
+/*
+========================================
+SECURITY
+========================================
+*/
 
 function escapeHTML(value){
 
     return String(value)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
 }
 
 
-/* =========================
-   AUTO REFRESH
-========================= */
+/*
+========================================
+AUTO REFRESH
+========================================
+*/
 
-setInterval(() => {
+setInterval(
+    () => {
 
-    if(!activeRide){
+        if(
+            isOnline &&
+            !activeRide
+        ){
 
-        loadRides();
+            loadRides();
 
-    }
+        }
 
-},3000);
+    },
+    3000
+);
 
 
-/* FIRST LOAD */
+/*
+========================================
+FIRST LOAD
+========================================
+*/
+
+updateOnlineUI();
 
 loadRides();
 
@@ -675,4 +1209,3 @@ loadRides();
 
 </body>
 </html>
-```
