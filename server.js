@@ -4,21 +4,14 @@ const cors = require("cors");
 
 const app = express();
 
-// Render ka PORT automatically use hoga
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Temporary ride storage
 let rides = [];
 let nextRideId = 1;
 
-
-// ===============================
-// HOME
-// ===============================
 app.get("/", (req, res) => {
     res.json({
         success: true,
@@ -27,10 +20,6 @@ app.get("/", (req, res) => {
     });
 });
 
-
-// ===============================
-// BOOK RIDE
-// ===============================
 app.post("/api/ride", (req, res) => {
 
     const {
@@ -41,7 +30,6 @@ app.post("/api/ride", (req, res) => {
         fare
     } = req.body;
 
-    // Required fields check
     if (!pickup || !drop_location || !ride_type) {
         return res.status(400).json({
             success: false,
@@ -49,7 +37,6 @@ app.post("/api/ride", (req, res) => {
         });
     }
 
-    // Create ride
     const ride = {
         id: nextRideId++,
         pickup: pickup,
@@ -74,10 +61,6 @@ app.post("/api/ride", (req, res) => {
     });
 });
 
-
-// ===============================
-// GET SINGLE RIDE
-// ===============================
 app.get("/api/ride/:id", (req, res) => {
 
     const id = Number(req.params.id);
@@ -97,10 +80,6 @@ app.get("/api/ride/:id", (req, res) => {
     });
 });
 
-
-// ===============================
-// GET ALL RIDES
-// ===============================
 app.get("/api/rides", (req, res) => {
 
     res.json({
@@ -110,10 +89,6 @@ app.get("/api/rides", (req, res) => {
     });
 });
 
-
-// ===============================
-// HEALTH CHECK
-// ===============================
 app.get("/health", (req, res) => {
 
     res.json({
@@ -122,10 +97,6 @@ app.get("/health", (req, res) => {
     });
 });
 
-
-// ===============================
-// START SERVER
-// ===============================
 app.listen(PORT, "0.0.0.0", () => {
 
     console.log("");
