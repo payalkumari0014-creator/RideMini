@@ -1,4 +1,4 @@
-```javascript
+
 const express = require("express");
 const cors = require("cors");
 
@@ -107,4 +107,3 @@ app.listen(PORT, "0.0.0.0", () => {
     console.log("Status: ONLINE");
     console.log("");
 });
-```
