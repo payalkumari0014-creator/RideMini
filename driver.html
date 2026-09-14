@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
 <title>RideMini Driver</title>
 
 <style>
+
 *{
     box-sizing:border-box;
     margin:0;
@@ -68,6 +75,11 @@ button{
     cursor:pointer;
 }
 
+button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
 .black{
     background:#000;
     color:#fff;
@@ -104,6 +116,27 @@ button{
 .pending{
     background:#fff4d6;
     color:#8a5a00;
+}
+
+.otp-box{
+    background:#f5f5f5;
+    padding:15px;
+    border-radius:14px;
+    margin-top:12px;
+}
+
+.demo-otp{
+    font-size:28px;
+    font-weight:bold;
+    text-align:center;
+    letter-spacing:6px;
+    margin:12px 0;
+}
+
+.timer{
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:10px;
 }
 
 .ride{
@@ -170,237 +203,298 @@ button{
     color:#777;
     word-break:break-all;
 }
+
 </style>
+
 </head>
 
 <body>
 
 <header>
-    🏍️ RideMini Driver
+🏍️ RideMini Driver
 </header>
 
 <div class="container">
 
-<!-- ========================= -->
-<!-- REGISTER -->
-<!-- ========================= -->
+
+<!-- ================================= -->
+<!-- REGISTRATION -->
+<!-- ================================= -->
 
 <div id="registerSection" class="card">
 
-    <h2>Driver Registration</h2>
+<h2>Driver Registration</h2>
 
-    <input
-        id="driverName"
-        type="text"
-        placeholder="Driver name"
-        autocomplete="name"
-    >
+<input
+    id="driverName"
+    type="text"
+    placeholder="Driver name"
+>
 
-    <input
-        id="driverPhone"
-        type="tel"
-        maxlength="10"
-        placeholder="10 digit mobile number"
-        inputmode="numeric"
-    >
+<input
+    id="driverPhone"
+    type="tel"
+    maxlength="10"
+    placeholder="10 digit mobile number"
+    inputmode="numeric"
+>
 
-    <select id="vehicleType">
-        <option value="Bike">🏍️ Bike</option>
-        <option value="Auto">🛺 Auto</option>
-        <option value="Cab">🚕 Cab</option>
-    </select>
+<select id="vehicleType">
 
-    <input
-        id="vehicleNumber"
-        type="text"
-        placeholder="Vehicle number e.g. JH01AB1234"
-        autocomplete="off"
-    >
+<option value="Bike">
+🏍️ Bike
+</option>
 
-    <button
-        id="registerButton"
-        class="black"
-        type="button"
-        onclick="registerDriver()"
-    >
-        Register Driver
-    </button>
+<option value="Auto">
+🛺 Auto
+</option>
 
-    <p
-        id="registerMessage"
-        style="margin-top:12px"
-    ></p>
+<option value="Cab">
+🚕 Cab
+</option>
+
+</select>
+
+<input
+    id="vehicleNumber"
+    type="text"
+    placeholder="Vehicle number e.g. JH01AB1234"
+>
+
+<button
+    id="sendOtpBtn"
+    class="black"
+    onclick="sendOTP()"
+>
+🔐 Send OTP
+</button>
+
+
+<div
+    id="otpSection"
+    class="otp-box hidden"
+>
+
+<h3>📱 Verify Mobile</h3>
+
+<p class="small">
+OTP has been sent for verification.
+</p>
+
+<div
+    id="demoOtp"
+    class="demo-otp"
+>
+------
+</div>
+
+<div
+    id="otpTimer"
+    class="timer"
+>
+OTP valid for 5:00
+</div>
+
+<input
+    id="otpInput"
+    type="tel"
+    maxlength="6"
+    placeholder="Enter 6 digit OTP"
+    inputmode="numeric"
+>
+
+<button
+    id="verifyOtpBtn"
+    class="black"
+    onclick="verifyOTP()"
+>
+✅ Verify OTP
+</button>
+
+<button
+    class="gray"
+    style="width:100%;margin-top:8px"
+    onclick="sendOTP()"
+>
+🔄 Resend OTP
+</button>
 
 </div>
 
 
-<!-- ========================= -->
+<p
+    id="registerMessage"
+    style="margin-top:12px"
+></p>
+
+</div>
+
+
+<!-- ================================= -->
 <!-- DRIVER APP -->
-<!-- ========================= -->
+<!-- ================================= -->
 
-<div id="driverSection" class="hidden">
-
-    <!-- PROFILE -->
-
-    <div class="card">
-
-        <h2>
-            👋 Hello <span id="displayName"></span>
-        </h2>
-
-        <p class="small">
-            Driver ID:
-            <b id="displayId"></b>
-        </p>
-
-        <p class="small">
-            Vehicle:
-            <b id="displayVehicle"></b>
-        </p>
-
-        <p class="small">
-            Number:
-            <b id="displayNumber"></b>
-        </p>
-
-        <div
-            id="approvalStatus"
-            class="status pending"
-            style="margin-top:12px"
-        >
-            Checking approval...
-        </div>
-
-    </div>
+<div
+    id="driverSection"
+    class="hidden"
+>
 
 
-    <!-- ONLINE -->
+<div class="card">
 
-    <div class="card">
+<h2>
+👋 Hello <span id="displayName"></span>
+</h2>
 
-        <h2>Driver Status</h2>
+<p class="small">
+Driver ID:
+<b id="displayId"></b>
+</p>
 
-        <div
-            id="onlineStatus"
-            class="status offline"
-        >
-            🔴 Offline
-        </div>
+<p class="small">
+Vehicle:
+<b id="displayVehicle"></b>
+</p>
 
-        <button
-            id="onlineBtn"
-            class="black"
-            type="button"
-            onclick="toggleOnline()"
-        >
-            🟢 Go Online
-        </button>
+<p class="small">
+Number:
+<b id="displayNumber"></b>
+</p>
 
-    </div>
+<div
+    id="approvalStatus"
+    class="status pending"
+    style="margin-top:12px"
+>
+Checking approval...
+</div>
 
-
-    <!-- GPS -->
-
-    <div class="card">
-
-        <h2>📍 Live Location</h2>
-
-        <div
-            id="gpsStatus"
-            class="status offline"
-        >
-            Location not started
-        </div>
-
-        <div
-            id="coordinates"
-            class="location"
-        >
-            Latitude: --<br>
-            Longitude: --
-        </div>
-
-    </div>
+</div>
 
 
-    <!-- REQUESTS -->
+<!-- ONLINE -->
 
-    <div class="card">
+<div class="card">
 
-        <h2>🔔 Ride Requests</h2>
+<h2>Driver Status</h2>
 
-        <div id="requests">
+<div
+    id="onlineStatus"
+    class="status offline"
+>
+🔴 Offline
+</div>
 
-            <p class="small">
-                Go online to receive ride requests.
-            </p>
+<button
+    id="onlineBtn"
+    class="black"
+    onclick="toggleOnline()"
+>
+🟢 Go Online
+</button>
 
-        </div>
-
-    </div>
-
-
-    <!-- ACTIVE RIDE -->
-
-    <div
-        id="activeRideSection"
-        class="card hidden"
-    >
-
-        <h2>🚕 Active Ride</h2>
-
-        <div id="activeRide"></div>
-
-    </div>
+</div>
 
 
-    <!-- EARNINGS -->
+<!-- GPS -->
 
-    <div class="card">
+<div class="card">
 
-        <h2>💰 Earnings</h2>
+<h2>📍 Live Location</h2>
 
-        <div
-            id="earnings"
-            class="earnings"
-        >
-            ₹0
-        </div>
+<div
+    id="gpsStatus"
+    class="status offline"
+>
+Location not started
+</div>
 
-        <p class="small">
-            Completed rides earnings
-        </p>
+<div
+    id="coordinates"
+    class="location"
+>
+Latitude: --<br>
+Longitude: --
+</div>
 
-    </div>
-
-
-    <!-- HISTORY -->
-
-    <div class="card">
-
-        <h2>📜 Ride History</h2>
-
-        <div id="history">
-            Loading...
-        </div>
-
-    </div>
+</div>
 
 
-    <!-- LOGOUT -->
+<!-- REQUESTS -->
 
-    <div class="card">
+<div class="card">
 
-        <button
-            class="gray"
-            style="width:100%"
-            type="button"
-            onclick="logoutDriver()"
-        >
-            Logout Driver
-        </button>
+<h2>🔔 Ride Requests</h2>
 
-    </div>
+<div id="requests">
+
+<p class="small">
+Go online to receive ride requests.
+</p>
+
+</div>
+
+</div>
+
+
+<!-- ACTIVE RIDE -->
+
+<div
+    id="activeRideSection"
+    class="card hidden"
+>
+
+<h2>🚕 Active Ride</h2>
+
+<div id="activeRide"></div>
+
+</div>
+
+
+<!-- EARNINGS -->
+
+<div class="card">
+
+<h2>💰 Earnings</h2>
+
+<div
+    id="earnings"
+    class="earnings"
+>
+₹0
+</div>
+
+<p class="small">
+Completed rides earnings
+</p>
+
+</div>
+
+
+<!-- HISTORY -->
+
+<div class="card">
+
+<h2>📜 Ride History</h2>
+
+<div id="history">
+Loading...
+</div>
+
+</div>
+
+
+<div class="card">
+
+<button
+    class="gray"
+    style="width:100%"
+    onclick="logoutDriver()"
+>
+Logout Driver
+</button>
+
+</div>
 
 </div>
 
@@ -409,14 +503,26 @@ button{
 
 <script>
 
-const API = "https://ridemini.onrender.com";
+const API =
+    "https://ridemini.onrender.com";
 
 let driver = null;
+
 let isOnline = false;
+
 let locationWatch = null;
+
 let requestInterval = null;
+
+let approvalInterval = null;
+
 let activeRide = null;
+
 let rejectedRides = new Set();
+
+let otpVerified = false;
+
+let otpTimerInterval = null;
 
 
 // ========================================
@@ -426,7 +532,9 @@ let rejectedRides = new Set();
 window.onload = async function(){
 
     const saved =
-        localStorage.getItem("ridemini_driver");
+        localStorage.getItem(
+            "ridemini_driver"
+        );
 
     if(!saved){
         return;
@@ -434,27 +542,348 @@ window.onload = async function(){
 
     try{
 
-        driver = JSON.parse(saved);
+        driver =
+            JSON.parse(saved);
 
         if(!driver || !driver.id){
-            throw new Error("Invalid saved driver");
+
+            throw new Error(
+                "Invalid driver"
+            );
+
         }
 
         showDriver();
 
+        loadSavedRide();
+
         await refreshDriver();
+
+        startApprovalPolling();
 
     }catch(error){
 
         console.log(error);
 
-        localStorage.removeItem("ridemini_driver");
-
-        driver = null;
+        localStorage.removeItem(
+            "ridemini_driver"
+        );
 
     }
 
 };
+
+
+// ========================================
+// SEND OTP
+// ========================================
+
+async function sendOTP(){
+
+    const phone =
+        document.getElementById(
+            "driverPhone"
+        ).value.trim();
+
+    const message =
+        document.getElementById(
+            "registerMessage"
+        );
+
+    if(!/^[6-9][0-9]{9}$/.test(phone)){
+
+        message.className = "error";
+
+        message.innerText =
+            "Enter valid 10 digit mobile number.";
+
+        return;
+
+    }
+
+
+    const btn =
+        document.getElementById(
+            "sendOtpBtn"
+        );
+
+    btn.disabled = true;
+
+    btn.innerText =
+        "Sending OTP...";
+
+
+    try{
+
+        const response =
+            await fetch(
+                API +
+                "/api/driver/send-otp",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:JSON.stringify({
+                        phone:phone
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if(!response.ok){
+
+            throw new Error(
+                data.error ||
+                "Unable to send OTP."
+            );
+
+        }
+
+
+        document
+            .getElementById(
+                "otpSection"
+            )
+            .classList.remove(
+                "hidden"
+            );
+
+
+        /*
+         * Demo OTP.
+         *
+         * Real SMS provider lagne ke baad
+         * ye display remove kar denge.
+         */
+
+        document
+            .getElementById(
+                "demoOtp"
+            )
+            .innerText =
+                data.demo_otp || "******";
+
+
+        message.className =
+            "success";
+
+        message.innerText =
+            "✅ OTP generated. Enter the OTP below.";
+
+
+        startOtpTimer(300);
+
+
+    }catch(error){
+
+        message.className =
+            "error";
+
+        message.innerText =
+            error.message;
+
+    }finally{
+
+        btn.disabled = false;
+
+        btn.innerText =
+            "🔐 Send OTP";
+
+    }
+
+}
+
+
+// ========================================
+// OTP TIMER
+// ========================================
+
+function startOtpTimer(seconds){
+
+    clearInterval(
+        otpTimerInterval
+    );
+
+    let remaining = seconds;
+
+
+    function update(){
+
+        const min =
+            Math.floor(
+                remaining / 60
+            );
+
+        const sec =
+            remaining % 60;
+
+
+        document
+            .getElementById(
+                "otpTimer"
+            )
+            .innerText =
+                "OTP valid for " +
+                min +
+                ":" +
+                String(sec).padStart(2,"0");
+
+
+        if(remaining <= 0){
+
+            clearInterval(
+                otpTimerInterval
+            );
+
+            document
+                .getElementById(
+                    "otpTimer"
+                )
+                .innerText =
+                    "⚠️ OTP expired";
+
+        }
+
+        remaining--;
+
+    }
+
+
+    update();
+
+    otpTimerInterval =
+        setInterval(
+            update,
+            1000
+        );
+
+}
+
+
+// ========================================
+// VERIFY OTP
+// ========================================
+
+async function verifyOTP(){
+
+    const phone =
+        document.getElementById(
+            "driverPhone"
+        ).value.trim();
+
+    const otp =
+        document.getElementById(
+            "otpInput"
+        ).value.trim();
+
+    const message =
+        document.getElementById(
+            "registerMessage"
+        );
+
+
+    if(!/^[0-9]{6}$/.test(otp)){
+
+        message.className =
+            "error";
+
+        message.innerText =
+            "Enter 6 digit OTP.";
+
+        return;
+
+    }
+
+
+    const btn =
+        document.getElementById(
+            "verifyOtpBtn"
+        );
+
+    btn.disabled = true;
+
+    btn.innerText =
+        "Verifying...";
+
+
+    try{
+
+        const response =
+            await fetch(
+                API +
+                "/api/driver/verify-otp",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:JSON.stringify({
+
+                        phone:phone,
+
+                        otp:otp
+
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if(!response.ok){
+
+            throw new Error(
+                data.error ||
+                "OTP verification failed."
+            );
+
+        }
+
+
+        otpVerified = true;
+
+
+        message.className =
+            "success";
+
+        message.innerText =
+            "✅ Mobile verified! Registering driver...";
+
+
+        await registerDriver();
+
+
+    }catch(error){
+
+        message.className =
+            "error";
+
+        message.innerText =
+            error.message;
+
+    }finally{
+
+        btn.disabled = false;
+
+        btn.innerText =
+            "✅ Verify OTP";
+
+    }
+
+}
 
 
 // ========================================
@@ -463,53 +892,46 @@ window.onload = async function(){
 
 async function registerDriver(){
 
-    const name =
-        document.getElementById("driverName")
-        .value
-        .trim();
-
-    const phone =
-        document.getElementById("driverPhone")
-        .value
-        .trim();
-
-    const vehicleType =
-        document.getElementById("vehicleType")
-        .value;
-
-    const vehicleNumber =
-        document.getElementById("vehicleNumber")
-        .value
-        .trim()
-        .toUpperCase();
-
-    const message =
-        document.getElementById("registerMessage");
-
-    const button =
-        document.getElementById("registerButton");
-
-
-    message.className = "";
-    message.innerText = "";
-
-
-    if(name.length < 2){
-
-        message.className = "error";
-        message.innerText =
-            "Please enter driver name.";
+    if(!otpVerified){
 
         return;
 
     }
 
 
-    if(!/^[6-9][0-9]{9}$/.test(phone)){
+    const name =
+        document.getElementById(
+            "driverName"
+        ).value.trim();
 
-        message.className = "error";
+    const phone =
+        document.getElementById(
+            "driverPhone"
+        ).value.trim();
+
+    const vehicleType =
+        document.getElementById(
+            "vehicleType"
+        ).value;
+
+    const vehicleNumber =
+        document.getElementById(
+            "vehicleNumber"
+        ).value.trim().toUpperCase();
+
+    const message =
+        document.getElementById(
+            "registerMessage"
+        );
+
+
+    if(name.length < 2){
+
+        message.className =
+            "error";
+
         message.innerText =
-            "Enter a valid 10 digit Indian mobile number.";
+            "Enter driver name.";
 
         return;
 
@@ -518,31 +940,29 @@ async function registerDriver(){
 
     if(!vehicleNumber){
 
-        message.className = "error";
+        message.className =
+            "error";
+
         message.innerText =
-            "Please enter vehicle number.";
+            "Enter vehicle number.";
 
         return;
 
     }
 
 
-    button.disabled = true;
-    button.innerText = "Registering...";
-
-    message.innerText = "Please wait...";
-
-
     try{
 
         const response =
             await fetch(
-                API + "/api/driver/register",
+                API +
+                "/api/driver/register",
                 {
                     method:"POST",
 
                     headers:{
-                        "Content-Type":"application/json"
+                        "Content-Type":
+                            "application/json"
                     },
 
                     body:JSON.stringify({
@@ -551,32 +971,26 @@ async function registerDriver(){
 
                         phone:phone,
 
-                        vehicle_type:vehicleType,
+                        vehicle_type:
+                            vehicleType,
 
-                        vehicle_number:vehicleNumber
+                        vehicle_number:
+                            vehicleNumber
 
                     })
                 }
             );
 
 
-        const text =
-            await response.text();
-
-        let data = {};
-
-        try{
-            data = JSON.parse(text);
-        }catch(e){
-            data = {};
-        }
+        const data =
+            await response.json();
 
 
         if(!response.ok){
 
             throw new Error(
                 data.error ||
-                "Driver registration failed."
+                "Registration failed."
             );
 
         }
@@ -585,13 +999,14 @@ async function registerDriver(){
         if(!data.driver){
 
             throw new Error(
-                "Server did not return driver details."
+                "Driver data missing."
             );
 
         }
 
 
-        driver = data.driver;
+        driver =
+            data.driver;
 
 
         localStorage.setItem(
@@ -600,43 +1015,25 @@ async function registerDriver(){
         );
 
 
-        message.className = "success";
+        message.className =
+            "success";
 
-        if(driver.status === "pending"){
-
-            message.innerText =
-                "✅ Registration successful. Waiting for approval.";
-
-        }else{
-
-            message.innerText =
-                "✅ Driver registration successful.";
-
-        }
+        message.innerText =
+            "✅ Registration successful!";
 
 
         showDriver();
 
-        await refreshDriver();
+        startApprovalPolling();
 
 
     }catch(error){
 
-        console.log(
-            "REGISTER ERROR:",
-            error
-        );
-
-        message.className = "error";
+        message.className =
+            "error";
 
         message.innerText =
-            error.message ||
-            "Registration failed.";
-
-    }finally{
-
-        button.disabled = false;
-        button.innerText = "Register Driver";
+            error.message;
 
     }
 
@@ -654,38 +1051,54 @@ function showDriver(){
     }
 
 
-    document.getElementById(
-        "registerSection"
-    ).classList.add("hidden");
+    document
+        .getElementById(
+            "registerSection"
+        )
+        .classList.add(
+            "hidden"
+        );
 
 
-    document.getElementById(
-        "driverSection"
-    ).classList.remove("hidden");
+    document
+        .getElementById(
+            "driverSection"
+        )
+        .classList.remove(
+            "hidden"
+        );
 
 
-    document.getElementById(
-        "displayName"
-    ).innerText =
-        driver.name || "";
+    document
+        .getElementById(
+            "displayName"
+        )
+        .innerText =
+            driver.name || "";
 
 
-    document.getElementById(
-        "displayId"
-    ).innerText =
-        driver.id || "";
+    document
+        .getElementById(
+            "displayId"
+        )
+        .innerText =
+            driver.id || "";
 
 
-    document.getElementById(
-        "displayVehicle"
-    ).innerText =
-        driver.vehicle_type || "";
+    document
+        .getElementById(
+            "displayVehicle"
+        )
+        .innerText =
+            driver.vehicle_type || "";
 
 
-    document.getElementById(
-        "displayNumber"
-    ).innerText =
-        driver.vehicle_number || "";
+    document
+        .getElementById(
+            "displayNumber"
+        )
+        .innerText =
+            driver.vehicle_number || "";
 
 
     updateApprovalUI();
@@ -697,6 +1110,50 @@ function showDriver(){
 
 
     loadHistory();
+
+}
+
+
+// ========================================
+// APPROVAL POLLING
+// ========================================
+
+function startApprovalPolling(){
+
+    clearInterval(
+        approvalInterval
+    );
+
+
+    refreshDriver();
+
+
+    approvalInterval =
+        setInterval(
+            async function(){
+
+                if(!driver){
+                    return;
+                }
+
+                if(
+                    driver.status ===
+                    "approved"
+                ){
+
+                    clearInterval(
+                        approvalInterval
+                    );
+
+                    return;
+
+                }
+
+                await refreshDriver();
+
+            },
+            2000
+        );
 
 }
 
@@ -733,7 +1190,12 @@ async function refreshDriver(){
 
         if(data.driver){
 
-            driver = data.driver;
+            const oldStatus =
+                driver.status;
+
+
+            driver =
+                data.driver;
 
 
             localStorage.setItem(
@@ -750,15 +1212,24 @@ async function refreshDriver(){
             );
 
 
-            if(driver.online === true){
+            if(
+                oldStatus === "pending"
+                &&
+                driver.status === "approved"
+            ){
+
+                alert(
+                    "🎉 Driver Approved! You can now Go Online."
+                );
+
+            }
+
+
+            if(driver.online){
 
                 startGPS();
+
                 startRideRequests();
-
-            }else{
-
-                stopGPS();
-                stopRideRequests();
 
             }
 
@@ -767,7 +1238,7 @@ async function refreshDriver(){
     }catch(error){
 
         console.log(
-            "Driver refresh error:",
+            "Refresh error:",
             error
         );
 
@@ -787,18 +1258,22 @@ function updateApprovalUI(){
             "approvalStatus"
         );
 
+
     if(!box || !driver){
         return;
     }
 
 
-    if(driver.status === "approved"){
+    if(
+        driver.status ===
+        "approved"
+    ){
 
         box.className =
             "status online";
 
         box.innerText =
-            "✅ Driver Approved";
+            "✅ Driver Approved — You can Go Online";
 
     }else{
 
@@ -806,7 +1281,7 @@ function updateApprovalUI(){
             "status pending";
 
         box.innerText =
-            "⏳ Approval Pending — Online होने के लिए admin approval जरूरी है";
+            "⏳ Approval Pending — Automatically approving after 2 minutes";
 
     }
 
@@ -814,7 +1289,7 @@ function updateApprovalUI(){
 
 
 // ========================================
-// ONLINE / OFFLINE
+// ONLINE
 // ========================================
 
 async function toggleOnline(){
@@ -824,10 +1299,13 @@ async function toggleOnline(){
     }
 
 
-    if(driver.status !== "approved"){
+    if(
+        driver.status !==
+        "approved"
+    ){
 
         alert(
-            "Driver अभी approved नहीं है. Admin approval के बाद Go Online कर सकते हो."
+            "⏳ Please wait for automatic approval."
         );
 
         return;
@@ -872,7 +1350,7 @@ async function toggleOnline(){
 
             throw new Error(
                 data.error ||
-                "Unable to change driver status."
+                "Unable to change status."
             );
 
         }
@@ -887,8 +1365,9 @@ async function toggleOnline(){
             newStatus;
 
 
-        isOnline =
-            newStatus;
+        setOnlineUI(
+            newStatus
+        );
 
 
         localStorage.setItem(
@@ -897,29 +1376,24 @@ async function toggleOnline(){
         );
 
 
-        setOnlineUI(
-            newStatus
-        );
-
-
         if(newStatus){
 
             startGPS();
+
             startRideRequests();
 
         }else{
 
             stopGPS();
+
             stopRideRequests();
 
         }
 
-
     }catch(error){
 
         alert(
-            error.message ||
-            "Unable to change status."
+            error.message
         );
 
     }
@@ -940,6 +1414,7 @@ function setOnlineUI(status){
         document.getElementById(
             "onlineStatus"
         );
+
 
     const button =
         document.getElementById(
@@ -975,17 +1450,12 @@ function setOnlineUI(status){
 
 
 // ========================================
-// GPS START
+// GPS
 // ========================================
 
 function startGPS(){
 
     if(!navigator.geolocation){
-
-        document.getElementById(
-            "gpsStatus"
-        ).innerText =
-            "GPS not supported by this browser.";
 
         return;
 
@@ -997,16 +1467,12 @@ function startGPS(){
     }
 
 
-    document.getElementById(
-        "gpsStatus"
-    ).className =
-        "status offline";
-
-
-    document.getElementById(
-        "gpsStatus"
-    ).innerText =
-        "📡 Starting GPS...";
+    document
+        .getElementById(
+            "gpsStatus"
+        )
+        .innerText =
+            "📡 Starting GPS...";
 
 
     locationWatch =
@@ -1021,21 +1487,27 @@ function startGPS(){
                     position.coords.longitude;
 
 
-                document.getElementById(
-                    "gpsStatus"
-                ).className =
-                    "status online";
+                document
+                    .getElementById(
+                        "gpsStatus"
+                    )
+                    .className =
+                        "status online";
 
 
-                document.getElementById(
-                    "gpsStatus"
-                ).innerText =
-                    "📍 GPS Active";
+                document
+                    .getElementById(
+                        "gpsStatus"
+                    )
+                    .innerText =
+                        "📍 GPS Active";
 
 
-                document.getElementById(
-                    "coordinates"
-                ).innerHTML =
+                document
+                    .getElementById(
+                        "coordinates"
+                    )
+                    .innerHTML =
 
                     "Latitude: <b>" +
                     lat.toFixed(6) +
@@ -1053,7 +1525,6 @@ function startGPS(){
 
             },
 
-
             function(error){
 
                 console.log(
@@ -1061,35 +1532,13 @@ function startGPS(){
                     error
                 );
 
-
-                document.getElementById(
-                    "gpsStatus"
-                ).className =
-                    "status offline";
-
-
-                if(error.code === 1){
-
-                    document.getElementById(
-                        "gpsStatus"
-                    ).innerText =
-                        "⚠️ GPS permission denied.";
-
-                }else{
-
-                    document.getElementById(
-                        "gpsStatus"
-                    ).innerText =
-                        "⚠️ Unable to get GPS location.";
-
-                }
-
             },
-
 
             {
                 enableHighAccuracy:true,
+
                 maximumAge:2000,
+
                 timeout:10000
             }
 
@@ -1113,18 +1562,6 @@ function stopGPS(){
         locationWatch = null;
 
     }
-
-
-    document.getElementById(
-        "gpsStatus"
-    ).className =
-        "status offline";
-
-
-    document.getElementById(
-        "gpsStatus"
-    ).innerText =
-        "Location stopped.";
 
 }
 
@@ -1162,14 +1599,12 @@ async function sendLocation(lat,lng){
                     lng:lng
 
                 })
-
             }
         );
 
     }catch(error){
 
         console.log(
-            "Location send error:",
             error
         );
 
@@ -1179,7 +1614,7 @@ async function sendLocation(lat,lng){
 
 
 // ========================================
-// START REQUEST POLLING
+// REQUEST POLLING
 // ========================================
 
 function startRideRequests(){
@@ -1197,10 +1632,6 @@ function startRideRequests(){
 }
 
 
-// ========================================
-// STOP REQUEST POLLING
-// ========================================
-
 function stopRideRequests(){
 
     if(requestInterval){
@@ -1216,10 +1647,6 @@ function stopRideRequests(){
 }
 
 
-// ========================================
-// CHECK RIDE REQUESTS
-// ========================================
-
 async function checkRideRequests(){
 
     if(!driver || !isOnline){
@@ -1229,14 +1656,10 @@ async function checkRideRequests(){
 
     try{
 
-        /*
-         * Current backend has /api/rides
-         * not /api/driver/:id/requests
-         */
-
         const response =
             await fetch(
-                API + "/api/rides"
+                API +
+                "/api/rides"
             );
 
 
@@ -1253,60 +1676,43 @@ async function checkRideRequests(){
             data.rides || [];
 
 
-        /*
-         * Only show rides matching
-         * driver's vehicle type.
-         */
+        rides =
+            rides.filter(
+                function(ride){
+
+                    return
+                        !ride.ride_type
+                        ||
+                        !driver.vehicle_type
+                        ||
+                        ride.ride_type
+                            .toLowerCase()
+                        ===
+                        driver.vehicle_type
+                            .toLowerCase();
+
+                }
+            );
+
 
         rides =
             rides.filter(
                 function(ride){
 
-                    if(
-                        ride.ride_type &&
-                        driver.vehicle_type
-                    ){
-
-                        return (
-                            ride.ride_type.toLowerCase()
-                            ===
-                            driver.vehicle_type.toLowerCase()
+                    return
+                        !rejectedRides.has(
+                            String(ride.id)
                         );
 
-                    }
-
-                    return true;
-
                 }
             );
 
 
-        /*
-         * Don't show rides rejected
-         * locally in this browser.
-         */
-
-        rides =
-            rides.filter(
-                function(ride){
-
-                    return !rejectedRides.has(
-                        String(ride.id)
-                    );
-
-                }
-            );
-
-
-        showRequests(
-            rides
-        );
-
+        showRequests(rides);
 
     }catch(error){
 
         console.log(
-            "Request error:",
             error
         );
 
@@ -1330,9 +1736,7 @@ function showRequests(rides){
     if(!rides.length){
 
         box.innerHTML =
-            "<p class='small'>" +
-            "No new ride requests." +
-            "</p>";
+            "<p class='small'>No new ride requests.</p>";
 
         return;
 
@@ -1355,67 +1759,49 @@ function showRequests(rides){
                 "ride";
 
 
-            const fare =
-                Number(
-                    ride.fare || 0
-                ).toFixed(0);
-
-
-            const distance =
-                Number(
-                    ride.distance_km || 0
-                ).toFixed(2);
-
-
             div.innerHTML =
 
                 "<h3>🔔 New Ride</h3>" +
 
-                "<p>" +
-                "<b>Pickup:</b><br>" +
+                "<p><b>Pickup:</b><br>" +
                 escapeHTML(
                     ride.pickup || "-"
                 ) +
                 "</p><br>" +
 
-                "<p>" +
-                "<b>Drop:</b><br>" +
+                "<p><b>Drop:</b><br>" +
                 escapeHTML(
                     ride.drop_location || "-"
                 ) +
                 "</p><br>" +
 
-                "<p>" +
-                "💰 Fare: <b>₹" +
-                fare +
-                "</b>" +
-                "</p>" +
+                "<p>💰 Fare: <b>₹" +
+                Number(
+                    ride.fare || 0
+                ).toFixed(0) +
+                "</b></p>" +
 
-                "<p>" +
-                "📏 Distance: " +
-                distance +
-                " km" +
-                "</p>" +
+                "<p>📏 Distance: " +
+                Number(
+                    ride.distance_km || 0
+                ).toFixed(2) +
+                " km</p>" +
 
                 "<div class='ride-buttons'>" +
 
-                "<button " +
-                "class='black' " +
-                "type='button' " +
-                "onclick='acceptRide(" +
-                ride.id +
-                ")'>" +
-                "Accept" +
-                "</button>" +
+                "<button class='black'
+                    onclick='acceptRide(" +
+                    ride.id +
+                    ")'>
+                    Accept
+                </button>" +
 
-                "<button " +
-                "class='gray' " +
-                "type='button' " +
-                "onclick='rejectRide(" +
-                ride.id +
-                ")'>" +
-                "Reject" +
-                "</button>" +
+                "<button class='gray'
+                    onclick='rejectRide(" +
+                    ride.id +
+                    ")'>
+                    Reject
+                </button>" +
 
                 "</div>";
 
@@ -1431,7 +1817,7 @@ function showRequests(rides){
 
 
 // ========================================
-// ACCEPT RIDE
+// ACCEPT
 // ========================================
 
 async function acceptRide(rideId){
@@ -1463,7 +1849,6 @@ async function acceptRide(rideId){
                             driver.id
 
                     })
-
                 }
             );
 
@@ -1492,24 +1877,23 @@ async function acceptRide(rideId){
         );
 
 
-        document.getElementById(
-            "activeRideSection"
-        ).classList.remove(
-            "hidden"
-        );
+        document
+            .getElementById(
+                "activeRideSection"
+            )
+            .classList.remove(
+                "hidden"
+            );
 
 
         renderActiveRide();
 
-
         checkRideRequests();
-
 
     }catch(error){
 
         alert(
-            error.message ||
-            "Unable to accept ride."
+            error.message
         );
 
     }
@@ -1518,15 +1902,10 @@ async function acceptRide(rideId){
 
 
 // ========================================
-// REJECT RIDE
+// REJECT
 // ========================================
 
 async function rejectRide(rideId){
-
-    if(!driver){
-        return;
-    }
-
 
     rejectedRides.add(
         String(rideId)
@@ -1554,15 +1933,12 @@ async function rejectRide(rideId){
                         driver.id
 
                 })
-
             }
         );
 
     }catch(error){
 
-        console.log(
-            error
-        );
+        console.log(error);
 
     }
 
@@ -1593,8 +1969,7 @@ function renderActiveRide(){
 
 
     html +=
-        "<p>" +
-        "<b>Pickup:</b><br>" +
+        "<p><b>Pickup:</b><br>" +
         escapeHTML(
             activeRide.pickup || "-"
         ) +
@@ -1602,8 +1977,7 @@ function renderActiveRide(){
 
 
     html +=
-        "<p>" +
-        "<b>Drop:</b><br>" +
+        "<p><b>Drop:</b><br>" +
         escapeHTML(
             activeRide.drop_location || "-"
         ) +
@@ -1611,42 +1985,29 @@ function renderActiveRide(){
 
 
     html +=
-        "<p>" +
-        "💰 Fare: <b>₹" +
+        "<p>💰 Fare: <b>₹" +
         Number(
             activeRide.fare || 0
         ).toFixed(0) +
-        "</b>" +
-        "</p><br>";
+        "</b></p><br>";
 
 
     html +=
-        "<p>" +
-        "📏 Distance: " +
-        Number(
-            activeRide.distance_km || 0
-        ).toFixed(2) +
-        " km" +
-        "</p><br>";
-
-
-    html +=
-        "<p>" +
-        "Status: <b>" +
+        "<p>Status: <b>" +
         escapeHTML(
             activeRide.status || "-"
         ) +
-        "</b>" +
-        "</p><br>";
+        "</b></p><br>";
 
 
-    if(activeRide.status === "accepted"){
+    if(
+        activeRide.status ===
+        "accepted"
+    ){
 
         html +=
-            "<button " +
-            "class='black' " +
+            "<button class='black' " +
             "style='width:100%' " +
-            "type='button' " +
             "onclick='startRide()'>" +
             "▶️ Start Ride" +
             "</button>";
@@ -1654,33 +2015,17 @@ function renderActiveRide(){
     }
 
 
-    if(activeRide.status === "started"){
-
-        html +=
-            "<button " +
-            "class='black' " +
-            "style='width:100%' " +
-            "type='button' " +
-            "onclick='completeRide()'>" +
-            "🏁 Complete Ride" +
-            "</button>";
-
-    }
-
-
     if(
-        activeRide.status === "completed"
-        ||
-        activeRide.status === "cancelled"
+        activeRide.status ===
+        "started"
     ){
 
         html +=
-            "<div class='info'>" +
-            "Ride " +
-            escapeHTML(
-                activeRide.status
-            ) +
-            "</div>";
+            "<button class='black' " +
+            "style='width:100%' " +
+            "onclick='completeRide()'>" +
+            "🏁 Complete Ride" +
+            "</button>";
 
     }
 
@@ -1724,7 +2069,6 @@ async function startRide(){
                             driver.id
 
                     })
-
                 }
             );
 
@@ -1755,12 +2099,10 @@ async function startRide(){
 
         renderActiveRide();
 
-
     }catch(error){
 
         alert(
-            error.message ||
-            "Unable to start ride."
+            error.message
         );
 
     }
@@ -1801,7 +2143,6 @@ async function completeRide(){
                             driver.id
 
                     })
-
                 }
             );
 
@@ -1831,7 +2172,6 @@ async function completeRide(){
 
         renderActiveRide();
 
-
         loadHistory();
 
 
@@ -1839,12 +2179,10 @@ async function completeRide(){
             "🏁 Ride completed successfully!"
         );
 
-
     }catch(error){
 
         alert(
-            error.message ||
-            "Unable to complete ride."
+            error.message
         );
 
     }
@@ -1853,7 +2191,7 @@ async function completeRide(){
 
 
 // ========================================
-// LOAD SAVED ACTIVE RIDE
+// SAVED RIDE
 // ========================================
 
 function loadSavedRide(){
@@ -1877,11 +2215,13 @@ function loadSavedRide(){
 
         if(activeRide){
 
-            document.getElementById(
-                "activeRideSection"
-            ).classList.remove(
-                "hidden"
-            );
+            document
+                .getElementById(
+                    "activeRideSection"
+                )
+                .classList.remove(
+                    "hidden"
+                );
 
 
             renderActiveRide();
@@ -1900,7 +2240,7 @@ function loadSavedRide(){
 
 
 // ========================================
-// LOAD HISTORY
+// HISTORY
 // ========================================
 
 async function loadHistory(){
@@ -1929,10 +2269,8 @@ async function loadHistory(){
 
         if(!response.ok){
 
-            box.innerHTML =
-                "<p class='small'>" +
-                "Unable to load history." +
-                "</p>";
+            box.innerText =
+                "Unable to load history.";
 
             return;
 
@@ -1950,23 +2288,21 @@ async function loadHistory(){
         if(!rides.length){
 
             box.innerHTML =
-                "<p class='small'>" +
-                "No completed rides yet." +
-                "</p>";
+                "<p class='small'>No completed rides yet.</p>";
 
-            document.getElementById(
-                "earnings"
-            ).innerText =
-                "₹0";
+            document
+                .getElementById(
+                    "earnings"
+                )
+                .innerText =
+                    "₹0";
 
             return;
 
         }
 
 
-        let total =
-            0;
-
+        let total = 0;
 
         box.innerHTML = "";
 
@@ -1987,7 +2323,7 @@ async function loadHistory(){
 
 
                 div.className =
-                    "history";
+                    "ride";
 
 
                 div.innerHTML =
@@ -2006,15 +2342,10 @@ async function loadHistory(){
                     ) +
                     "</span><br>" +
 
-                    "<span class='small'>" +
-                    "₹" +
+                    "<span class='small'>₹" +
                     Number(
                         ride.fare || 0
                     ).toFixed(0) +
-                    " • " +
-                    escapeHTML(
-                        ride.status || "-"
-                    ) +
                     "</span>";
 
 
@@ -2026,25 +2357,19 @@ async function loadHistory(){
         );
 
 
-        document.getElementById(
-            "earnings"
-        ).innerText =
-            "₹" +
-            total.toFixed(0);
-
+        document
+            .getElementById(
+                "earnings"
+            )
+            .innerText =
+                "₹" +
+                total.toFixed(0);
 
     }catch(error){
 
         console.log(
-            "History error:",
             error
         );
-
-
-        box.innerHTML =
-            "<p class='small'>" +
-            "Unable to load ride history." +
-            "</p>";
 
     }
 
@@ -2062,15 +2387,17 @@ function logoutDriver(){
             "Logout this driver?"
         )
     ){
-
         return;
-
     }
 
 
     stopGPS();
 
     stopRideRequests();
+
+    clearInterval(
+        approvalInterval
+    );
 
 
     localStorage.removeItem(
@@ -2083,51 +2410,13 @@ function logoutDriver(){
     );
 
 
-    driver = null;
-
-    activeRide = null;
-
-    isOnline = false;
-
-
-    document.getElementById(
-        "driverSection"
-    ).classList.add(
-        "hidden"
-    );
-
-
-    document.getElementById(
-        "registerSection"
-    ).classList.remove(
-        "hidden"
-    );
-
-
-    document.getElementById(
-        "driverName"
-    ).value = "";
-
-
-    document.getElementById(
-        "driverPhone"
-    ).value = "";
-
-
-    document.getElementById(
-        "vehicleNumber"
-    ).value = "";
-
-
-    document.getElementById(
-        "registerMessage"
-    ).innerText = "";
+    location.reload();
 
 }
 
 
 // ========================================
-// HTML SAFETY
+// ESCAPE HTML
 // ========================================
 
 function escapeHTML(value){
@@ -2140,13 +2429,6 @@ function escapeHTML(value){
         .replace(/'/g,"&#039;");
 
 }
-
-
-// ========================================
-// STARTUP
-// ========================================
-
-loadSavedRide();
 
 </script>
 
