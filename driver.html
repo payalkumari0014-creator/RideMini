@@ -1,9 +1,8 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>RideMini Driver</title>
 
@@ -47,6 +46,10 @@ h2{
     margin-bottom:15px;
 }
 
+h3{
+    margin-bottom:10px;
+}
+
 input,select{
     width:100%;
     padding:14px;
@@ -76,16 +79,6 @@ button{
     color:#111;
 }
 
-.green{
-    background:#111;
-    color:#fff;
-}
-
-.red{
-    background:#ddd;
-    color:#111;
-}
-
 .hidden{
     display:none!important;
 }
@@ -106,6 +99,11 @@ button{
 .offline{
     background:#eee;
     color:#555;
+}
+
+.pending{
+    background:#fff4d6;
+    color:#8a5a00;
 }
 
 .ride{
@@ -131,16 +129,13 @@ button{
     border-radius:12px;
     margin-top:10px;
     font-size:13px;
-}
-
-.history{
-    border-bottom:1px solid #eee;
-    padding:12px 0;
+    line-height:1.7;
 }
 
 .small{
     font-size:13px;
     color:#666;
+    line-height:1.6;
 }
 
 .success{
@@ -153,9 +148,27 @@ button{
     font-weight:bold;
 }
 
+.warning{
+    color:#9a6500;
+    font-weight:bold;
+}
+
 .earnings{
     font-size:30px;
     font-weight:bold;
+}
+
+.info{
+    background:#f5f5f5;
+    padding:12px;
+    border-radius:12px;
+    margin-top:10px;
+}
+
+.driver-id{
+    font-size:12px;
+    color:#777;
+    word-break:break-all;
 }
 </style>
 </head>
@@ -168,7 +181,10 @@ button{
 
 <div class="container">
 
-<!-- DRIVER REGISTER -->
+<!-- ========================= -->
+<!-- REGISTER -->
+<!-- ========================= -->
+
 <div id="registerSection" class="card">
 
     <h2>Driver Registration</h2>
@@ -177,6 +193,7 @@ button{
         id="driverName"
         type="text"
         placeholder="Driver name"
+        autocomplete="name"
     >
 
     <input
@@ -184,32 +201,26 @@ button{
         type="tel"
         maxlength="10"
         placeholder="10 digit mobile number"
+        inputmode="numeric"
     >
 
     <select id="vehicleType">
-
-        <option value="Bike">
-            🏍️ Bike
-        </option>
-
-        <option value="Auto">
-            🛺 Auto
-        </option>
-
-        <option value="Cab">
-            🚕 Cab
-        </option>
-
+        <option value="Bike">🏍️ Bike</option>
+        <option value="Auto">🛺 Auto</option>
+        <option value="Cab">🚕 Cab</option>
     </select>
 
     <input
         id="vehicleNumber"
         type="text"
         placeholder="Vehicle number e.g. JH01AB1234"
+        autocomplete="off"
     >
 
     <button
+        id="registerButton"
         class="black"
+        type="button"
         onclick="registerDriver()"
     >
         Register Driver
@@ -217,45 +228,54 @@ button{
 
     <p
         id="registerMessage"
-        style="margin-top:10px"
+        style="margin-top:12px"
     ></p>
 
 </div>
 
 
+<!-- ========================= -->
 <!-- DRIVER APP -->
-<div
-    id="driverSection"
-    class="hidden"
->
+<!-- ========================= -->
+
+<div id="driverSection" class="hidden">
 
     <!-- PROFILE -->
+
     <div class="card">
 
         <h2>
-            👋 Hello
-            <span id="displayName"></span>
+            👋 Hello <span id="displayName"></span>
         </h2>
 
         <p class="small">
             Driver ID:
-            <span id="displayId"></span>
+            <b id="displayId"></b>
         </p>
 
         <p class="small">
             Vehicle:
-            <span id="displayVehicle"></span>
+            <b id="displayVehicle"></b>
         </p>
 
         <p class="small">
             Number:
-            <span id="displayNumber"></span>
+            <b id="displayNumber"></b>
         </p>
+
+        <div
+            id="approvalStatus"
+            class="status pending"
+            style="margin-top:12px"
+        >
+            Checking approval...
+        </div>
 
     </div>
 
 
     <!-- ONLINE -->
+
     <div class="card">
 
         <h2>Driver Status</h2>
@@ -270,6 +290,7 @@ button{
         <button
             id="onlineBtn"
             class="black"
+            type="button"
             onclick="toggleOnline()"
         >
             🟢 Go Online
@@ -279,6 +300,7 @@ button{
 
 
     <!-- GPS -->
+
     <div class="card">
 
         <h2>📍 Live Location</h2>
@@ -301,7 +323,8 @@ button{
     </div>
 
 
-    <!-- RIDE REQUESTS -->
+    <!-- REQUESTS -->
+
     <div class="card">
 
         <h2>🔔 Ride Requests</h2>
@@ -309,7 +332,7 @@ button{
         <div id="requests">
 
             <p class="small">
-                No new ride requests.
+                Go online to receive ride requests.
             </p>
 
         </div>
@@ -318,6 +341,7 @@ button{
 
 
     <!-- ACTIVE RIDE -->
+
     <div
         id="activeRideSection"
         class="card hidden"
@@ -325,14 +349,13 @@ button{
 
         <h2>🚕 Active Ride</h2>
 
-        <div
-            id="activeRide"
-        ></div>
+        <div id="activeRide"></div>
 
     </div>
 
 
     <!-- EARNINGS -->
+
     <div class="card">
 
         <h2>💰 Earnings</h2>
@@ -344,10 +367,15 @@ button{
             ₹0
         </div>
 
+        <p class="small">
+            Completed rides earnings
+        </p>
+
     </div>
 
 
     <!-- HISTORY -->
+
     <div class="card">
 
         <h2>📜 Ride History</h2>
@@ -360,11 +388,13 @@ button{
 
 
     <!-- LOGOUT -->
+
     <div class="card">
 
         <button
             class="gray"
             style="width:100%"
+            type="button"
             onclick="logoutDriver()"
         >
             Logout Driver
@@ -379,100 +409,107 @@ button{
 
 <script>
 
-const API =
-    "https://ridemini.onrender.com";
+const API = "https://ridemini.onrender.com";
 
 let driver = null;
-
 let isOnline = false;
-
 let locationWatch = null;
-
 let requestInterval = null;
-
 let activeRide = null;
+let rejectedRides = new Set();
 
 
-// =================================
+// ========================================
 // PAGE LOAD
-// =================================
+// ========================================
 
-window.onload = function(){
+window.onload = async function(){
 
     const saved =
-        localStorage.getItem(
-            "ridemini_driver"
-        );
+        localStorage.getItem("ridemini_driver");
 
-    if(saved){
+    if(!saved){
+        return;
+    }
 
-        try{
+    try{
 
-            driver =
-                JSON.parse(saved);
+        driver = JSON.parse(saved);
 
-            showDriver();
-
-        }catch(error){
-
-            localStorage.removeItem(
-                "ridemini_driver"
-            );
-
+        if(!driver || !driver.id){
+            throw new Error("Invalid saved driver");
         }
+
+        showDriver();
+
+        await refreshDriver();
+
+    }catch(error){
+
+        console.log(error);
+
+        localStorage.removeItem("ridemini_driver");
+
+        driver = null;
 
     }
 
 };
 
 
-// =================================
+// ========================================
 // REGISTER DRIVER
-// =================================
+// ========================================
 
 async function registerDriver(){
 
     const name =
-        document.getElementById(
-            "driverName"
-        ).value.trim();
+        document.getElementById("driverName")
+        .value
+        .trim();
 
     const phone =
-        document.getElementById(
-            "driverPhone"
-        ).value.trim();
+        document.getElementById("driverPhone")
+        .value
+        .trim();
 
     const vehicleType =
-        document.getElementById(
-            "vehicleType"
-        ).value;
+        document.getElementById("vehicleType")
+        .value;
 
     const vehicleNumber =
-        document.getElementById(
-            "vehicleNumber"
-        ).value
+        document.getElementById("vehicleNumber")
+        .value
         .trim()
         .toUpperCase();
 
+    const message =
+        document.getElementById("registerMessage");
 
-    if(!name){
+    const button =
+        document.getElementById("registerButton");
 
-        alert(
-            "Please enter driver name"
-        );
+
+    message.className = "";
+    message.innerText = "";
+
+
+    if(name.length < 2){
+
+        message.className = "error";
+        message.innerText =
+            "Please enter driver name.";
 
         return;
 
     }
 
 
-    if(
-        !/^[6-9][0-9]{9}$/.test(phone)
-    ){
+    if(!/^[6-9][0-9]{9}$/.test(phone)){
 
-        alert(
-            "Invalid Indian mobile number"
-        );
+        message.className = "error";
+        message.innerText =
+            "Enter a valid 10 digit Indian mobile number.";
 
         return;
 
@@ -481,33 +518,31 @@ async function registerDriver(){
 
     if(!vehicleNumber){
 
-        alert(
-            "Please enter vehicle number"
-        );
+        message.className = "error";
+        message.innerText =
+            "Please enter vehicle number.";
 
         return;
 
     }
 
 
+    button.disabled = true;
+    button.innerText = "Registering...";
+
+    message.innerText = "Please wait...";
+
+
     try{
-
-        document.getElementById(
-            "registerMessage"
-        ).innerText =
-            "Registering...";
-
 
         const response =
             await fetch(
-                API +
-                "/api/driver/register",
+                API + "/api/driver/register",
                 {
                     method:"POST",
 
                     headers:{
-                        "Content-Type":
-                            "application/json"
+                        "Content-Type":"application/json"
                     },
 
                     body:JSON.stringify({
@@ -516,34 +551,47 @@ async function registerDriver(){
 
                         phone:phone,
 
-                        vehicle_type:
-                            vehicleType,
+                        vehicle_type:vehicleType,
 
-                        vehicle_number:
-                            vehicleNumber
+                        vehicle_number:vehicleNumber
 
                     })
-
                 }
             );
 
 
-        const data =
-            await response.json();
+        const text =
+            await response.text();
+
+        let data = {};
+
+        try{
+            data = JSON.parse(text);
+        }catch(e){
+            data = {};
+        }
 
 
         if(!response.ok){
 
             throw new Error(
                 data.error ||
-                "Registration failed"
+                "Driver registration failed."
             );
 
         }
 
 
-        driver =
-            data.driver;
+        if(!data.driver){
+
+            throw new Error(
+                "Server did not return driver details."
+            );
+
+        }
+
+
+        driver = data.driver;
 
 
         localStorage.setItem(
@@ -552,84 +600,100 @@ async function registerDriver(){
         );
 
 
+        message.className = "success";
+
+        if(driver.status === "pending"){
+
+            message.innerText =
+                "✅ Registration successful. Waiting for approval.";
+
+        }else{
+
+            message.innerText =
+                "✅ Driver registration successful.";
+
+        }
+
+
         showDriver();
+
+        await refreshDriver();
 
 
     }catch(error){
 
-        document.getElementById(
-            "registerMessage"
-        ).innerText =
-            error.message ||
-            "Registration failed";
+        console.log(
+            "REGISTER ERROR:",
+            error
+        );
 
-        document.getElementById(
-            "registerMessage"
-        ).className =
-            "error";
+        message.className = "error";
+
+        message.innerText =
+            error.message ||
+            "Registration failed.";
+
+    }finally{
+
+        button.disabled = false;
+        button.innerText = "Register Driver";
 
     }
 
 }
 
 
-// =================================
+// ========================================
 // SHOW DRIVER
-// =================================
+// ========================================
 
 function showDriver(){
 
+    if(!driver){
+        return;
+    }
+
+
     document.getElementById(
         "registerSection"
-    ).classList.add(
-        "hidden"
-    );
+    ).classList.add("hidden");
 
 
     document.getElementById(
         "driverSection"
-    ).classList.remove(
-        "hidden"
-    );
+    ).classList.remove("hidden");
 
 
     document.getElementById(
         "displayName"
     ).innerText =
-        driver.name;
+        driver.name || "";
 
 
     document.getElementById(
         "displayId"
     ).innerText =
-        driver.id;
+        driver.id || "";
 
 
     document.getElementById(
         "displayVehicle"
     ).innerText =
-        driver.vehicle_type;
+        driver.vehicle_type || "";
 
 
     document.getElementById(
         "displayNumber"
     ).innerText =
-        driver.vehicle_number;
+        driver.vehicle_number || "";
 
 
-    if(driver.online){
+    updateApprovalUI();
 
-        setOnlineUI(true);
 
-        startGPS();
-
-        startRideRequests();
-
-    }else{
-
-        setOnlineUI(false);
-
-    }
+    setOnlineUI(
+        driver.online === true
+    );
 
 
     loadHistory();
@@ -637,13 +701,134 @@ function showDriver(){
 }
 
 
-// =================================
+// ========================================
+// REFRESH DRIVER
+// ========================================
+
+async function refreshDriver(){
+
+    if(!driver || !driver.id){
+        return;
+    }
+
+
+    try{
+
+        const response =
+            await fetch(
+                API +
+                "/api/driver/" +
+                driver.id
+            );
+
+
+        if(!response.ok){
+            return;
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if(data.driver){
+
+            driver = data.driver;
+
+
+            localStorage.setItem(
+                "ridemini_driver",
+                JSON.stringify(driver)
+            );
+
+
+            updateApprovalUI();
+
+
+            setOnlineUI(
+                driver.online === true
+            );
+
+
+            if(driver.online === true){
+
+                startGPS();
+                startRideRequests();
+
+            }else{
+
+                stopGPS();
+                stopRideRequests();
+
+            }
+
+        }
+
+    }catch(error){
+
+        console.log(
+            "Driver refresh error:",
+            error
+        );
+
+    }
+
+}
+
+
+// ========================================
+// APPROVAL UI
+// ========================================
+
+function updateApprovalUI(){
+
+    const box =
+        document.getElementById(
+            "approvalStatus"
+        );
+
+    if(!box || !driver){
+        return;
+    }
+
+
+    if(driver.status === "approved"){
+
+        box.className =
+            "status online";
+
+        box.innerText =
+            "✅ Driver Approved";
+
+    }else{
+
+        box.className =
+            "status pending";
+
+        box.innerText =
+            "⏳ Approval Pending — Online होने के लिए admin approval जरूरी है";
+
+    }
+
+}
+
+
+// ========================================
 // ONLINE / OFFLINE
-// =================================
+// ========================================
 
 async function toggleOnline(){
 
     if(!driver){
+        return;
+    }
+
+
+    if(driver.status !== "approved"){
+
+        alert(
+            "Driver अभी approved नहीं है. Admin approval के बाद Go Online कर सकते हो."
+        );
 
         return;
 
@@ -672,11 +857,9 @@ async function toggleOnline(){
 
                     body:JSON.stringify({
 
-                        online:
-                            newStatus
+                        online:newStatus
 
                     })
-
                 }
             );
 
@@ -689,17 +872,22 @@ async function toggleOnline(){
 
             throw new Error(
                 data.error ||
-                "Unable to change status"
+                "Unable to change driver status."
             );
 
         }
 
 
-        isOnline =
-            newStatus;
+        driver =
+            data.driver ||
+            driver;
 
 
         driver.online =
+            newStatus;
+
+
+        isOnline =
             newStatus;
 
 
@@ -717,13 +905,11 @@ async function toggleOnline(){
         if(newStatus){
 
             startGPS();
-
             startRideRequests();
 
         }else{
 
             stopGPS();
-
             stopRideRequests();
 
         }
@@ -733,7 +919,7 @@ async function toggleOnline(){
 
         alert(
             error.message ||
-            "Unable to change status"
+            "Unable to change status."
         );
 
     }
@@ -741,21 +927,19 @@ async function toggleOnline(){
 }
 
 
-// =================================
+// ========================================
 // ONLINE UI
-// =================================
+// ========================================
 
 function setOnlineUI(status){
 
-    isOnline =
-        status;
+    isOnline = status;
 
 
     const box =
         document.getElementById(
             "onlineStatus"
         );
-
 
     const button =
         document.getElementById(
@@ -790,9 +974,9 @@ function setOnlineUI(status){
 }
 
 
-// =================================
-// GPS
-// =================================
+// ========================================
+// GPS START
+// ========================================
 
 function startGPS(){
 
@@ -801,7 +985,7 @@ function startGPS(){
         document.getElementById(
             "gpsStatus"
         ).innerText =
-            "GPS not supported";
+            "GPS not supported by this browser.";
 
         return;
 
@@ -809,10 +993,14 @@ function startGPS(){
 
 
     if(locationWatch){
-
         return;
-
     }
+
+
+    document.getElementById(
+        "gpsStatus"
+    ).className =
+        "status offline";
 
 
     document.getElementById(
@@ -868,27 +1056,41 @@ function startGPS(){
 
             function(error){
 
+                console.log(
+                    "GPS ERROR:",
+                    error
+                );
+
+
                 document.getElementById(
                     "gpsStatus"
                 ).className =
                     "status offline";
 
 
-                document.getElementById(
-                    "gpsStatus"
-                ).innerText =
-                    "GPS permission required";
+                if(error.code === 1){
+
+                    document.getElementById(
+                        "gpsStatus"
+                    ).innerText =
+                        "⚠️ GPS permission denied.";
+
+                }else{
+
+                    document.getElementById(
+                        "gpsStatus"
+                    ).innerText =
+                        "⚠️ Unable to get GPS location.";
+
+                }
 
             },
 
 
             {
                 enableHighAccuracy:true,
-
                 maximumAge:2000,
-
                 timeout:10000
-
             }
 
         );
@@ -896,9 +1098,9 @@ function startGPS(){
 }
 
 
-// =================================
+// ========================================
 // STOP GPS
-// =================================
+// ========================================
 
 function stopGPS(){
 
@@ -922,24 +1124,19 @@ function stopGPS(){
     document.getElementById(
         "gpsStatus"
     ).innerText =
-        "Location stopped";
+        "Location stopped.";
 
 }
 
 
-// =================================
+// ========================================
 // SEND LOCATION
-// =================================
+// ========================================
 
-async function sendLocation(
-    lat,
-    lng
-){
+async function sendLocation(lat,lng){
 
     if(!driver){
-
         return;
-
     }
 
 
@@ -972,7 +1169,7 @@ async function sendLocation(
     }catch(error){
 
         console.log(
-            "Location error",
+            "Location send error:",
             error
         );
 
@@ -981,9 +1178,9 @@ async function sendLocation(
 }
 
 
-// =================================
-// RIDE REQUESTS
-// =================================
+// ========================================
+// START REQUEST POLLING
+// ========================================
 
 function startRideRequests(){
 
@@ -1000,9 +1197,9 @@ function startRideRequests(){
 }
 
 
-// =================================
-// STOP REQUESTS
-// =================================
+// ========================================
+// STOP REQUEST POLLING
+// ========================================
 
 function stopRideRequests(){
 
@@ -1019,63 +1216,110 @@ function stopRideRequests(){
 }
 
 
-// =================================
-// CHECK REQUESTS
-// =================================
+// ========================================
+// CHECK RIDE REQUESTS
+// ========================================
 
 async function checkRideRequests(){
 
-    if(!driver ||
-       !isOnline){
-
+    if(!driver || !isOnline){
         return;
-
     }
 
 
     try{
 
+        /*
+         * Current backend has /api/rides
+         * not /api/driver/:id/requests
+         */
+
         const response =
             await fetch(
-                API +
-                "/api/driver/" +
-                driver.id +
-                "/requests"
+                API + "/api/rides"
             );
+
+
+        if(!response.ok){
+            return;
+        }
 
 
         const data =
             await response.json();
 
 
-        if(!response.ok){
+        let rides =
+            data.rides || [];
 
-            return;
 
-        }
+        /*
+         * Only show rides matching
+         * driver's vehicle type.
+         */
+
+        rides =
+            rides.filter(
+                function(ride){
+
+                    if(
+                        ride.ride_type &&
+                        driver.vehicle_type
+                    ){
+
+                        return (
+                            ride.ride_type.toLowerCase()
+                            ===
+                            driver.vehicle_type.toLowerCase()
+                        );
+
+                    }
+
+                    return true;
+
+                }
+            );
+
+
+        /*
+         * Don't show rides rejected
+         * locally in this browser.
+         */
+
+        rides =
+            rides.filter(
+                function(ride){
+
+                    return !rejectedRides.has(
+                        String(ride.id)
+                    );
+
+                }
+            );
 
 
         showRequests(
-            data.rides || []
+            rides
         );
 
 
     }catch(error){
 
-        console.log(error);
+        console.log(
+            "Request error:",
+            error
+        );
 
     }
 
 }
 
 
-// =================================
+// ========================================
 // SHOW REQUESTS
-// =================================
+// ========================================
 
-function showRequests(
-    rides
-){
+function showRequests(rides){
 
     const box =
         document.getElementById(
@@ -1111,44 +1355,66 @@ function showRequests(
                 "ride";
 
 
+            const fare =
+                Number(
+                    ride.fare || 0
+                ).toFixed(0);
+
+
+            const distance =
+                Number(
+                    ride.distance_km || 0
+                ).toFixed(2);
+
+
             div.innerHTML =
 
-                "<h3>🚕 New Ride</h3>" +
+                "<h3>🔔 New Ride</h3>" +
 
-                "<p><b>Pickup:</b><br>" +
-                ride.pickup +
+                "<p>" +
+                "<b>Pickup:</b><br>" +
+                escapeHTML(
+                    ride.pickup || "-"
+                ) +
                 "</p><br>" +
 
-                "<p><b>Drop:</b><br>" +
-                ride.drop_location +
+                "<p>" +
+                "<b>Drop:</b><br>" +
+                escapeHTML(
+                    ride.drop_location || "-"
+                ) +
                 "</p><br>" +
 
-                "<p>💰 Fare: <b>₹" +
-                (ride.fare || 0) +
-                "</b></p>" +
+                "<p>" +
+                "💰 Fare: <b>₹" +
+                fare +
+                "</b>" +
+                "</p>" +
 
-                "<p>📏 Distance: " +
-                (ride.distance_km || 0) +
-                " km</p>" +
+                "<p>" +
+                "📏 Distance: " +
+                distance +
+                " km" +
+                "</p>" +
 
                 "<div class='ride-buttons'>" +
 
-                "<button class='black' " +
-                "onclick=\"acceptRide(" +
+                "<button " +
+                "class='black' " +
+                "type='button' " +
+                "onclick='acceptRide(" +
                 ride.id +
-                ")\">" +
-
+                ")'>" +
                 "Accept" +
-
                 "</button>" +
 
-                "<button class='gray' " +
-                "onclick=\"rejectRide(" +
+                "<button " +
+                "class='gray' " +
+                "type='button' " +
+                "onclick='rejectRide(" +
                 ride.id +
-                ")\">" +
-
+                ")'>" +
                 "Reject" +
-
                 "</button>" +
 
                 "</div>";
@@ -1164,13 +1430,16 @@ function showRequests(
 }
 
 
-// =================================
+// ========================================
 // ACCEPT RIDE
-// =================================
+// ========================================
 
-async function acceptRide(
-    rideId
-){
+async function acceptRide(rideId){
+
+    if(!driver){
+        return;
+    }
+
 
     try{
 
@@ -1207,7 +1476,7 @@ async function acceptRide(
 
             throw new Error(
                 data.error ||
-                "Unable to accept ride"
+                "Unable to accept ride."
             );
 
         }
@@ -1215,6 +1484,12 @@ async function acceptRide(
 
         activeRide =
             data.ride;
+
+
+        localStorage.setItem(
+            "ridemini_active_ride",
+            JSON.stringify(activeRide)
+        );
 
 
         document.getElementById(
@@ -1234,7 +1509,7 @@ async function acceptRide(
 
         alert(
             error.message ||
-            "Unable to accept ride"
+            "Unable to accept ride."
         );
 
     }
@@ -1242,63 +1517,69 @@ async function acceptRide(
 }
 
 
-// =================================
+// ========================================
 // REJECT RIDE
-// =================================
+// ========================================
 
-async function rejectRide(
-    rideId
-){
+async function rejectRide(rideId){
+
+    if(!driver){
+        return;
+    }
+
+
+    rejectedRides.add(
+        String(rideId)
+    );
+
 
     try{
 
-        const response =
-            await fetch(
-                API +
-                "/api/ride/" +
-                rideId +
-                "/reject",
-                {
-                    method:"POST",
+        await fetch(
+            API +
+            "/api/ride/" +
+            rideId +
+            "/reject",
+            {
+                method:"POST",
 
-                    headers:{
-                        "Content-Type":
-                            "application/json"
-                    },
+                headers:{
+                    "Content-Type":
+                        "application/json"
+                },
 
-                    body:JSON.stringify({
+                body:JSON.stringify({
 
-                        driver_id:
-                            driver.id
+                    driver_id:
+                        driver.id
 
-                    })
+                })
 
-                }
-            );
-
-
-        checkRideRequests();
-
+            }
+        );
 
     }catch(error){
 
-        console.log(error);
+        console.log(
+            error
+        );
 
     }
+
+
+    checkRideRequests();
 
 }
 
 
-// =================================
+// ========================================
 // ACTIVE RIDE
-// =================================
+// ========================================
 
 function renderActiveRide(){
 
     if(!activeRide){
-
         return;
-
     }
 
 
@@ -1312,59 +1593,94 @@ function renderActiveRide(){
 
 
     html +=
-        "<p><b>Pickup:</b><br>" +
-        activeRide.pickup +
+        "<p>" +
+        "<b>Pickup:</b><br>" +
+        escapeHTML(
+            activeRide.pickup || "-"
+        ) +
         "</p><br>";
 
 
     html +=
-        "<p><b>Drop:</b><br>" +
-        activeRide.drop_location +
+        "<p>" +
+        "<b>Drop:</b><br>" +
+        escapeHTML(
+            activeRide.drop_location || "-"
+        ) +
         "</p><br>";
 
 
     html +=
-        "<p>💰 Fare: <b>₹" +
-        (activeRide.fare || 0) +
-        "</b></p><br>";
+        "<p>" +
+        "💰 Fare: <b>₹" +
+        Number(
+            activeRide.fare || 0
+        ).toFixed(0) +
+        "</b>" +
+        "</p><br>";
 
 
     html +=
-        "<p>Status: <b>" +
-        activeRide.status +
-        "</b></p><br>";
+        "<p>" +
+        "📏 Distance: " +
+        Number(
+            activeRide.distance_km || 0
+        ).toFixed(2) +
+        " km" +
+        "</p><br>";
 
 
-    if(
-        activeRide.status ===
-        "accepted"
-    ){
+    html +=
+        "<p>" +
+        "Status: <b>" +
+        escapeHTML(
+            activeRide.status || "-"
+        ) +
+        "</b>" +
+        "</p><br>";
+
+
+    if(activeRide.status === "accepted"){
 
         html +=
-            "<button class='black' " +
+            "<button " +
+            "class='black' " +
             "style='width:100%' " +
+            "type='button' " +
             "onclick='startRide()'>" +
-
             "▶️ Start Ride" +
+            "</button>";
 
+    }
+
+
+    if(activeRide.status === "started"){
+
+        html +=
+            "<button " +
+            "class='black' " +
+            "style='width:100%' " +
+            "type='button' " +
+            "onclick='completeRide()'>" +
+            "🏁 Complete Ride" +
             "</button>";
 
     }
 
 
     if(
-        activeRide.status ===
-        "started"
+        activeRide.status === "completed"
+        ||
+        activeRide.status === "cancelled"
     ){
 
         html +=
-            "<button class='black' " +
-            "style='width:100%' " +
-            "onclick='completeRide()'>" +
-
-            "🏁 Complete Ride" +
-
-            "</button>";
+            "<div class='info'>" +
+            "Ride " +
+            escapeHTML(
+                activeRide.status
+            ) +
+            "</div>";
 
     }
 
@@ -1375,16 +1691,14 @@ function renderActiveRide(){
 }
 
 
-// =================================
+// ========================================
 // START RIDE
-// =================================
+// ========================================
 
 async function startRide(){
 
-    if(!activeRide){
-
+    if(!activeRide || !driver){
         return;
-
     }
 
 
@@ -1416,5 +1730,425 @@ async function startRide(){
 
 
         const data =
-            await r
-```
+            await response.json();
+
+
+        if(!response.ok){
+
+            throw new Error(
+                data.error ||
+                "Unable to start ride."
+            );
+
+        }
+
+
+        activeRide =
+            data.ride;
+
+
+        localStorage.setItem(
+            "ridemini_active_ride",
+            JSON.stringify(activeRide)
+        );
+
+
+        renderActiveRide();
+
+
+    }catch(error){
+
+        alert(
+            error.message ||
+            "Unable to start ride."
+        );
+
+    }
+
+}
+
+
+// ========================================
+// COMPLETE RIDE
+// ========================================
+
+async function completeRide(){
+
+    if(!activeRide || !driver){
+        return;
+    }
+
+
+    try{
+
+        const response =
+            await fetch(
+                API +
+                "/api/ride/" +
+                activeRide.id +
+                "/complete",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:JSON.stringify({
+
+                        driver_id:
+                            driver.id
+
+                    })
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if(!response.ok){
+
+            throw new Error(
+                data.error ||
+                "Unable to complete ride."
+            );
+
+        }
+
+
+        activeRide =
+            data.ride;
+
+
+        localStorage.removeItem(
+            "ridemini_active_ride"
+        );
+
+
+        renderActiveRide();
+
+
+        loadHistory();
+
+
+        alert(
+            "🏁 Ride completed successfully!"
+        );
+
+
+    }catch(error){
+
+        alert(
+            error.message ||
+            "Unable to complete ride."
+        );
+
+    }
+
+}
+
+
+// ========================================
+// LOAD SAVED ACTIVE RIDE
+// ========================================
+
+function loadSavedRide(){
+
+    const saved =
+        localStorage.getItem(
+            "ridemini_active_ride"
+        );
+
+
+    if(!saved){
+        return;
+    }
+
+
+    try{
+
+        activeRide =
+            JSON.parse(saved);
+
+
+        if(activeRide){
+
+            document.getElementById(
+                "activeRideSection"
+            ).classList.remove(
+                "hidden"
+            );
+
+
+            renderActiveRide();
+
+        }
+
+    }catch(error){
+
+        localStorage.removeItem(
+            "ridemini_active_ride"
+        );
+
+    }
+
+}
+
+
+// ========================================
+// LOAD HISTORY
+// ========================================
+
+async function loadHistory(){
+
+    if(!driver){
+        return;
+    }
+
+
+    const box =
+        document.getElementById(
+            "history"
+        );
+
+
+    try{
+
+        const response =
+            await fetch(
+                API +
+                "/api/driver/" +
+                driver.id +
+                "/history"
+            );
+
+
+        if(!response.ok){
+
+            box.innerHTML =
+                "<p class='small'>" +
+                "Unable to load history." +
+                "</p>";
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const rides =
+            data.rides || [];
+
+
+        if(!rides.length){
+
+            box.innerHTML =
+                "<p class='small'>" +
+                "No completed rides yet." +
+                "</p>";
+
+            document.getElementById(
+                "earnings"
+            ).innerText =
+                "₹0";
+
+            return;
+
+        }
+
+
+        let total =
+            0;
+
+
+        box.innerHTML = "";
+
+
+        rides.forEach(
+            function(ride){
+
+                total +=
+                    Number(
+                        ride.fare || 0
+                    );
+
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                div.className =
+                    "history";
+
+
+                div.innerHTML =
+
+                    "<b>Ride #" +
+                    ride.id +
+                    "</b><br>" +
+
+                    "<span class='small'>" +
+                    escapeHTML(
+                        ride.pickup || "-"
+                    ) +
+                    " → " +
+                    escapeHTML(
+                        ride.drop_location || "-"
+                    ) +
+                    "</span><br>" +
+
+                    "<span class='small'>" +
+                    "₹" +
+                    Number(
+                        ride.fare || 0
+                    ).toFixed(0) +
+                    " • " +
+                    escapeHTML(
+                        ride.status || "-"
+                    ) +
+                    "</span>";
+
+
+                box.appendChild(
+                    div
+                );
+
+            }
+        );
+
+
+        document.getElementById(
+            "earnings"
+        ).innerText =
+            "₹" +
+            total.toFixed(0);
+
+
+    }catch(error){
+
+        console.log(
+            "History error:",
+            error
+        );
+
+
+        box.innerHTML =
+            "<p class='small'>" +
+            "Unable to load ride history." +
+            "</p>";
+
+    }
+
+}
+
+
+// ========================================
+// LOGOUT
+// ========================================
+
+function logoutDriver(){
+
+    if(
+        !confirm(
+            "Logout this driver?"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    stopGPS();
+
+    stopRideRequests();
+
+
+    localStorage.removeItem(
+        "ridemini_driver"
+    );
+
+
+    localStorage.removeItem(
+        "ridemini_active_ride"
+    );
+
+
+    driver = null;
+
+    activeRide = null;
+
+    isOnline = false;
+
+
+    document.getElementById(
+        "driverSection"
+    ).classList.add(
+        "hidden"
+    );
+
+
+    document.getElementById(
+        "registerSection"
+    ).classList.remove(
+        "hidden"
+    );
+
+
+    document.getElementById(
+        "driverName"
+    ).value = "";
+
+
+    document.getElementById(
+        "driverPhone"
+    ).value = "";
+
+
+    document.getElementById(
+        "vehicleNumber"
+    ).value = "";
+
+
+    document.getElementById(
+        "registerMessage"
+    ).innerText = "";
+
+}
+
+
+// ========================================
+// HTML SAFETY
+// ========================================
+
+function escapeHTML(value){
+
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+// ========================================
+// STARTUP
+// ========================================
+
+loadSavedRide();
+
+</script>
+
+</body>
+</html>
