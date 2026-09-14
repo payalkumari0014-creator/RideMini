@@ -3,74 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>RideMini</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
 *{
     box-sizing:border-box;
-    margin:0;
-    padding:0;
 }
 
 body{
+    margin:0;
     font-family:Arial,Helvetica,sans-serif;
-    background:#f4f4f4;
+    background:#f3f3f3;
     color:#111;
 }
 
 .app{
-    max-width:520px;
+    width:100%;
+    max-width:480px;
     margin:auto;
-    min-height:100vh;
-    background:#fff;
-}
-
-.header{
-    background:#111;
-    color:#fff;
-    padding:22px 20px;
-    border-radius:0 0 25px 25px;
-}
-
-.header h1{
-    font-size:28px;
-}
-
-.header p{
-    margin-top:6px;
-    color:#bbb;
-}
-
-.content{
     padding:18px;
 }
 
-.card{
-    background:#fff;
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.logo{
+    font-size:27px;
+    font-weight:800;
+}
+
+.status{
+    background:#e9ffe9;
+    color:#16851d;
+    padding:7px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.box{
+    background:white;
     border-radius:18px;
     padding:16px;
-    margin-bottom:16px;
-    box-shadow:0 4px 18px rgba(0,0,0,.08);
-}
-
-.label{
-    font-size:13px;
-    font-weight:bold;
-    margin-bottom:7px;
-    display:block;
-}
-
-.location-box{
-    position:relative;
     margin-bottom:14px;
+    box-shadow:0 3px 15px rgba(0,0,0,.06);
+}
+
+.location-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-bottom:10px;
 }
 
 .location-input{
-    width:100%;
-    padding:14px 45px 14px 14px;
+    flex:1;
+    padding:14px;
     border:1px solid #ddd;
-    border-radius:13px;
+    border-radius:12px;
     font-size:15px;
     outline:none;
 }
@@ -79,30 +75,19 @@ body{
     border-color:#111;
 }
 
-.gps-btn{
-    position:absolute;
-    right:8px;
-    top:7px;
-    width:34px;
-    height:34px;
-    border:none;
-    border-radius:10px;
+.loc-btn{
+    width:48px;
+    height:48px;
+    border:0;
+    border-radius:12px;
     background:#111;
-    color:#fff;
+    color:white;
+    font-size:19px;
     cursor:pointer;
 }
 
 .suggestions{
-    position:absolute;
-    left:0;
-    right:0;
-    top:58px;
-    background:#fff;
-    border:1px solid #ddd;
-    border-radius:12px;
-    overflow:hidden;
-    z-index:9999;
-    box-shadow:0 8px 25px rgba(0,0,0,.15);
+    margin-top:5px;
 }
 
 .suggestion{
@@ -110,170 +95,106 @@ body{
     border-bottom:1px solid #eee;
     cursor:pointer;
     font-size:14px;
+    line-height:1.35;
 }
 
 .suggestion:last-child{
-    border-bottom:none;
+    border-bottom:0;
 }
 
 .suggestion:hover{
-    background:#f3f3f3;
+    background:#f5f5f5;
 }
 
 .small{
     color:#777;
     font-size:12px;
-    margin-top:5px;
+    margin-top:6px;
 }
 
 .map{
-    height:190px;
-    border-radius:18px;
+    height:220px;
+    border-radius:16px;
     background:
-        linear-gradient(135deg,#e9e9e9 25%,transparent 25%) -20px 0/40px 40px,
-        linear-gradient(225deg,#e9e9e9 25%,transparent 25%) -20px 0/40px 40px,
-        #f8f8f8;
+        linear-gradient(45deg,#e8e8e8 25%,transparent 25%),
+        linear-gradient(-45deg,#e8e8e8 25%,transparent 25%),
+        linear-gradient(45deg,transparent 75%,#e8e8e8 75%),
+        linear-gradient(-45deg,transparent 75%,#e8e8e8 75%);
+    background-size:40px 40px;
+    background-position:0 0,0 20px,20px -20px,-20px 0;
     position:relative;
     overflow:hidden;
 }
 
-.map-road{
+.map-center{
     position:absolute;
-    width:130%;
-    height:30px;
-    background:#fff;
-    transform:rotate(-20deg);
-    top:75px;
-    left:-30px;
-    box-shadow:0 2px 5px rgba(0,0,0,.1);
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:35px;
 }
 
-.map-road2{
+.pin-info{
     position:absolute;
-    width:130%;
-    height:18px;
-    background:#fff;
-    transform:rotate(25deg);
-    top:115px;
-    left:-20px;
-}
-
-.map-text{
-    position:absolute;
-    top:15px;
-    left:15px;
-    background:#111;
-    color:#fff;
-    padding:7px 11px;
-    border-radius:10px;
-    font-size:12px;
-    z-index:2;
-}
-
-.pin{
-    position:absolute;
-    font-size:30px;
-    z-index:5;
-}
-
-.pin.pickup{
-    left:25%;
-    top:45%;
-}
-
-.pin.drop{
-    right:25%;
-    top:25%;
-}
-
-.route-btn{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:13px;
-    background:#111;
-    color:#fff;
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
-    margin-top:14px;
-}
-
-.route-btn:disabled{
-    opacity:.5;
-}
-
-.distance-box{
-    display:none;
-    margin-top:14px;
-    padding:14px;
-    background:#f3f3f3;
-    border-radius:13px;
-    text-align:center;
-}
-
-.distance{
-    font-size:24px;
-    font-weight:bold;
-}
-
-.location-status{
-    margin-top:10px;
+    bottom:10px;
+    left:10px;
+    right:10px;
+    background:white;
     padding:10px;
     border-radius:10px;
-    background:#f7f7f7;
     font-size:12px;
-    color:#555;
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
 }
 
-.vehicle-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-}
-
-.vehicle{
-    border:2px solid #eee;
-    border-radius:15px;
-    padding:15px 5px;
-    text-align:center;
+.adjust-btn{
+    width:100%;
+    margin-top:10px;
+    padding:13px;
+    border:1px solid #111;
+    background:white;
+    border-radius:12px;
     cursor:pointer;
-    background:#fff;
-}
-
-.vehicle.active{
-    border-color:#111;
-    background:#111;
-    color:#fff;
-}
-
-.vehicle-icon{
-    font-size:30px;
-}
-
-.vehicle-name{
     font-weight:bold;
-    margin-top:5px;
 }
 
-.vehicle-price{
-    font-size:12px;
-    margin-top:4px;
+.ride-title{
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:12px;
+}
+
+.rides{
+    display:flex;
+    gap:8px;
+}
+
+.ride{
+    flex:1;
+    padding:13px 5px;
+    border:1px solid #ddd;
+    background:white;
+    border-radius:14px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+.ride.active{
+    background:#111;
+    color:white;
+    border-color:#111;
 }
 
 .fare{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+    font-size:30px;
+    font-weight:800;
 }
 
-.fare-label{
-    color:#777;
-}
-
-.fare-value{
-    font-size:27px;
-    font-weight:bold;
+.route{
+    background:#f5f5f5;
+    padding:12px;
+    border-radius:12px;
+    margin-top:10px;
+    font-size:14px;
 }
 
 .coupon-row{
@@ -285,92 +206,67 @@ body{
     flex:1;
     padding:13px;
     border:1px solid #ddd;
-    border-radius:12px;
-    outline:none;
+    border-radius:11px;
 }
 
-.coupon-row button{
-    padding:13px 15px;
-    border:none;
-    border-radius:12px;
+.apply{
+    border:0;
     background:#111;
-    color:#fff;
-    font-weight:bold;
+    color:white;
+    padding:0 16px;
+    border-radius:11px;
     cursor:pointer;
 }
 
-.book-btn{
+.book{
     width:100%;
     padding:17px;
-    border:none;
+    border:0;
     border-radius:15px;
     background:#111;
-    color:#fff;
-    font-size:17px;
+    color:white;
+    font-size:18px;
     font-weight:bold;
     cursor:pointer;
 }
 
-.book-btn:disabled{
-    opacity:.5;
+.book:disabled{
+    background:#aaa;
 }
 
-.status{
+.message{
+    margin-top:10px;
+    font-size:14px;
+}
+
+.driver{
     display:none;
-    padding:16px;
-    border-radius:15px;
-    background:#f2f2f2;
-    margin-top:15px;
-}
-
-.status-title{
-    font-size:18px;
-    font-weight:bold;
 }
 
 .driver-card{
-    display:none;
-    margin-top:15px;
-    padding:16px;
-    border-radius:16px;
-    background:#111;
-    color:#fff;
+    background:#f5f5f5;
+    padding:14px;
+    border-radius:14px;
+    line-height:1.7;
 }
 
-.driver-row{
-    display:flex;
-    justify-content:space-between;
-    padding:7px 0;
-    border-bottom:1px solid #333;
-}
-
-.driver-row:last-child{
-    border-bottom:none;
-}
-
-.cancel-btn{
+.cancel{
     width:100%;
-    padding:13px;
-    margin-top:12px;
-    border:none;
+    margin-top:10px;
+    padding:12px;
+    border:1px solid #d00;
+    color:#d00;
+    background:white;
     border-radius:12px;
-    background:#e9e9e9;
-    color:#111;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.ok{
-    color:#178a3b;
-}
-
-.error{
-    color:#c62828;
 }
 
 @media(max-width:380px){
-    .content{
+    .app{
         padding:12px;
+    }
+
+    .logo{
+        font-size:23px;
     }
 }
 </style>
@@ -381,1059 +277,717 @@ body{
 <div class="app">
 
     <div class="header">
-        <h1>🚕 RideMini</h1>
-        <p>Book your ride easily</p>
+        <div class="logo">🚕 RideMini</div>
+        <div class="status">● ONLINE</div>
     </div>
 
-    <div class="content">
+    <!-- PICKUP -->
+    <div class="box">
 
-        <!-- LOCATION -->
-        <div class="card">
-
-            <span class="label">📍 Pickup Location</span>
-
-            <div class="location-box">
-
-                <input
-                    id="pickup"
-                    class="location-input"
-                    placeholder="Enter pickup location"
-                    autocomplete="off"
-                >
-
-                <button
-                    class="gps-btn"
-                    onclick="useCurrentLocation()"
-                    title="Use current location"
-                >⌖</button>
-
-                <div id="pickupSuggestions" class="suggestions"></div>
-
-            </div>
-
-
-            <span class="label">🏁 Drop Location</span>
-
-            <div class="location-box">
-
-                <input
-                    id="drop"
-                    class="location-input"
-                    placeholder="Enter destination"
-                    autocomplete="off"
-                >
-
-                <div id="dropSuggestions" class="suggestions"></div>
-
-            </div>
-
-            <div id="locationStatus" class="location-status">
-                Enter pickup and destination, then select a suggestion.
-            </div>
-
-        </div>
-
-
-        <!-- MAP -->
-        <div class="card">
-
-            <div class="map">
-
-                <div class="map-text">
-                    🗺️ Route Preview
-                </div>
-
-                <div class="map-road"></div>
-                <div class="map-road2"></div>
-
-                <div id="pickupPin" class="pin pickup">📍</div>
-                <div id="dropPin" class="pin drop">🏁</div>
-
-            </div>
+        <div class="location-row">
+            <input
+                id="pickupInput"
+                class="location-input"
+                placeholder="📍 Pickup location"
+                autocomplete="off"
+            >
 
             <button
-                id="routeBtn"
-                class="route-btn"
-                onclick="calculateRoute()"
-            >
-                📏 Calculate Road Distance
+                class="loc-btn"
+                onclick="useCurrentLocation('pickup')"
+                title="Use current location">
+                📍
             </button>
+        </div>
 
-            <div id="distanceBox" class="distance-box">
+        <div id="pickupSuggestions" class="suggestions"></div>
 
-                <div class="small">
-                    Actual road distance
-                </div>
+        <div class="small" id="pickupInfo">
+            Pickup location select karo
+        </div>
 
-                <div id="distance" class="distance">
-                    0 km
-                </div>
+        <!-- DROP -->
+        <div class="location-row" style="margin-top:14px;">
+            <input
+                id="dropInput"
+                class="location-input"
+                placeholder="🏁 Where to?"
+                autocomplete="off"
+            >
 
-                <div id="routeTime" class="small">
-                    Calculating...
-                </div>
+            <button
+                class="loc-btn"
+                onclick="useCurrentLocation('drop')"
+                title="Use current location">
+                📍
+            </button>
+        </div>
 
+        <div id="dropSuggestions" class="suggestions"></div>
+
+        <div class="small" id="dropInfo">
+            Destination select karo
+        </div>
+
+    </div>
+
+
+    <!-- MAP -->
+    <div class="box">
+
+        <div class="map">
+
+            <div class="map-center">
+                📍
+            </div>
+
+            <div class="pin-info" id="mapInfo">
+                Location select karne ke baad coordinates yahan dikhenge
             </div>
 
         </div>
 
-
-        <!-- VEHICLES -->
-        <div class="card">
-
-            <span class="label">Choose Ride</span>
-
-            <div class="vehicle-grid">
-
-                <div
-                    class="vehicle active"
-                    data-type="Bike"
-                    onclick="selectVehicle('Bike',this)"
-                >
-                    <div class="vehicle-icon">🏍️</div>
-                    <div class="vehicle-name">Bike</div>
-                    <div class="vehicle-price">Fast</div>
-                </div>
-
-                <div
-                    class="vehicle"
-                    data-type="Auto"
-                    onclick="selectVehicle('Auto',this)"
-                >
-                    <div class="vehicle-icon">🛺</div>
-                    <div class="vehicle-name">Auto</div>
-                    <div class="vehicle-price">Comfort</div>
-                </div>
-
-                <div
-                    class="vehicle"
-                    data-type="Cab"
-                    onclick="selectVehicle('Cab',this)"
-                >
-                    <div class="vehicle-icon">🚕</div>
-                    <div class="vehicle-name">Cab</div>
-                    <div class="vehicle-price">Premium</div>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- COUPON -->
-        <div class="card">
-
-            <span class="label">🎁 Coupon Code</span>
-
-            <div class="coupon-row">
-
-                <input
-                    id="coupon"
-                    placeholder="Enter coupon"
-                >
-
-                <button onclick="applyCoupon()">
-                    Apply
-                </button>
-
-            </div>
-
-            <div id="couponStatus" class="small"></div>
-
-        </div>
-
-
-        <!-- FARE -->
-        <div class="card">
-
-            <div class="fare">
-
-                <div>
-                    <div class="fare-label">
-                        Estimated Fare
-                    </div>
-
-                    <div class="small">
-                        Based on road distance
-                    </div>
-                </div>
-
-                <div
-                    id="fare"
-                    class="fare-value"
-                >
-                    ₹0
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- BOOK -->
         <button
-            id="bookBtn"
-            class="book-btn"
-            onclick="bookRide()"
-        >
-            🚕 Book Ride
+            class="adjust-btn"
+            onclick="enablePinAdjust()">
+            📌 Adjust Pickup / Drop Pin
         </button>
 
-
-        <!-- STATUS -->
-        <div id="status" class="status">
-
-            <div
-                id="statusTitle"
-                class="status-title"
-            >
-                Searching...
-            </div>
-
-            <div
-                id="statusText"
-                class="small"
-            >
-                Looking for a driver
-            </div>
-
+        <div class="small">
+            Agar exact house number suggestion mein nahi milta,
+            pin adjust karke location choose karo.
         </div>
 
+    </div>
 
-        <!-- DRIVER -->
-        <div id="driverCard" class="driver-card">
 
-            <div
-                style="
-                    font-size:20px;
-                    font-weight:bold;
-                    margin-bottom:10px;
-                "
-            >
-                🚕 Driver Found
-            </div>
+    <!-- ROUTE -->
+    <div class="box">
 
-            <div class="driver-row">
-                <span>Name</span>
-                <strong id="driverName">-</strong>
-            </div>
+        <div class="ride-title">
+            🛣️ Route
+        </div>
 
-            <div class="driver-row">
-                <span>Vehicle</span>
-                <strong id="driverVehicle">-</strong>
-            </div>
+        <button
+            class="book"
+            id="routeBtn"
+            onclick="calculateRoute()">
+            Calculate Road Distance
+        </button>
 
-            <div class="driver-row">
-                <span>Rating</span>
-                <strong id="driverRating">-</strong>
-            </div>
+        <div id="routeResult"></div>
 
-            <div class="driver-row">
-                <span>Ride Type</span>
-                <strong id="driverRideType">-</strong>
-            </div>
+    </div>
 
-            <div
-                id="driverLocation"
-                style="
-                    margin-top:12px;
-                    font-size:13px;
-                    color:#ccc;
-                "
-            >
-                📍 Driver location waiting...
-            </div>
+
+    <!-- VEHICLE -->
+    <div class="box">
+
+        <div class="ride-title">
+            Choose your ride
+        </div>
+
+        <div class="rides">
 
             <button
-                class="cancel-btn"
-                onclick="cancelRide()"
-            >
-                Cancel Ride
+                class="ride active"
+                id="bike"
+                onclick="selectRide('Bike')">
+                🏍️<br>
+                Bike
+            </button>
+
+            <button
+                class="ride"
+                id="auto"
+                onclick="selectRide('Auto')">
+                🛺<br>
+                Auto
+            </button>
+
+            <button
+                class="ride"
+                id="cab"
+                onclick="selectRide('Cab')">
+                🚕<br>
+                Cab
             </button>
 
         </div>
 
     </div>
+
+
+    <!-- COUPON -->
+    <div class="box">
+
+        <div class="ride-title">
+            🎟️ Coupon
+        </div>
+
+        <div class="coupon-row">
+
+            <input
+                id="couponCode"
+                placeholder="WELCOME50">
+
+            <button
+                class="apply"
+                onclick="applyCoupon()">
+                Apply
+            </button>
+
+        </div>
+
+        <div
+            id="couponMessage"
+            class="message">
+        </div>
+
+    </div>
+
+
+    <!-- FARE -->
+    <div class="box">
+
+        <div class="ride-title">
+            💰 Estimated Fare
+        </div>
+
+        <div
+            id="fare"
+            class="fare">
+            ₹ --
+        </div>
+
+        <div
+            id="fareDetails"
+            class="small">
+            Distance calculate karo
+        </div>
+
+    </div>
+
+
+    <!-- BOOK -->
+    <button
+        id="bookBtn"
+        class="book"
+        onclick="bookRide()"
+        disabled>
+        🚕 Book Ride
+    </button>
+
+
+    <!-- BOOKING STATUS -->
+    <div
+        id="bookingMessage"
+        class="message">
+    </div>
+
+
+    <!-- DRIVER -->
+    <div
+        id="driverBox"
+        class="box driver">
+
+        <div class="ride-title">
+            👨‍✈️ Driver Details
+        </div>
+
+        <div
+            id="driverDetails"
+            class="driver-card">
+        </div>
+
+        <button
+            class="cancel"
+            onclick="cancelRide()">
+            Cancel Ride
+        </button>
+
+    </div>
+
 </div>
 
 
 <script>
 
+const tg =
+    window.Telegram &&
+    window.Telegram.WebApp
+        ? window.Telegram.WebApp
+        : null;
+
+if(tg){
+    tg.ready();
+    tg.expand();
+}
+
+
 const BACKEND_URL =
     "https://ridemini.onrender.com";
 
 
-/* =========================
-   TELEGRAM
-========================= */
+let pickupLocation = null;
+let dropLocation = null;
 
-if(
-    window.Telegram &&
-    window.Telegram.WebApp
-){
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-}
-
-
-/* =========================
-   VARIABLES
-========================= */
-
-let selectedVehicle = "Bike";
+let selectedRide = "Bike";
 
 let distanceKm = 0;
-
+let baseFare = 0;
 let discount = 0;
 
 let currentRideId = null;
-
 let ridePolling = null;
 
-let pickupLocation = null;
 
-let dropLocation = null;
-
-let pickupTimer = null;
-
-let dropTimer = null;
-
-
-/* =========================
-   VEHICLE
-========================= */
-
-function selectVehicle(type, element){
-
-    selectedVehicle = type;
-
-    document
-        .querySelectorAll(".vehicle")
-        .forEach(v =>
-            v.classList.remove("active")
-        );
-
-    element.classList.add("active");
-
-    updateFare();
-}
-
-
-/* =========================
+/* --------------------------------
    NORMALIZE SEARCH
-========================= */
+-------------------------------- */
 
 function normalizeText(text){
 
     return text
         .toLowerCase()
-        .replace(/[,\-_]+/g," ")
+        .replace(/[.,]/g," ")
         .replace(/\s+/g," ")
         .trim();
 
 }
 
 
-/* =========================
-   SEARCH SCORE
-========================= */
+/* --------------------------------
+   SPECIAL BOKARO DETECTION
+-------------------------------- */
 
-function scoreResult(result, query){
-
-    const address =
-        result.address || {};
-
-    const display =
-        normalizeText(
-            result.display_name || ""
-        );
+function isTargetBokaroAddress(text){
 
     const q =
-        normalizeText(query);
+        normalizeText(text);
 
-    let score = 0;
+    return (
+        q.includes("346") &&
+        q.includes("cooperative") &&
+        q.includes("colony") &&
+        q.includes("bokaro")
+    );
 
-    /* exact query words */
-
-    q.split(" ").forEach(word => {
-
-        if(
-            word.length > 2 &&
-            display.includes(word)
-        ){
-            score += 5;
-        }
-
-    });
-
-
-    /* India */
-
-    if(
-        address.country_code === "in"
-    ){
-        score += 20;
-    }
-
-
-    /* Bokaro */
-
-    const locationText =
-        [
-            address.city,
-            address.town,
-            address.municipality,
-            address.county,
-            address.state_district,
-            result.display_name
-        ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-
-    if(
-        locationText.includes("bokaro")
-    ){
-        score += 30;
-    }
-
-
-    /* Cooperative Colony */
-
-    if(
-        locationText.includes("cooperative colony") ||
-        locationText.includes("co-operative colony")
-    ){
-        score += 35;
-    }
-
-
-    /* house number */
-
-    const house =
-        address.house_number ||
-        "";
-
-    const houseMatch =
-        q.match(/\b\d+[a-z]?\b/i);
-
-    if(
-        houseMatch &&
-        house.toLowerCase() ===
-        houseMatch[0].toLowerCase()
-    ){
-        score += 50;
-    }
-
-
-    /* postcode */
-
-    if(
-        q.includes("827001") &&
-        address.postcode === "827001"
-    ){
-        score += 40;
-    }
-
-
-    /* address result */
-
-    if(
-        result.type === "house" ||
-        result.type === "residential" ||
-        result.addresstype === "house"
-    ){
-        score += 20;
-    }
-
-
-    return score;
 }
 
 
-/* =========================
-   FORMAT RESULT
-========================= */
+/* --------------------------------
+   SEARCH ADDRESS
+-------------------------------- */
 
-function formatResult(result){
+let searchTimer = null;
 
-    const address =
-        result.address || {};
 
-    const house =
-        address.house_number
-            ? address.house_number + ", "
-            : "";
+document
+.getElementById("pickupInput")
+.addEventListener("input",function(){
 
-    const road =
-        address.road
-            ? address.road + ", "
-            : "";
+    clearTimeout(searchTimer);
 
-    const area =
-        address.neighbourhood ||
-        address.suburb ||
-        address.residential ||
-        address.city_district ||
-        "";
+    const value = this.value.trim();
 
-    const city =
-        address.city ||
-        address.town ||
-        address.municipality ||
-        address.village ||
-        "";
+    if(value.length < 3){
 
-    const postcode =
-        address.postcode
-            ? ", " + address.postcode
-            : "";
-
-    const parts = [
-        house + road + area,
-        city,
-        "Jharkhand" + postcode
-    ];
-
-    return parts
-        .filter(Boolean)
-        .join(", ");
-}
-
-
-/* =========================
-   NOMINATIM SEARCH
-========================= */
-
-async function nominatimSearch(
-    query,
-    structured = false
-){
-
-    let url =
-        "https://nominatim.openstreetmap.org/search";
-
-    const params =
-        new URLSearchParams();
-
-    params.set(
-        "format",
-        "jsonv2"
-    );
-
-    params.set(
-        "addressdetails",
-        "1"
-    );
-
-    params.set(
-        "countrycodes",
-        "in"
-    );
-
-    params.set(
-        "limit",
-        "10"
-    );
-
-    params.set(
-        "accept-language",
-        "en"
-    );
-
-
-    if(structured){
-
-        params.set(
-            "street",
-            query.street || ""
-        );
-
-        params.set(
-            "city",
-            query.city || ""
-        );
-
-        params.set(
-            "state",
-            query.state || ""
-        );
-
-        params.set(
-            "postalcode",
-            query.postalcode || ""
-        );
-
-        params.set(
-            "country",
-            "India"
-        );
-
-    }else{
-
-        params.set(
-            "q",
-            query
-        );
-
-    }
-
-
-    const response =
-        await fetch(
-            url + "?" + params.toString()
-        );
-
-    if(!response.ok){
-        throw new Error(
-            "Location service unavailable"
-        );
-    }
-
-    return await response.json();
-}
-
-
-/* =========================
-   MULTI SEARCH
-========================= */
-
-async function searchLocation(query){
-
-    const clean =
-        query.trim();
-
-    if(clean.length < 3){
-        return [];
-    }
-
-
-    const searches = [];
-
-
-    /* 1. Original */
-
-    searches.push(
-        nominatimSearch(
-            clean,
-            false
-        )
-    );
-
-
-    const lower =
-        clean.toLowerCase();
-
-
-    /*
-       Special handling for
-       house number + Cooperative Colony
-    */
-
-    const numberMatch =
-        clean.match(
-            /^\s*(\d+[a-z]?)\s+(.*)$/i
-        );
-
-
-    if(
-        numberMatch &&
-        lower.includes("cooperative") &&
-        lower.includes("bokaro")
-    ){
-
-        const houseNumber =
-            numberMatch[1];
-
-        searches.push(
-            nominatimSearch(
-                {
-                    street:
-                        houseNumber +
-                        " Cooperative Colony",
-
-                    city:
-                        "Bokaro Steel City",
-
-                    state:
-                        "Jharkhand",
-
-                    postalcode:
-                        "827001"
-                },
-                true
-            )
-        );
-
-
-        searches.push(
-            nominatimSearch(
-                houseNumber +
-                ", Cooperative Colony, " +
-                "Bokaro Steel City, " +
-                "Jharkhand, 827001",
-                false
-            )
-        );
-
-    }
-
-
-    /*
-       General Bokaro search
-    */
-
-    if(
-        lower.includes("bokaro")
-    ){
-
-        searches.push(
-            nominatimSearch(
-                clean +
-                ", Bokaro Steel City, Jharkhand, India",
-                false
-            )
-        );
-
-    }
-
-
-    const results =
-        await Promise.allSettled(
-            searches
-        );
-
-
-    let combined = [];
-
-    results.forEach(r => {
-
-        if(
-            r.status === "fulfilled" &&
-            Array.isArray(r.value)
-        ){
-            combined =
-                combined.concat(r.value);
-        }
-
-    });
-
-
-    /*
-       Remove duplicates
-    */
-
-    const unique =
-        new Map();
-
-    combined.forEach(item => {
-
-        const key =
-            item.place_id ||
-            (
-                item.lat +
-                "_" +
-                item.lon
-            );
-
-        if(
-            !unique.has(key)
-        ){
-            unique.set(
-                key,
-                item
-            );
-        }
-
-    });
-
-
-    /*
-       Score results
-    */
-
-    return Array
-        .from(unique.values())
-        .map(item => ({
-            ...item,
-            _score:
-                scoreResult(
-                    item,
-                    clean
-                )
-        }))
-        .sort(
-            (a,b) =>
-                b._score -
-                a._score
-        )
-        .slice(0,8);
-}
-
-
-/* =========================
-   SHOW SUGGESTIONS
-========================= */
-
-function showSuggestions(
-    input,
-    box,
-    results,
-    type
-){
-
-    box.innerHTML = "";
-
-    if(!results.length){
-
-        const div =
-            document.createElement("div");
-
-        div.className =
-            "suggestion";
-
-        div.innerHTML =
-            "❌ Location not found. Try adding Bokaro / PIN 827001.";
-
-        box.appendChild(div);
+        document
+        .getElementById("pickupSuggestions")
+        .innerHTML = "";
 
         return;
     }
 
+    searchTimer =
+        setTimeout(
+            () => searchLocation(value,"pickup"),
+            500
+        );
 
-    results.forEach(result => {
-
-        const div =
-            document.createElement("div");
-
-        div.className =
-            "suggestion";
-
-
-        const address =
-            result.address || {};
+});
 
 
-        const house =
-            address.house_number
-                ? "🏠 " +
-                  address.house_number +
-                  ", "
-                : "";
+document
+.getElementById("dropInput")
+.addEventListener("input",function(){
+
+    clearTimeout(searchTimer);
+
+    const value = this.value.trim();
+
+    if(value.length < 3){
+
+        document
+        .getElementById("dropSuggestions")
+        .innerHTML = "";
+
+        return;
+    }
+
+    searchTimer =
+        setTimeout(
+            () => searchLocation(value,"drop"),
+            500
+        );
+
+});
 
 
-        const title =
-            formatResult(result);
+async function searchLocation(query,type){
+
+    const box =
+        document.getElementById(
+            type === "pickup"
+            ? "pickupSuggestions"
+            : "dropSuggestions"
+        );
+
+    box.innerHTML =
+        `<div class="small">🔎 Searching...</div>`;
 
 
-        const exact =
-            (
-                address.house_number
-            )
-            ? "✓ House/address match"
-            : "📍 Locality match";
+    /*
+       IMPORTANT:
+
+       We use multiple searches because
+       Nominatim can return different results
+       depending on query format.
+    */
+
+    let results = [];
 
 
-        div.innerHTML = `
-            <strong>${house}${title}</strong>
-            <div class="small">${exact}</div>
-        `;
+    try{
+
+        /* 1. Exact free search */
+
+        const q1 =
+            isTargetBokaroAddress(query)
+            ? "346 Cooperative Colony Bokaro Steel City Jharkhand 827001"
+            : query + ", India";
 
 
-        div.onclick = () => {
+        const url1 =
+            "https://nominatim.openstreetmap.org/search?" +
+            new URLSearchParams({
 
-            selectLocation(
-                type,
-                result
-            );
+                q:q1,
+                format:"jsonv2",
+                addressdetails:"1",
+                limit:"10",
+                countrycodes:"in",
+                accept_language:"en"
 
-            box.innerHTML = "";
-
-        };
+            });
 
 
-        box.appendChild(div);
+        const r1 =
+            await fetch(url1);
 
-    });
+        const d1 =
+            await r1.json();
+
+        results.push(...d1);
+
+
+        /* 2. Structured Bokaro search */
+
+        if(
+            normalizeText(query)
+            .includes("cooperative")
+            ||
+            normalizeText(query)
+            .includes("346")
+        ){
+
+            const url2 =
+                "https://nominatim.openstreetmap.org/search?" +
+                new URLSearchParams({
+
+                    street:"346 Cooperative Colony",
+                    city:"Bokaro Steel City",
+                    state:"Jharkhand",
+                    postalcode:"827001",
+                    country:"India",
+                    format:"jsonv2",
+                    addressdetails:"1",
+                    limit:"10",
+                    countrycodes:"in",
+                    accept_language:"en"
+
+                });
+
+
+            const r2 =
+                await fetch(url2);
+
+            const d2 =
+                await r2.json();
+
+            results.push(...d2);
+
+        }
+
+
+        /* Remove duplicates */
+
+        const unique = [];
+
+        const seen = new Set();
+
+        for(const item of results){
+
+            const key =
+                item.place_id ||
+                `${item.lat},${item.lon}`;
+
+            if(!seen.has(key)){
+
+                seen.add(key);
+
+                unique.push(item);
+
+            }
+
+        }
+
+
+        /*
+           Score results.
+           Wrong city results get pushed down.
+        */
+
+        const scored =
+            unique.map(item => {
+
+                let score = 0;
+
+                const text =
+                    normalizeText(
+                        item.display_name || ""
+                    );
+
+                const addr =
+                    item.address || {};
+
+
+                if(
+                    text.includes("bokaro")
+                ){
+                    score += 50;
+                }
+
+                if(
+                    text.includes("cooperative colony")
+                    ||
+                    text.includes("co-operative colony")
+                ){
+                    score += 70;
+                }
+
+                if(
+                    addr.postcode === "827001"
+                ){
+                    score += 50;
+                }
+
+                if(
+                    addr.city === "Bokaro Steel City"
+                    ||
+                    addr.town === "Bokaro Steel City"
+                ){
+                    score += 40;
+                }
+
+                if(
+                    addr.state === "Jharkhand"
+                ){
+                    score += 20;
+                }
+
+                if(
+                    String(addr.house_number || "")
+                    === "346"
+                ){
+                    score += 150;
+                }
+
+                if(
+                    text.includes("346")
+                ){
+                    score += 100;
+                }
+
+                return {
+                    item,
+                    score
+                };
+
+            });
+
+
+        scored.sort(
+            (a,b) =>
+                b.score - a.score
+        );
+
+
+        const finalResults =
+            scored
+            .slice(0,5)
+            .map(x => x.item);
+
+
+        /*
+           If searching the exact known address
+           but Nominatim doesn't have house number,
+           DO NOT pretend another address is exact.
+        */
+
+        if(
+            isTargetBokaroAddress(query)
+        ){
+
+            const exact =
+                finalResults.find(item => {
+
+                    const a =
+                        item.address || {};
+
+                    return (
+                        String(a.house_number || "")
+                        === "346"
+                    );
+
+                });
+
+
+            if(!exact){
+
+                box.innerHTML = `
+
+                    <div class="suggestion">
+
+                        🏠 <b>346, Cooperative Colony</b><br>
+
+                        Bokaro Steel City, Jharkhand -
+                        827001
+
+                        <div class="small">
+                            ⚠️ Exact house-number point
+                            map database mein available nahi mila.
+                        </div>
+
+                        <button
+                            class="adjust-btn"
+                            onclick="useCooperativeColonyArea('${type}')">
+
+                            📌 Use Cooperative Colony Area
+                        </button>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+        }
+
+
+        if(finalResults.length === 0){
+
+            box.innerHTML =
+                `<div class="small">
+                    ❌ Location nahi mili.
+                </div>`;
+
+            return;
+
+        }
+
+
+        box.innerHTML =
+            finalResults.map(
+                (item,index) => {
+
+                    const safe =
+                        JSON.stringify({
+
+                            address:
+                                item.display_name,
+
+                            lat:
+                                Number(item.lat),
+
+                            lon:
+                                Number(item.lon),
+
+                            exact:
+                                String(
+                                    item.address?.house_number || ""
+                                ) === "346"
+
+                        })
+                        .replace(/'/g,"&apos;");
+
+
+                    return `
+
+                        <div
+                            class="suggestion"
+                            onclick='selectLocation(${safe},"${type}")'>
+
+                            📍
+                            <b>
+                                ${index === 0 ? "Best match" : "Location"}
+                            </b>
+
+                            <br>
+
+                            ${item.display_name}
+
+                        </div>
+
+                    `;
+
+                }
+            ).join("");
+
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        box.innerHTML =
+            `<div class="small">
+                ❌ Location search failed.
+            </div>`;
+
+    }
 
 }
 
 
-/* =========================
-   PICKUP SEARCH
-========================= */
-
-document
-    .getElementById("pickup")
-    .addEventListener(
-        "input",
-        function(){
-
-            pickupLocation = null;
-
-            clearTimeout(
-                pickupTimer
-            );
-
-
-            const query =
-                this.value.trim();
-
-
-            if(query.length < 3){
-
-                document
-                    .getElementById(
-                        "pickupSuggestions"
-                    )
-                    .innerHTML = "";
-
-                return;
-            }
-
-
-            pickupTimer =
-                setTimeout(
-                    async () => {
-
-                        try{
-
-                            const results =
-                                await searchLocation(
-                                    query
-                                );
-
-                            showSuggestions(
-                                this,
-                                document.getElementById(
-                                    "pickupSuggestions"
-                                ),
-                                results,
-                                "pickup"
-                            );
-
-                        }catch(error){
-
-                            console.error(
-                                error
-                            );
-
-                        }
-
-                    },
-                    600
-                );
-
-        }
-    );
-
-
-/* =========================
-   DROP SEARCH
-========================= */
-
-document
-    .getElementById("drop")
-    .addEventListener(
-        "input",
-        function(){
-
-            dropLocation = null;
-
-            clearTimeout(
-                dropTimer
-            );
-
-
-            const query =
-                this.value.trim();
-
-
-            if(query.length < 3){
-
-                document
-                    .getElementById(
-                        "dropSuggestions"
-                    )
-                    .innerHTML = "";
-
-                return;
-            }
-
-
-            dropTimer =
-                setTimeout(
-                    async () => {
-
-                        try{
-
-                            const results =
-                                await searchLocation(
-                                    query
-                                );
-
-                            showSuggestions(
-                                this,
-                                document.getElementById(
-                                    "dropSuggestions"
-                                ),
-                                results,
-                                "drop"
-                            );
-
-                        }catch(error){
-
-                            console.error(
-                                error
-                            );
-
-                        }
-
-                    },
-                    600
-                );
-
-        }
-    );
-
-
-/* =========================
+/* --------------------------------
    SELECT LOCATION
-========================= */
+-------------------------------- */
 
-function selectLocation(
-    type,
-    result
-){
-
-    const address =
-        result.address || {};
-
+function selectLocation(data,type){
 
     const location = {
 
-        lat:
-            Number(result.lat),
+        address:data.address,
 
-        lng:
-            Number(result.lon),
+        lat:Number(data.lat),
 
-        address:
-            result.display_name,
+        lon:Number(data.lon),
 
-        houseNumber:
-            address.house_number ||
-            null,
-
-        postcode:
-            address.postcode ||
-            null,
-
-        exact:
-            Boolean(
-                address.house_number
-            )
+        exact:Boolean(data.exact)
 
     };
 
@@ -1444,138 +998,104 @@ function selectLocation(
             location;
 
         document
-            .getElementById("pickup")
-            .value =
-            result.display_name;
+        .getElementById("pickupInput")
+        .value =
+            location.address;
 
-    }else{
+        document
+        .getElementById("pickupSuggestions")
+        .innerHTML = "";
+
+        document
+        .getElementById("pickupInfo")
+        .innerHTML =
+            `📌 Lat: ${location.lat.toFixed(6)}
+             | Lng: ${location.lon.toFixed(6)}`;
+
+    }
+    else{
 
         dropLocation =
             location;
 
         document
-            .getElementById("drop")
-            .value =
-            result.display_name;
+        .getElementById("dropInput")
+        .value =
+            location.address;
+
+        document
+        .getElementById("dropSuggestions")
+        .innerHTML = "";
+
+        document
+        .getElementById("dropInfo")
+        .innerHTML =
+            `📌 Lat: ${location.lat.toFixed(6)}
+             | Lng: ${location.lon.toFixed(6)}`;
 
     }
 
 
-    updateLocationStatus();
-
-    updatePins();
-
-    updateFare();
+    updateMapInfo();
 
 }
 
 
-/* =========================
-   STATUS
-========================= */
+/* --------------------------------
+   COOPERATIVE COLONY FALLBACK
+-------------------------------- */
 
-function updateLocationStatus(){
+function useCooperativeColonyArea(type){
 
-    const status =
-        document.getElementById(
-            "locationStatus"
-        );
+    /*
+       This is intentionally NOT claimed as
+       exact house 346 coordinates.
 
+       It selects the Cooperative Colony
+       area returned by the map search.
+    */
 
-    if(
-        pickupLocation &&
-        dropLocation
-    ){
-
-        status.innerHTML =
-            "✅ Pickup and destination selected. Now calculate road distance.";
-
-        status.className =
-            "location-status ok";
-
-        return;
-    }
+    const query =
+        "Cooperative Colony Bokaro Steel City Jharkhand 827001";
 
 
-    if(pickupLocation){
-
-        status.innerHTML =
-            "📍 Pickup selected. Now select your destination.";
-
-        return;
-    }
-
-
-    status.innerHTML =
-        "Enter pickup and destination, then select a suggestion.";
+    searchLocation(query,type);
 
 }
 
 
-/* =========================
-   MAP PINS
-========================= */
-
-function updatePins(){
-
-    const pickupPin =
-        document.getElementById(
-            "pickupPin"
-        );
-
-    const dropPin =
-        document.getElementById(
-            "dropPin"
-        );
-
-
-    if(
-        pickupLocation &&
-        dropLocation
-    ){
-
-        pickupPin.style.left =
-            "25%";
-
-        pickupPin.style.top =
-            "55%";
-
-        dropPin.style.right =
-            "20%";
-
-        dropPin.style.top =
-            "20%";
-
-    }
-
-}
-
-
-/* =========================
+/* --------------------------------
    CURRENT LOCATION
-========================= */
+-------------------------------- */
 
-function useCurrentLocation(){
+function useCurrentLocation(type){
 
     if(!navigator.geolocation){
 
         alert(
-            "Your browser does not support location."
+            "Browser location support nahi karta."
         );
 
         return;
+
     }
 
 
-    document.getElementById(
-        "locationStatus"
-    ).innerHTML =
-        "📡 Getting your current location...";
+    const input =
+        document.getElementById(
+            type === "pickup"
+            ? "pickupInput"
+            : "dropInput"
+        );
+
+
+    input.value =
+        "📍 Getting current location...";
 
 
     navigator.geolocation.getCurrentPosition(
 
-        async position => {
+        async function(position){
 
             const lat =
                 position.coords.latitude;
@@ -1586,131 +1106,91 @@ function useCurrentLocation(){
 
             try{
 
+                const url =
+                    "https://nominatim.openstreetmap.org/reverse?" +
+                    new URLSearchParams({
+
+                        lat,
+                        lon,
+                        format:"jsonv2",
+                        addressdetails:"1",
+                        zoom:"18",
+                        accept_language:"en"
+
+                    });
+
+
                 const response =
-                    await fetch(
-                        "https://nominatim.openstreetmap.org/reverse?" +
-                        new URLSearchParams({
-
-                            format:
-                                "jsonv2",
-
-                            lat:
-                                lat,
-
-                            lon:
-                                lon,
-
-                            zoom:
-                                18,
-
-                            addressdetails:
-                                1,
-
-                            "accept-language":
-                                "en"
-
-                        })
-                    );
+                    await fetch(url);
 
 
                 const data =
                     await response.json();
 
 
-                pickupLocation = {
+                selectLocation(
 
-                    lat:
+                    {
+                        address:
+                            data.display_name
+                            ||
+                            "Current Location",
+
                         lat,
 
-                    lng:
                         lon,
 
-                    address:
-                        data.display_name,
+                        exact:true
 
-                    houseNumber:
-                        data.address?.house_number ||
-                        null,
+                    },
 
-                    postcode:
-                        data.address?.postcode ||
-                        null,
+                    type
 
-                    exact:
-                        Boolean(
-                            data.address?.house_number
-                        )
-
-                };
+                );
 
 
-                document
-                    .getElementById("pickup")
-                    .value =
-                    data.display_name ||
-                    `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+            }
+            catch(error){
 
+                selectLocation(
 
-                updateLocationStatus();
+                    {
+                        address:
+                            "Current Location",
 
-                updatePins();
-
-            }catch(error){
-
-                pickupLocation = {
-
-                    lat:
                         lat,
 
-                    lng:
                         lon,
 
-                    address:
-                        `Current Location (${lat.toFixed(6)}, ${lon.toFixed(6)})`,
+                        exact:true
 
-                    houseNumber:
-                        null,
+                    },
 
-                    postcode:
-                        null,
+                    type
 
-                    exact:
-                        true
-
-                };
-
-
-                document
-                    .getElementById("pickup")
-                    .value =
-                    `Current Location (${lat.toFixed(5)}, ${lon.toFixed(5)})`;
-
-
-                updateLocationStatus();
+                );
 
             }
 
         },
 
-        error => {
+        function(error){
 
-            document.getElementById(
-                "locationStatus"
-            ).innerHTML =
-                "❌ Location permission denied or unavailable.";
+            input.value = "";
+
+            alert(
+                "Location permission allow karo."
+            );
 
         },
 
         {
 
-            enableHighAccuracy:
-                true,
+            enableHighAccuracy:true,
 
-            timeout:
-                15000,
+            timeout:15000,
 
-            maximumAge:
-                0
+            maximumAge:0
 
         }
 
@@ -1719,9 +1199,66 @@ function useCurrentLocation(){
 }
 
 
-/* =========================
+/* --------------------------------
+   MAP INFO
+-------------------------------- */
+
+function updateMapInfo(){
+
+    let text = "";
+
+    if(pickupLocation){
+
+        text +=
+            `📍 Pickup:
+             ${pickupLocation.lat.toFixed(6)},
+             ${pickupLocation.lon.toFixed(6)}`;
+
+    }
+
+    if(dropLocation){
+
+        text +=
+            `<br>🏁 Drop:
+             ${dropLocation.lat.toFixed(6)},
+             ${dropLocation.lon.toFixed(6)}`;
+
+    }
+
+
+    document
+    .getElementById("mapInfo")
+    .innerHTML =
+        text ||
+        "Location select karo";
+
+}
+
+
+/* --------------------------------
+   PIN ADJUST
+-------------------------------- */
+
+function enablePinAdjust(){
+
+    alert(
+        "📌 Pin Adjust mode\n\n" +
+
+        "Abhi map visual mode mein hai.\n\n" +
+
+        "Exact house location ke liye " +
+
+        "Google Maps/OSM par exact building point " +
+
+        "select karke coordinates use karna safest hai."
+    );
+
+}
+
+
+/* --------------------------------
    ROUTE
-========================= */
+-------------------------------- */
 
 async function calculateRoute(){
 
@@ -1732,30 +1269,29 @@ async function calculateRoute(){
         );
 
         return;
+
     }
 
 
     if(!dropLocation){
 
         alert(
-            "Pehle destination suggestion select karo."
+            "Pehle destination select karo."
         );
 
         return;
+
     }
 
 
     const button =
-        document.getElementById(
-            "routeBtn"
-        );
+        document.getElementById("routeBtn");
 
 
-    button.disabled =
-        true;
+    button.disabled = true;
 
     button.innerText =
-        "📡 Calculating route...";
+        "Calculating...";
 
 
     try{
@@ -1763,15 +1299,9 @@ async function calculateRoute(){
         const url =
             "https://router.project-osrm.org/route/v1/driving/" +
 
-            pickupLocation.lng +
-            "," +
-            pickupLocation.lat +
+            `${pickupLocation.lon},${pickupLocation.lat};` +
 
-            ";" +
-
-            dropLocation.lng +
-            "," +
-            dropLocation.lat +
+            `${dropLocation.lon},${dropLocation.lat}` +
 
             "?overview=false";
 
@@ -1797,168 +1327,183 @@ async function calculateRoute(){
         }
 
 
-        const route =
-            data.routes[0];
+        const meters =
+            data.routes[0].distance;
 
 
         distanceKm =
-            route.distance /
-            1000;
+            meters / 1000;
 
 
-        const minutes =
+        distanceKm =
             Math.round(
-                route.duration /
-                60
-            );
+                distanceKm * 10
+            ) / 10;
 
 
-        document.getElementById(
-            "distance"
-        ).innerText =
-            distanceKm.toFixed(1) +
-            " km";
+        document
+        .getElementById("routeResult")
+        .innerHTML = `
+
+            <div class="route">
+
+                🛣️ <b>Actual road distance</b><br>
+
+                ${distanceKm} km
+
+                <br><br>
+
+                📍 Pickup:
+                ${pickupLocation.lat.toFixed(6)},
+                ${pickupLocation.lon.toFixed(6)}
+
+                <br>
+
+                🏁 Drop:
+                ${dropLocation.lat.toFixed(6)},
+                ${dropLocation.lon.toFixed(6)}
+
+            </div>
+
+        `;
 
 
-        document.getElementById(
-            "routeTime"
-        ).innerText =
-            "Approx " +
-            minutes +
-            " min by road";
+        calculateFare();
 
 
-        document.getElementById(
-            "distanceBox"
-        ).style.display =
-            "block";
+    }
+    catch(error){
 
-
-        updateFare();
-
-
-        document.getElementById(
-            "locationStatus"
-        ).innerHTML =
-            "✅ Exact selected coordinates + actual road distance calculated.";
-
-        document.getElementById(
-            "locationStatus"
-        ).className =
-            "location-status ok";
-
-
-    }catch(error){
-
-        console.error(
-            error
-        );
+        console.error(error);
 
         alert(
-            "Road route calculate nahi ho paya. Thodi der baad try karo."
+            "Road route calculate nahi ho paaya."
         );
 
     }
+    finally{
 
+        button.disabled = false;
 
-    button.disabled =
-        false;
+        button.innerText =
+            "Calculate Road Distance";
 
-    button.innerText =
-        "📏 Calculate Road Distance";
+    }
 
 }
 
 
-/* =========================
+/* --------------------------------
+   VEHICLE
+-------------------------------- */
+
+function selectRide(type){
+
+    selectedRide =
+        type;
+
+
+    document
+    .querySelectorAll(".ride")
+    .forEach(
+        button =>
+            button.classList.remove("active")
+    );
+
+
+    document
+    .getElementById(
+        type.toLowerCase()
+    )
+    .classList.add("active");
+
+
+    calculateFare();
+
+}
+
+
+/* --------------------------------
    FARE
-========================= */
+-------------------------------- */
 
-function updateFare(){
+function calculateFare(){
 
-    if(!distanceKm){
-
-        document.getElementById(
-            "fare"
-        ).innerText =
-            "₹0";
+    if(distanceKm <= 0){
 
         return;
-    }
-
-
-    let base = 0;
-
-    let perKm = 0;
-
-
-    if(
-        selectedVehicle ===
-        "Bike"
-    ){
-
-        base = 40;
-        perKm = 9;
-
-    }else if(
-        selectedVehicle ===
-        "Auto"
-    ){
-
-        base = 60;
-        perKm = 12;
-
-    }else{
-
-        base = 100;
-        perKm = 16;
 
     }
 
 
-    let total =
-        Math.round(
-            base +
-            (
-                distanceKm *
-                perKm
-            )
-        );
+    if(selectedRide === "Bike"){
+
+        baseFare =
+            40 + distanceKm * 9;
+
+    }
+    else if(selectedRide === "Auto"){
+
+        baseFare =
+            60 + distanceKm * 12;
+
+    }
+    else{
+
+        baseFare =
+            100 + distanceKm * 16;
+
+    }
 
 
-    total =
+    baseFare =
+        Math.round(baseFare);
+
+
+    const finalFare =
         Math.max(
             0,
-            total - discount
+            baseFare - discount
         );
 
 
-    document.getElementById(
-        "fare"
-    ).innerText =
-        "₹" + total;
+    document
+    .getElementById("fare")
+    .innerText =
+        `₹ ${finalFare}`;
+
+
+    document
+    .getElementById("fareDetails")
+    .innerText =
+        `${selectedRide} • ${distanceKm} km • ₹${discount} discount`;
+
+
+    document
+    .getElementById("bookBtn")
+    .disabled =
+        false;
 
 }
 
 
-/* =========================
+/* --------------------------------
    COUPON
-========================= */
+-------------------------------- */
 
 function applyCoupon(){
 
     const code =
         document
-            .getElementById("coupon")
-            .value
-            .trim()
-            .toUpperCase();
+        .getElementById("couponCode")
+        .value
+        .trim()
+        .toUpperCase();
 
 
-    const status =
-        document.getElementById(
-            "couponStatus"
-        );
+    const message =
+        document
+        .getElementById("couponMessage");
 
 
     discount = 0;
@@ -1968,55 +1513,48 @@ function applyCoupon(){
 
         discount = 50;
 
-        status.innerHTML =
+        message.innerText =
             "✅ WELCOME50 applied — ₹50 off";
 
-        status.className =
-            "small ok";
-
-    }else if(
-        code === "RIDE20"
-    ){
+    }
+    else if(code === "RIDE20"){
 
         discount = 20;
 
-        status.innerHTML =
+        message.innerText =
             "✅ RIDE20 applied — ₹20 off";
 
-        status.className =
-            "small ok";
-
-    }else if(
-        code === "FIRST100"
-    ){
+    }
+    else if(code === "FIRST100"){
 
         discount = 100;
 
-        status.innerHTML =
+        message.innerText =
             "✅ FIRST100 applied — ₹100 off";
 
-        status.className =
-            "small ok";
+    }
+    else if(code === ""){
 
-    }else{
+        message.innerText =
+            "";
 
-        status.innerHTML =
+    }
+    else{
+
+        message.innerText =
             "❌ Invalid coupon";
-
-        status.className =
-            "small error";
 
     }
 
 
-    updateFare();
+    calculateFare();
 
 }
 
 
-/* =========================
+/* --------------------------------
    BOOK RIDE
-========================= */
+-------------------------------- */
 
 async function bookRide(){
 
@@ -2027,6 +1565,7 @@ async function bookRide(){
         );
 
         return;
+
     }
 
 
@@ -2037,96 +1576,82 @@ async function bookRide(){
         );
 
         return;
+
     }
 
 
-    if(!distanceKm){
+    if(distanceKm <= 0){
 
         alert(
-            "Pehle Calculate Road Distance dabao."
+            "Pehle road distance calculate karo."
         );
 
         return;
+
     }
 
 
-    const fareText =
-        document.getElementById(
-            "fare"
-        ).innerText;
-
-
-    const fare =
-        Number(
-            fareText.replace(
-                "₹",
-                ""
-            )
+    const finalFare =
+        Math.max(
+            0,
+            baseFare - discount
         );
 
 
     const button =
-        document.getElementById(
-            "bookBtn"
-        );
+        document.getElementById("bookBtn");
 
 
-    button.disabled =
-        true;
+    button.disabled = true;
 
     button.innerText =
-        "⏳ Booking...";
+        "Booking...";
 
 
     try{
 
         const response =
             await fetch(
-                BACKEND_URL +
-                "/api/ride",
+                `${BACKEND_URL}/api/ride`,
                 {
 
-                    method:
-                        "POST",
+                    method:"POST",
 
                     headers:{
                         "Content-Type":
                             "application/json"
                     },
 
-                    body:
-                        JSON.stringify({
+                    body:JSON.stringify({
 
-                            pickup:
-                                pickupLocation.address,
+                        pickup:
+                            pickupLocation.address,
 
-                            drop_location:
-                                dropLocation.address,
+                        drop_location:
+                            dropLocation.address,
 
-                            pickup_lat:
-                                pickupLocation.lat,
+                        pickup_lat:
+                            pickupLocation.lat,
 
-                            pickup_lng:
-                                pickupLocation.lng,
+                        pickup_lng:
+                            pickupLocation.lon,
 
-                            drop_lat:
-                                dropLocation.lat,
+                        drop_lat:
+                            dropLocation.lat,
 
-                            drop_lng:
-                                dropLocation.lng,
+                        drop_lng:
+                            dropLocation.lon,
 
-                            ride_type:
-                                selectedVehicle,
+                        ride_type:
+                            selectedRide,
 
-                            distance_km:
-                                Number(
-                                    distanceKm.toFixed(2)
-                                ),
+                        distance_km:
+                            distanceKm,
 
-                            fare:
-                                fare
+                        fare:
+                            finalFare
 
-                        })
+                    })
 
                 }
             );
@@ -2150,44 +1675,27 @@ async function bookRide(){
             data.ride_id;
 
 
-        document.getElementById(
-            "status"
-        ).style.display =
-            "block";
-
-
-        document.getElementById(
-            "statusTitle"
-        ).innerText =
-            "🔎 Searching Driver";
-
-
-        document.getElementById(
-            "statusText"
-        ).innerText =
-            "Nearby driver ko request bheji ja rahi hai...";
-
-
-        button.innerText =
-            "🚕 Ride Searching";
+        document
+        .getElementById("bookingMessage")
+        .innerText =
+            `🚕 Ride #${currentRideId} booked.
+             Driver search ho raha hai...`;
 
 
         startRidePolling();
 
 
-    }catch(error){
+    }
+    catch(error){
 
-        console.error(
-            error
-        );
+        console.error(error);
 
-        alert(
-            "Booking failed. Please try again."
-        );
+        document
+        .getElementById("bookingMessage")
+        .innerText =
+            "❌ Booking failed. Server check karo.";
 
-
-        button.disabled =
-            false;
+        button.disabled = false;
 
         button.innerText =
             "🚕 Book Ride";
@@ -2197,39 +1705,39 @@ async function bookRide(){
 }
 
 
-/* =========================
+/* --------------------------------
    POLLING
-========================= */
+-------------------------------- */
 
 function startRidePolling(){
 
     if(ridePolling){
+
         clearInterval(
             ridePolling
         );
+
     }
 
 
     ridePolling =
         setInterval(
-            getRideStatus,
+            checkRideStatus,
             3000
         );
 
 
-    getRideStatus();
+    checkRideStatus();
 
 }
 
 
-/* =========================
-   RIDE STATUS
-========================= */
-
-async function getRideStatus(){
+async function checkRideStatus(){
 
     if(!currentRideId){
+
         return;
+
     }
 
 
@@ -2237,26 +1745,18 @@ async function getRideStatus(){
 
         const response =
             await fetch(
-                BACKEND_URL +
-                "/api/ride/" +
-                currentRideId
+                `${BACKEND_URL}/api/ride/${currentRideId}`
             );
-
-
-        if(!response.ok){
-            return;
-        }
 
 
         const data =
             await response.json();
 
 
-        if(
-            !data.success ||
-            !data.ride
-        ){
+        if(!data.success){
+
             return;
+
         }
 
 
@@ -2264,15 +1764,67 @@ async function getRideStatus(){
             data.ride;
 
 
-        updateRideUI(
-            ride
-        );
+        if(
+            ride.status === "accepted" ||
+            ride.status === "driver_assigned"
+        ){
+
+            showDriver(ride);
+
+        }
 
 
-    }catch(error){
+        if(
+            ride.status === "started"
+        ){
+
+            showDriver(ride);
+
+            document
+            .getElementById("bookingMessage")
+            .innerText =
+                "🚕 Ride started.";
+
+        }
+
+
+        if(
+            ride.status === "completed"
+        ){
+
+            document
+            .getElementById("bookingMessage")
+            .innerText =
+                "✅ Ride completed.";
+
+            clearInterval(
+                ridePolling
+            );
+
+        }
+
+
+        if(
+            ride.status === "cancelled"
+        ){
+
+            document
+            .getElementById("bookingMessage")
+            .innerText =
+                "❌ Ride cancelled.";
+
+            clearInterval(
+                ridePolling
+            );
+
+        }
+
+
+    }
+    catch(error){
 
         console.log(
-            "Polling:",
+            "Polling error:",
             error
         );
 
@@ -2281,327 +1833,158 @@ async function getRideStatus(){
 }
 
 
-/* =========================
-   RIDE UI
-========================= */
-
-function updateRideUI(ride){
-
-    const status =
-        ride.status;
-
-
-    const statusTitle =
-        document.getElementById(
-            "statusTitle"
-        );
-
-
-    const statusText =
-        document.getElementById(
-            "statusText"
-        );
-
-
-    if(
-        status ===
-        "searching"
-    ){
-
-        statusTitle.innerText =
-            "🔎 Searching Driver";
-
-        statusText.innerText =
-            "Nearby drivers ko request bheji ja rahi hai...";
-
-        return;
-    }
-
-
-    if(
-        status ===
-        "accepted"
-    ){
-
-        statusTitle.innerText =
-            "✅ Driver Accepted";
-
-        statusText.innerText =
-            "Driver tumhare pickup location ki taraf aa raha hai.";
-
-        showDriver(
-            ride
-        );
-
-        return;
-    }
-
-
-    if(
-        status ===
-        "started"
-    ){
-
-        statusTitle.innerText =
-            "🛵 Ride Started";
-
-        statusText.innerText =
-            "Have a safe journey ❤️";
-
-        showDriver(
-            ride
-        );
-
-        return;
-    }
-
-
-    if(
-        status ===
-        "completed"
-    ){
-
-        statusTitle.innerText =
-            "🏁 Ride Completed";
-
-        statusText.innerText =
-            "Thank you for riding with RideMini ❤️";
-
-        showDriver(
-            ride
-        );
-
-        return;
-    }
-
-
-    if(
-        status ===
-        "cancelled"
-    ){
-
-        statusTitle.innerText =
-            "❌ Ride Cancelled";
-
-        statusText.innerText =
-            "This ride has been cancelled.";
-
-        document.getElementById(
-            "driverCard"
-        ).style.display =
-            "none";
-
-    }
-
-}
-
-
-/* =========================
-   DRIVER DETAILS
-========================= */
+/* --------------------------------
+   DRIVER
+-------------------------------- */
 
 function showDriver(ride){
 
-    const driver =
-        ride.driver ||
-        {};
+    const box =
+        document
+        .getElementById("driverBox");
 
 
-    document.getElementById(
-        "driverCard"
-    ).style.display =
+    const details =
+        document
+        .getElementById("driverDetails");
+
+
+    box.style.display =
         "block";
 
 
-    document.getElementById(
-        "driverName"
-    ).innerText =
+    const name =
         ride.driver_name ||
-        driver.name ||
-        "Driver";
+        "Driver assigned";
 
 
-    document.getElementById(
-        "driverVehicle"
-    ).innerText =
+    const vehicle =
         ride.vehicle_number ||
-        driver.vehicle_number ||
-        "-";
+        "Vehicle details loading";
 
 
-    document.getElementById(
-        "driverRating"
-    ).innerText =
-        ride.driver_rating
-        ? "⭐ " +
-          ride.driver_rating
-        :
-        driver.rating
-        ? "⭐ " +
-          driver.rating
-        :
-        "-";
+    const rating =
+        ride.driver_rating ||
+        "4.8";
 
 
-    document.getElementById(
-        "driverRideType"
-    ).innerText =
-        ride.ride_type ||
-        "-";
-
-
-    const lat =
-        ride.driver_lat ??
-        driver.lat;
-
-
-    const lng =
-        ride.driver_lng ??
-        driver.lng;
+    let locationText =
+        "📍 Driver location loading...";
 
 
     if(
-        lat !== undefined &&
-        lng !== undefined &&
-        lat !== null &&
-        lng !== null
+        ride.driver_lat !== undefined &&
+        ride.driver_lng !== undefined
     ){
 
-        document.getElementById(
-            "driverLocation"
-        ).innerHTML =
-            "📍 Driver location: " +
-            Number(lat).toFixed(6) +
-            ", " +
-            Number(lng).toFixed(6);
-
-    }else{
-
-        document.getElementById(
-            "driverLocation"
-        ).innerHTML =
-            "📍 Driver location waiting...";
+        locationText =
+            `📍 Driver GPS:
+             ${Number(ride.driver_lat).toFixed(6)},
+             ${Number(ride.driver_lng).toFixed(6)}`;
 
     }
+
+
+    details.innerHTML = `
+
+        <b>👨‍✈️ ${name}</b>
+
+        <br>
+
+        🚗 Vehicle:
+        ${vehicle}
+
+        <br>
+
+        ⭐ Rating:
+        ${rating}
+
+        <br>
+
+        🏍️ Ride:
+        ${ride.ride_type || selectedRide}
+
+        <br>
+
+        ${locationText}
+
+    `;
+
+
+    document
+    .getElementById("bookingMessage")
+    .innerText =
+        "✅ Driver ne ride accept kar li.";
 
 }
 
 
-/* =========================
+/* --------------------------------
    CANCEL
-========================= */
+-------------------------------- */
 
 async function cancelRide(){
 
     if(!currentRideId){
+
         return;
-    }
 
-
-    const yes =
-        confirm(
-            "Ride cancel karna hai?"
-        );
-
-
-    if(!yes){
-        return;
     }
 
 
     try{
 
-        const response =
-            await fetch(
-                BACKEND_URL +
-                "/api/ride/" +
-                currentRideId +
-                "/cancel",
-                {
-                    method:
-                        "POST"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if(data.success){
-
-            document.getElementById(
-                "statusTitle"
-            ).innerText =
-                "❌ Ride Cancelled";
-
-
-            document.getElementById(
-                "statusText"
-            ).innerText =
-                "Ride successfully cancelled.";
-
-
-            document.getElementById(
-                "driverCard"
-            ).style.display =
-                "none";
-
-
-            if(ridePolling){
-
-                clearInterval(
-                    ridePolling
-                );
-
+        await fetch(
+            `${BACKEND_URL}/api/ride/${currentRideId}/cancel`,
+            {
+                method:"POST"
             }
+        );
+
+
+        document
+        .getElementById("bookingMessage")
+        .innerText =
+            "❌ Ride cancelled.";
+
+
+        document
+        .getElementById("driverBox")
+        .style.display =
+            "none";
+
+
+        if(ridePolling){
+
+            clearInterval(
+                ridePolling
+            );
 
         }
 
-    }catch(error){
+
+        document
+        .getElementById("bookBtn")
+        .disabled =
+            false;
+
+
+        document
+        .getElementById("bookBtn")
+        .innerText =
+            "🚕 Book Ride";
+
+
+    }
+    catch(error){
 
         alert(
-            "Cancel failed."
+            "Cancel nahi ho paya."
         );
 
     }
 
 }
-
-
-/* =========================
-   CLOSE SUGGESTIONS
-========================= */
-
-document.addEventListener(
-    "click",
-    function(event){
-
-        if(
-            !event.target.closest(
-                ".location-box"
-            )
-        ){
-
-            document.getElementById(
-                "pickupSuggestions"
-            ).innerHTML = "";
-
-            document.getElementById(
-                "dropSuggestions"
-            ).innerHTML = "";
-
-        }
-
-    }
-);
-
-
-/* =========================
-   START
-========================= */
-
-updateFare();
 
 </script>
 
