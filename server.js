@@ -20,11 +20,9 @@ const drivers = [
         type: "Bike",
         vehicle: "JH01AB1234",
         rating: 4.8,
-        phone: "Available",
-        online: true,
+        online: false,
         lat: null,
-        lng: null,
-        last_location_update: null
+        lng: null
     },
     {
         id: 2,
@@ -32,11 +30,9 @@ const drivers = [
         type: "Auto",
         vehicle: "JH01AC5678",
         rating: 4.7,
-        phone: "Available",
-        online: true,
+        online: false,
         lat: null,
-        lng: null,
-        last_location_update: null
+        lng: null
     },
     {
         id: 3,
@@ -44,54 +40,50 @@ const drivers = [
         type: "Cab",
         vehicle: "JH01CD9012",
         rating: 4.9,
-        phone: "Available",
-        online: true,
+        online: false,
         lat: null,
-        lng: null,
-        last_location_update: null
+        lng: null
     }
 ];
 
 
-// =========================
+// ===============================
 // HOME
-// =========================
+// ===============================
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
 });
 
 
-// =========================
+// ===============================
 // HEALTH
-// =========================
+// ===============================
 
 app.get("/health", (req, res) => {
     res.json({
         success: true,
-        message: "RideMini server healthy ❤️",
-        status: "online"
+        status: "online",
+        message: "RideMini server healthy ❤️"
     });
 });
 
 
-// =========================
-// GET DRIVERS
-// =========================
+// ===============================
+// DRIVERS
+// ===============================
 
 app.get("/api/drivers", (req, res) => {
-
     res.json({
         success: true,
         drivers
     });
-
 });
 
 
-// =========================
-// DRIVER ONLINE / OFFLINE
-// =========================
+// ===============================
+// DRIVER ONLINE/OFFLINE
+// ===============================
 
 app.post("/api/driver/:id/status", (req, res) => {
 
@@ -100,12 +92,10 @@ app.post("/api/driver/:id/status", (req, res) => {
     const driver = drivers.find(d => d.id === id);
 
     if (!driver) {
-
         return res.status(404).json({
             success: false,
             message: "Driver not found"
         });
-
     }
 
     driver.online = Boolean(req.body.online);
@@ -114,13 +104,12 @@ app.post("/api/driver/:id/status", (req, res) => {
         success: true,
         driver
     });
-
 });
 
 
-// =========================
+// ===============================
 // DRIVER GPS LOCATION
-// =========================
+// ===============================
 
 app.post("/api/driver/:id/location", (req, res) => {
 
@@ -129,46 +118,52 @@ app.post("/api/driver/:id/location", (req, res) => {
     const driver = drivers.find(d => d.id === id);
 
     if (!driver) {
-
         return res.status(404).json({
             success: false,
             message: "Driver not found"
         });
-
     }
 
     const lat = Number(req.body.lat);
     const lng = Number(req.body.lng);
 
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-
         return res.status(400).json({
             success: false,
             message: "Invalid GPS coordinates"
         });
-
     }
 
     driver.lat = lat;
     driver.lng = lng;
-    driver.last_location_update = new Date().toISOString();
 
-    console.log(
-        `📍 ${driver.name} location: ${lat}, ${lng}`
-    );
+    // Active rides me bhi latest location update
+    rides.forEach(ride => {
+
+        if (
+            ride.driver_id === driver.id &&
+            (
+                ride.status === "accepted" ||
+                ride.status === "started"
+            )
+        ) {
+            ride.driver_lat = lat;
+            ride.driver_lng = lng;
+        }
+
+    });
 
     res.json({
         success: true,
-        message: "Driver location updated",
-        driver
+        lat,
+        lng
     });
-
 });
 
 
-// =========================
+// ===============================
 // BOOK RIDE
-// =========================
+// ===============================
 
 app.post("/api/ride", (req, res) => {
 
@@ -177,7 +172,12 @@ app.post("/api/ride", (req, res) => {
         drop_location,
         ride_type,
         distance_km,
-        fare
+        fare,
+
+        pickup_lat,
+        pickup_lng,
+        drop_lat,
+        drop_lng
     } = req.body;
 
 
@@ -197,18 +197,33 @@ app.post("/api/ride", (req, res) => {
 
         pickup,
         drop_location,
-
         ride_type,
 
         distance_km: Number(distance_km) || 0,
-
         fare: Number(fare) || 0,
+
+        pickup_lat: Number(pickup_lat) || null,
+        pickup_lng: Number(pickup_lng) || null,
+
+        drop_lat: Number(drop_lat) || null,
+        drop_lng: Number(drop_lng) || null,
 
         status: "searching",
 
         driver_id: null,
+        driver_name: null,
+        vehicle_number: null,
+        driver_rating: null,
 
-        created_at: new Date().toISOString()
+        driver_lat: null,
+        driver_lng: null,
+
+        rating: null,
+        review: "",
+
+        created_at: new Date().toISOString(),
+        started_at: null,
+        completed_at: null
 
     };
 
@@ -219,23 +234,18 @@ app.post("/api/ride", (req, res) => {
 
 
     res.json({
-
         success: true,
-
         ride_id: ride.id,
-
         status: ride.status,
-
-        message: "Ride booking request sent 🚕"
-
+        message: "Ride request sent 🚕"
     });
 
 });
 
 
-// =========================
+// ===============================
 // GET SINGLE RIDE
-// =========================
+// ===============================
 
 app.get("/api/ride/:id", (req, res) => {
 
@@ -254,65 +264,57 @@ app.get("/api/ride/:id", (req, res) => {
     }
 
 
-    let driver = null;
-
-
+    // Latest driver GPS
     if (ride.driver_id) {
 
-        driver =
-            drivers.find(d => d.id === ride.driver_id) || null;
+        const driver = drivers.find(
+            d => d.id === ride.driver_id
+        );
+
+        if (driver) {
+
+            ride.driver_lat = driver.lat;
+            ride.driver_lng = driver.lng;
+
+        }
 
     }
 
 
     res.json({
-
         success: true,
-
-        ride,
-
-        driver
-
+        ride
     });
 
 });
 
 
-// =========================
+// ===============================
 // ALL RIDES
-// =========================
+// ===============================
 
 app.get("/api/rides", (req, res) => {
 
     res.json({
-
         success: true,
-
         count: rides.length,
-
         rides
-
     });
 
 });
 
 
-// =========================
-// ACCEPT RIDE
-// =========================
+// ===============================
+// DRIVER ACCEPT RIDE
+// ===============================
 
 app.post("/api/ride/:rideId/accept", (req, res) => {
 
     const rideId = Number(req.params.rideId);
-
     const driverId = Number(req.body.driver_id);
 
-
-    const ride =
-        rides.find(r => r.id === rideId);
-
-    const driver =
-        drivers.find(d => d.id === driverId);
+    const ride = rides.find(r => r.id === rideId);
+    const driver = drivers.find(d => d.id === driverId);
 
 
     if (!ride) {
@@ -345,22 +347,15 @@ app.post("/api/ride/:rideId/accept", (req, res) => {
     }
 
 
-    if (!driver.online) {
-
-        return res.status(400).json({
-            success: false,
-            message: "Driver is offline"
-        });
-
-    }
-
-
     ride.status = "accepted";
 
     ride.driver_id = driver.id;
+    ride.driver_name = driver.name;
+    ride.vehicle_number = driver.vehicle;
+    ride.driver_rating = driver.rating;
 
-    ride.accepted_at =
-        new Date().toISOString();
+    ride.driver_lat = driver.lat;
+    ride.driver_lng = driver.lng;
 
 
     console.log(
@@ -369,30 +364,23 @@ app.post("/api/ride/:rideId/accept", (req, res) => {
 
 
     res.json({
-
         success: true,
-
         message: "Ride accepted",
-
-        ride,
-
-        driver
-
+        ride
     });
 
 });
 
 
-// =========================
-// REJECT RIDE
-// =========================
+// ===============================
+// DRIVER REJECT
+// ===============================
 
 app.post("/api/ride/:rideId/reject", (req, res) => {
 
     const rideId = Number(req.params.rideId);
 
-    const ride =
-        rides.find(r => r.id === rideId);
+    const ride = rides.find(r => r.id === rideId);
 
 
     if (!ride) {
@@ -405,42 +393,23 @@ app.post("/api/ride/:rideId/reject", (req, res) => {
     }
 
 
-    if (ride.status !== "searching") {
-
-        return res.status(400).json({
-            success: false,
-            message: "Ride cannot be rejected"
-        });
-
-    }
-
-
-    ride.status = "rejected";
-
-
     res.json({
-
         success: true,
-
-        message: "Ride rejected",
-
-        ride
-
+        message: "Ride rejected"
     });
 
 });
 
 
-// =========================
+// ===============================
 // START RIDE
-// =========================
+// ===============================
 
 app.post("/api/ride/:rideId/start", (req, res) => {
 
     const rideId = Number(req.params.rideId);
 
-    const ride =
-        rides.find(r => r.id === rideId);
+    const ride = rides.find(r => r.id === rideId);
 
 
     if (!ride) {
@@ -465,33 +434,27 @@ app.post("/api/ride/:rideId/start", (req, res) => {
 
     ride.status = "started";
 
-    ride.started_at =
-        new Date().toISOString();
+    ride.started_at = new Date().toISOString();
 
 
     res.json({
-
         success: true,
-
-        message: "Ride started",
-
+        message: "Ride started 🚕",
         ride
-
     });
 
 });
 
 
-// =========================
+// ===============================
 // COMPLETE RIDE
-// =========================
+// ===============================
 
 app.post("/api/ride/:rideId/complete", (req, res) => {
 
     const rideId = Number(req.params.rideId);
 
-    const ride =
-        rides.find(r => r.id === rideId);
+    const ride = rides.find(r => r.id === rideId);
 
 
     if (!ride) {
@@ -504,35 +467,42 @@ app.post("/api/ride/:rideId/complete", (req, res) => {
     }
 
 
+    if (ride.status !== "started") {
+
+        return res.status(400).json({
+            success: false,
+            message: "Ride is not started"
+        });
+
+    }
+
+
     ride.status = "completed";
 
-    ride.completed_at =
-        new Date().toISOString();
+    ride.completed_at = new Date().toISOString();
+
+
+    console.log(`🏁 Ride ${ride.id} completed`);
 
 
     res.json({
-
         success: true,
-
         message: "Ride completed",
-
         ride
-
     });
 
 });
 
 
-// =========================
+// ===============================
 // CANCEL RIDE
-// =========================
+// ===============================
 
 app.post("/api/ride/:rideId/cancel", (req, res) => {
 
     const rideId = Number(req.params.rideId);
 
-    const ride =
-        rides.find(r => r.id === rideId);
+    const ride = rides.find(r => r.id === rideId);
 
 
     if (!ride) {
@@ -547,26 +517,122 @@ app.post("/api/ride/:rideId/cancel", (req, res) => {
 
     ride.status = "cancelled";
 
-    ride.cancelled_at =
-        new Date().toISOString();
-
 
     res.json({
-
         success: true,
-
         message: "Ride cancelled",
-
         ride
-
     });
 
 });
 
 
-// =========================
-// START SERVER
-// =========================
+// ===============================
+// CUSTOMER RATING
+// ===============================
+
+app.post("/api/ride/:rideId/rating", (req, res) => {
+
+    const rideId = Number(req.params.rideId);
+
+    const rating = Number(req.body.rating);
+
+    const review = String(req.body.review || "");
+
+
+    const ride = rides.find(r => r.id === rideId);
+
+
+    if (!ride) {
+
+        return res.status(404).json({
+            success: false,
+            message: "Ride not found"
+        });
+
+    }
+
+
+    if (ride.status !== "completed") {
+
+        return res.status(400).json({
+            success: false,
+            message: "Ride complete hone ke baad rating de sakte ho"
+        });
+
+    }
+
+
+    if (
+        !Number.isInteger(rating) ||
+        rating < 1 ||
+        rating > 5
+    ) {
+
+        return res.status(400).json({
+            success: false,
+            message: "Rating 1 se 5 ke beech honi chahiye"
+        });
+
+    }
+
+
+    ride.rating = rating;
+    ride.review = review;
+
+
+    // Driver average rating update
+    if (ride.driver_id) {
+
+        const driver = drivers.find(
+            d => d.id === ride.driver_id
+        );
+
+        if (driver) {
+
+            const completedRatings = rides
+                .filter(
+                    r =>
+                        r.driver_id === driver.id &&
+                        r.rating !== null
+                )
+                .map(r => Number(r.rating));
+
+            if (completedRatings.length > 0) {
+
+                const total =
+                    completedRatings.reduce(
+                        (sum, value) => sum + value,
+                        0
+                    );
+
+                driver.rating =
+                    Number(
+                        (
+                            total /
+                            completedRatings.length
+                        ).toFixed(1)
+                    );
+
+            }
+
+        }
+
+    }
+
+
+    res.json({
+        success: true,
+        message: "Rating saved ⭐",
+        ride
+    });
+
+});
+
+
+// ===============================
+// SERVER
+// ===============================
 
 app.listen(PORT, "0.0.0.0", () => {
 
