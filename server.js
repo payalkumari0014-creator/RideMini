@@ -4,22 +4,16 @@ const path = require("path");
 const { createClient } = require("@supabase/supabase-js");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-
-// ======================================================
-// SUPABASE
-// ======================================================
-
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
-    console.error("❌ Supabase environment variables missing");
+    console.error("Supabase environment variables missing");
     process.exit(1);
 }
 
@@ -28,26 +22,13 @@ const supabase = createClient(
     SUPABASE_SECRET_KEY
 );
 
-console.log("✅ Supabase configuration loaded");
 
-
-// ======================================================
-// HOME
-// ======================================================
-
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
-});
-
-
-// ======================================================
-// HEALTH CHECK
-// ======================================================
+/* =========================
+   HEALTH
+========================= */
 
 app.get("/health", async (req, res) => {
-
     try {
-
         const { error } = await supabase
             .from("customers")
             .select("id")
@@ -55,64 +36,112 @@ app.get("/health", async (req, res) => {
 
         if (error) {
             return res.status(500).json({
-                success: false,
-                database: "error",
-                message: error.message
+                ok: false,
+                error: error.message
             });
         }
 
         res.json({
-            success: true,
-            database: "connected",
-            status: "online"
+            ok: true,
+            message: "RideMini backend + Supabase working"
         });
 
     } catch (error) {
-
         res.status(500).json({
-            success: false,
-            message: error.message
+            ok: false,
+            error: error.message
         });
-
     }
-
 });
 
 
-// ======================================================
-// CUSTOMER REGISTER
-// ======================================================
+/* =========================
+   AUTO APPROVE DRIVER
+========================= */
+
+async function autoApproveDriver(driver) {
+
+    if (!driver) {
+        return driver;
+    }
+
+    if (driver.status !== "pending") {
+        return driver;
+    }
+
+    if (!driver.created_at) {
+        return driver;
+    }
+
+    const createdTime =
+        new Date(driver.created_at).getTime();
+
+    const currentTime =
+        Date.now();
+
+    const twoMinutes =
+        2 * 60 * 1000;
+
+    if (
+        currentTime - createdTime >=
+        twoMinutes
+    ) {
+
+        const { data, error } =
+            await supabase
+                .from("drivers")
+                .update({
+                    status: "approved"
+                })
+                .eq("id", driver.id)
+                .eq("status", "pending")
+                .select()
+                .maybeSingle();
+
+        if (!error && data) {
+            return data;
+        }
+
+        if (!error && !data) {
+            const { data: latest } =
+                await supabase
+                    .from("drivers")
+                    .select("*")
+                    .eq("id", driver.id)
+                    .maybeSingle();
+
+            return latest || driver;
+        }
+    }
+
+    return driver;
+}
+
+
+/* =========================
+   CUSTOMER REGISTER
+========================= */
 
 app.post("/api/customer/register", async (req, res) => {
 
     try {
 
-        const {
-            name,
-            phone
-        } = req.body;
+        const { name, phone } = req.body;
 
         if (!name || !phone) {
-
             return res.status(400).json({
-                success: false,
-                message: "Name and phone are required"
+                error: "Name and phone required"
             });
-
         }
 
-        const cleanPhone = String(phone).replace(/\D/g, "");
+        const cleanPhone =
+            String(phone).replace(/\D/g, "");
 
         if (cleanPhone.length < 10) {
-
             return res.status(400).json({
-                success: false,
-                message: "Valid phone number required"
+                error: "Invalid phone number"
             });
-
         }
-
-        // Check existing customer
 
         const { data: existing, error: findError } =
             await supabase
@@ -122,109 +151,89 @@ app.post("/api/customer/register", async (req, res) => {
                 .maybeSingle();
 
         if (findError) {
-
             return res.status(500).json({
-                success: false,
-                message: findError.message
+                error: findError.message
             });
-
         }
 
         if (existing) {
-
             return res.json({
                 success: true,
-                message: "Customer already exists",
                 customer: existing
             });
-
         }
-
-        // Create customer
 
         const { data, error } =
             await supabase
                 .from("customers")
-                .insert({
-                    name: String(name).trim(),
-                    phone: cleanPhone
-                })
+                .insert([
+                    {
+                        name: name.trim(),
+                        phone: cleanPhone
+                    }
+                ])
                 .select()
                 .single();
 
         if (error) {
-
             return res.status(500).json({
-                success: false,
-                message: error.message
+                error: error.message
             });
-
         }
 
         res.json({
             success: true,
-            message: "Customer registered successfully",
             customer: data
         });
 
     } catch (error) {
 
         res.status(500).json({
-            success: false,
-            message: error.message
+            error: error.message
         });
 
     }
-
 });
 
 
-// ======================================================
-// GET CUSTOMER
-// ======================================================
+/* =========================
+   GET CUSTOMER
+========================= */
 
 app.get("/api/customer/:id", async (req, res) => {
 
     try {
 
-        const customerId = Number(req.params.id);
-
         const { data, error } =
             await supabase
                 .from("customers")
                 .select("*")
-                .eq("id", customerId)
+                .eq("id", req.params.id)
                 .single();
 
-        if (error || !data) {
-
+        if (error) {
             return res.status(404).json({
-                success: false,
-                message: "Customer not found"
+                error: "Customer not found"
             });
-
         }
 
         res.json({
-            success: true,
             customer: data
         });
 
     } catch (error) {
 
         res.status(500).json({
-            success: false,
-            message: error.message
+            error: error.message
         });
 
     }
-
 });
 
 
-// ======================================================
-// DRIVER REGISTER
-// ======================================================
+/* =========================
+   DRIVER REGISTER
+========================= */
 
 app.post("/api/driver/register", async (req, res) => {
 
@@ -243,12 +252,9 @@ app.post("/api/driver/register", async (req, res) => {
             !vehicle_type ||
             !vehicle_number
         ) {
-
             return res.status(400).json({
-                success: false,
-                message: "All driver details are required"
+                error: "All driver fields are required"
             });
-
         }
 
         const cleanPhone =
@@ -259,138 +265,136 @@ app.post("/api/driver/register", async (req, res) => {
                 .trim()
                 .toUpperCase();
 
-        // Check existing driver
+        if (cleanPhone.length < 10) {
+            return res.status(400).json({
+                error: "Invalid phone number"
+            });
+        }
 
-        const { data: existing, error: findError } =
+        const { data: existingByPhone } =
             await supabase
                 .from("drivers")
                 .select("*")
-                .or(
-                    `phone.eq.${cleanPhone},vehicle_number.eq.${cleanVehicle}`
-                )
+                .eq("phone", cleanPhone)
                 .maybeSingle();
 
-        if (findError) {
+        if (existingByPhone) {
 
-            return res.status(500).json({
-                success: false,
-                message: findError.message
-            });
-
-        }
-
-        if (existing) {
+            const driver =
+                await autoApproveDriver(
+                    existingByPhone
+                );
 
             return res.json({
                 success: true,
-                message: "Driver already exists",
-                driver: existing
+                driver
             });
-
         }
 
-        // New driver
+        const { data: existingByVehicle } =
+            await supabase
+                .from("drivers")
+                .select("*")
+                .eq(
+                    "vehicle_number",
+                    cleanVehicle
+                )
+                .maybeSingle();
+
+        if (existingByVehicle) {
+
+            const driver =
+                await autoApproveDriver(
+                    existingByVehicle
+                );
+
+            return res.json({
+                success: true,
+                driver
+            });
+        }
 
         const { data, error } =
             await supabase
                 .from("drivers")
-                .insert({
-
-                    name: String(name).trim(),
-
-                    phone: cleanPhone,
-
-                    vehicle_type:
-                        String(vehicle_type).trim(),
-
-                    vehicle_number:
-                        cleanVehicle,
-
-                    rating: 5.0,
-
-                    online: false,
-
-                    status: "pending"
-
-                })
+                .insert([
+                    {
+                        name: name.trim(),
+                        phone: cleanPhone,
+                        vehicle_type,
+                        vehicle_number: cleanVehicle,
+                        rating: 5.0,
+                        online: false,
+                        status: "pending"
+                    }
+                ])
                 .select()
                 .single();
 
         if (error) {
-
             return res.status(500).json({
-                success: false,
-                message: error.message
+                error: error.message
             });
-
         }
 
         res.json({
             success: true,
+            driver: data,
             message:
-                "Driver registration submitted. Approval required.",
-
-            driver: data
+                "Driver registered. Approval will happen automatically after 2 minutes."
         });
 
     } catch (error) {
 
         res.status(500).json({
-            success: false,
-            message: error.message
+            error: error.message
         });
 
     }
-
 });
 
 
-// ======================================================
-// GET DRIVER
-// ======================================================
+/* =========================
+   GET DRIVER
+========================= */
 
 app.get("/api/driver/:id", async (req, res) => {
 
     try {
 
-        const driverId = Number(req.params.id);
-
         const { data, error } =
             await supabase
                 .from("drivers")
                 .select("*")
-                .eq("id", driverId)
+                .eq("id", req.params.id)
                 .single();
 
         if (error || !data) {
-
             return res.status(404).json({
-                success: false,
-                message: "Driver not found"
+                error: "Driver not found"
             });
-
         }
 
+        const driver =
+            await autoApproveDriver(data);
+
         res.json({
-            success: true,
-            driver: data
+            driver
         });
 
     } catch (error) {
 
         res.status(500).json({
-            success: false,
-            message: error.message
+            error: error.message
         });
 
     }
-
 });
 
 
-// ======================================================
-// GET DRIVERS
-// ======================================================
+/* =========================
+   ALL DRIVERS
+========================= */
 
 app.get("/api/drivers", async (req, res) => {
 
@@ -400,156 +404,147 @@ app.get("/api/drivers", async (req, res) => {
             await supabase
                 .from("drivers")
                 .select("*")
-                .order("id", {
-                    ascending: true
+                .order("created_at", {
+                    ascending: false
                 });
 
         if (error) {
-
             return res.status(500).json({
-                success: false,
-                message: error.message
+                error: error.message
             });
+        }
+
+        const drivers = [];
+
+        for (const driver of data || []) {
+
+            const updated =
+                await autoApproveDriver(driver);
+
+            drivers.push(updated);
 
         }
 
         res.json({
-            success: true,
-            drivers: data || []
+            drivers
         });
 
     } catch (error) {
 
         res.status(500).json({
-            success: false,
-            message: error.message
+            error: error.message
         });
 
     }
-
 });
 
 
-// ======================================================
-// DRIVER ONLINE / OFFLINE
-// ======================================================
+/* =========================
+   DRIVER ONLINE / OFFLINE
+========================= */
 
 app.post("/api/driver/:id/status", async (req, res) => {
 
     try {
 
-        const driverId = Number(req.params.id);
+        const driverId = req.params.id;
+        const { online } = req.body;
 
-        const online =
-            Boolean(req.body.online);
-
-        const { data: driver, error: findError } =
+        const { data: oldDriver, error } =
             await supabase
                 .from("drivers")
                 .select("*")
                 .eq("id", driverId)
                 .single();
 
-        if (findError || !driver) {
-
+        if (error || !oldDriver) {
             return res.status(404).json({
-                success: false,
-                message: "Driver not found"
+                error: "Driver not found"
             });
-
         }
 
-        if (driver.status !== "approved") {
+        const driver =
+            await autoApproveDriver(
+                oldDriver
+            );
 
+        if (
+            online === true &&
+            driver.status !== "approved"
+        ) {
             return res.status(403).json({
-                success: false,
-                message:
-                    "Driver is not approved yet"
+                error: "Driver is still pending approval"
             });
-
         }
 
-        const { data, error } =
+        const { data, error: updateError } =
             await supabase
                 .from("drivers")
                 .update({
-                    online: online
+                    online: Boolean(online)
                 })
                 .eq("id", driverId)
                 .select()
                 .single();
 
-        if (error) {
-
+        if (updateError) {
             return res.status(500).json({
-                success: false,
-                message: error.message
+                error: updateError.message
             });
-
         }
 
         res.json({
             success: true,
-            online: data.online,
             driver: data
         });
 
     } catch (error) {
 
         res.status(500).json({
-            success: false,
-            message: error.message
+            error: error.message
         });
 
     }
-
 });
 
 
-// ======================================================
-// DRIVER GPS LOCATION
-// ======================================================
+/* =========================
+   DRIVER GPS LOCATION
+========================= */
 
 app.post("/api/driver/:id/location", async (req, res) => {
 
     try {
 
-        const driverId = Number(req.params.id);
-
-        const lat = Number(req.body.lat);
-        const lng = Number(req.body.lng);
+        const driverId = req.params.id;
+        const { lat, lng } = req.body;
 
         if (
-            !Number.isFinite(lat) ||
-            !Number.isFinite(lng)
+            typeof lat !== "number" ||
+            typeof lng !== "number"
         ) {
-
             return res.status(400).json({
-                success: false,
-                message: "Valid latitude and longitude required"
+                error:
+                    "Latitude and longitude required"
             });
-
         }
 
-        const { error } =
+        const { data, error } =
             await supabase
                 .from("drivers")
                 .update({
-                    lat: lat,
-                    lng: lng
+                    lat,
+                    lng
                 })
-                .eq("id", driverId);
+                .eq("id", driverId)
+                .select()
+                .single();
 
         if (error) {
-
             return res.status(500).json({
-                success: false,
-                message: error.message
+                error: error.message
             });
-
         }
-
-        // Also update active rides of this driver
 
         await supabase
             .from("rides")
@@ -565,382 +560,248 @@ app.post("/api/driver/:id/location", async (req, res) => {
 
         res.json({
             success: true,
-            lat,
-            lng
+            driver: data
         });
 
     } catch (error) {
 
         res.status(500).json({
-            success: false,
-            message: error.message
+            error: error.message
         });
 
     }
-
 });
 
 
-// ======================================================
-// CREATE RIDE
-// ======================================================
+/* =========================
+   CREATE RIDE
+========================= */
 
 app.post("/api/ride", async (req, res) => {
 
     try {
 
         const {
-
             customer_id,
-
             pickup,
             drop_location,
-
             ride_type,
-
             distance_km,
             fare,
-
             pickup_lat,
             pickup_lng,
-
             drop_lat,
             drop_lng
-
         } = req.body;
 
-
         if (
+            !customer_id ||
             !pickup ||
             !drop_location ||
             !ride_type
         ) {
-
             return res.status(400).json({
-                success: false,
-                message:
-                    "Pickup, drop and ride type are required"
+                error: "Ride details missing"
             });
-
         }
-
-
-        // Customer check
-
-        if (customer_id) {
-
-            const { data: customer } =
-                await supabase
-                    .from("customers")
-                    .select("id")
-                    .eq("id", Number(customer_id))
-                    .maybeSingle();
-
-            if (!customer) {
-
-                return res.status(400).json({
-                    success: false,
-                    message: "Customer not found"
-                });
-
-            }
-
-        }
-
-
-        // Create ride
-
-        const rideData = {
-
-            customer_id:
-                customer_id
-                    ? Number(customer_id)
-                    : null,
-
-            pickup:
-                String(pickup),
-
-            drop_location:
-                String(drop_location),
-
-            ride_type:
-                String(ride_type),
-
-            distance_km:
-                Number(distance_km) || 0,
-
-            fare:
-                Number(fare) || 0,
-
-            pickup_lat:
-                Number.isFinite(Number(pickup_lat))
-                    ? Number(pickup_lat)
-                    : null,
-
-            pickup_lng:
-                Number.isFinite(Number(pickup_lng))
-                    ? Number(pickup_lng)
-                    : null,
-
-            drop_lat:
-                Number.isFinite(Number(drop_lat))
-                    ? Number(drop_lat)
-                    : null,
-
-            drop_lng:
-                Number.isFinite(Number(drop_lng))
-                    ? Number(drop_lng)
-                    : null,
-
-            status: "searching",
-
-            driver_id: null,
-
-            driver_lat: null,
-
-            driver_lng: null
-
-        };
-
 
         const { data, error } =
             await supabase
                 .from("rides")
-                .insert(rideData)
+                .insert([
+                    {
+                        customer_id,
+                        pickup,
+                        drop_location,
+                        ride_type,
+                        distance_km:
+                            distance_km || null,
+                        fare:
+                            fare || null,
+                        pickup_lat:
+                            pickup_lat || null,
+                        pickup_lng:
+                            pickup_lng || null,
+                        drop_lat:
+                            drop_lat || null,
+                        drop_lng:
+                            drop_lng || null,
+                        status: "searching"
+                    }
+                ])
                 .select()
                 .single();
 
-
         if (error) {
-
             return res.status(500).json({
-                success: false,
-                message: error.message
+                error: error.message
             });
-
         }
 
-
-        console.log(
-            "🚕 New Ride Created:",
-            data.id
-        );
-
-
         res.json({
-
             success: true,
-
-            ride_id: data.id,
-
-            status: data.status,
-
             ride: data
-
         });
-
 
     } catch (error) {
 
         res.status(500).json({
-            success: false,
-            message: error.message
+            error: error.message
         });
 
     }
-
 });
 
 
-// ======================================================
-// GET SINGLE RIDE
-// ======================================================
+/* =========================
+   GET RIDE
+========================= */
 
 app.get("/api/ride/:id", async (req, res) => {
 
     try {
 
-        const rideId =
-            Number(req.params.id);
-
-
         const { data: ride, error } =
             await supabase
                 .from("rides")
                 .select("*")
-                .eq("id", rideId)
+                .eq("id", req.params.id)
                 .single();
 
-
         if (error || !ride) {
-
             return res.status(404).json({
-                success: false,
-                message: "Ride not found"
+                error: "Ride not found"
             });
-
         }
 
-
         let driver = null;
-
 
         if (ride.driver_id) {
 
             const { data: driverData } =
                 await supabase
                     .from("drivers")
-                    .select(
-                        "id,name,phone,vehicle_type,vehicle_number,rating,online,status,lat,lng"
-                    )
+                    .select("*")
                     .eq("id", ride.driver_id)
                     .maybeSingle();
 
-            driver = driverData || null;
+            if (driverData) {
 
-        }
-
-
-        res.json({
-
-            success: true,
-
-            ride: {
-
-                ...ride,
-
-                driver: driver
+                driver =
+                    await autoApproveDriver(
+                        driverData
+                    );
 
             }
 
-        });
+        }
 
+        res.json({
+            ride,
+            driver
+        });
 
     } catch (error) {
 
         res.status(500).json({
-            success: false,
-            message: error.message
+            error: error.message
         });
 
     }
-
 });
 
 
-// ======================================================
-// CUSTOMER RIDE HISTORY
-// ======================================================
+/* =========================
+   CUSTOMER RIDE HISTORY
+========================= */
 
-app.get("/api/customer/:id/rides", async (req, res) => {
+app.get(
+    "/api/customer/:id/rides",
+    async (req, res) => {
 
-    try {
+        try {
 
-        const customerId =
-            Number(req.params.id);
+            const { data, error } =
+                await supabase
+                    .from("rides")
+                    .select("*")
+                    .eq(
+                        "customer_id",
+                        req.params.id
+                    )
+                    .order("created_at", {
+                        ascending: false
+                    });
 
-
-        const { data, error } =
-            await supabase
-                .from("rides")
-                .select("*")
-                .eq("customer_id", customerId)
-                .order("created_at", {
-                    ascending: false
+            if (error) {
+                return res.status(500).json({
+                    error: error.message
                 });
+            }
 
+            res.json({
+                rides: data || []
+            });
 
-        if (error) {
+        } catch (error) {
 
-            return res.status(500).json({
-                success: false,
-                message: error.message
+            res.status(500).json({
+                error: error.message
             });
 
         }
 
-
-        res.json({
-
-            success: true,
-
-            count: data.length,
-
-            rides: data
-
-        });
-
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-
     }
-
-});
-
-
-// ======================================================
-// DRIVER RIDE HISTORY
-// ======================================================
-
-app.get("/api/driver/:id/rides", async (req, res) => {
-
-    try {
-
-        const driverId =
-            Number(req.params.id);
+);
 
 
-        const { data, error } =
-            await supabase
-                .from("rides")
-                .select("*")
-                .eq("driver_id", driverId)
-                .order("created_at", {
-                    ascending: false
+/* =========================
+   DRIVER RIDE HISTORY
+========================= */
+
+app.get(
+    "/api/driver/:id/history",
+    async (req, res) => {
+
+        try {
+
+            const { data, error } =
+                await supabase
+                    .from("rides")
+                    .select("*")
+                    .eq(
+                        "driver_id",
+                        req.params.id
+                    )
+                    .order("created_at", {
+                        ascending: false
+                    });
+
+            if (error) {
+                return res.status(500).json({
+                    error: error.message
                 });
+            }
 
+            res.json({
+                rides: data || []
+            });
 
-        if (error) {
+        } catch (error) {
 
-            return res.status(500).json({
-                success: false,
-                message: error.message
+            res.status(500).json({
+                error: error.message
             });
 
         }
 
-
-        res.json({
-
-            success: true,
-
-            count: data.length,
-
-            rides: data
-
-        });
-
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-
     }
+);
 
-});
 
-
-// ======================================================
-// GET SEARCHING RIDES
-// ======================================================
+/* =========================
+   SEARCHING RIDES
+========================= */
 
 app.get("/api/rides", async (req, res) => {
 
@@ -955,715 +816,520 @@ app.get("/api/rides", async (req, res) => {
                     ascending: false
                 });
 
-
         if (error) {
-
             return res.status(500).json({
-                success: false,
-                message: error.message
+                error: error.message
             });
-
         }
 
-
         res.json({
-
-            success: true,
-
-            count: data.length,
-
-            rides: data
-
+            rides: data || []
         });
-
 
     } catch (error) {
 
         res.status(500).json({
-            success: false,
-            message: error.message
+            error: error.message
         });
 
     }
-
 });
 
 
-// ======================================================
-// ACCEPT RIDE
-// ======================================================
+/* =========================
+   ACCEPT RIDE
+========================= */
 
-app.post("/api/ride/:rideId/accept", async (req, res) => {
+app.post(
+    "/api/ride/:rideId/accept",
+    async (req, res) => {
 
-    try {
+        try {
 
-        const rideId =
-            Number(req.params.rideId);
+            const rideId =
+                req.params.rideId;
 
-        const driverId =
-            Number(req.body.driver_id);
+            const { driver_id } =
+                req.body;
 
-
-        if (!driverId) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Driver ID required"
-            });
-
-        }
-
-
-        // Driver check
-
-        const { data: driver, error: driverError } =
-            await supabase
-                .from("drivers")
-                .select("*")
-                .eq("id", driverId)
-                .single();
-
-
-        if (driverError || !driver) {
-
-            return res.status(404).json({
-                success: false,
-                message: "Driver not found"
-            });
-
-        }
-
-
-        if (driver.status !== "approved") {
-
-            return res.status(403).json({
-                success: false,
-                message:
-                    "Driver is not approved"
-            });
-
-        }
-
-
-        if (!driver.online) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Driver is offline"
-            });
-
-        }
-
-
-        // Find ride
-
-        const { data: ride } =
-            await supabase
-                .from("rides")
-                .select("*")
-                .eq("id", rideId)
-                .single();
-
-
-        if (!ride) {
-
-            return res.status(404).json({
-                success: false,
-                message: "Ride not found"
-            });
-
-        }
-
-
-        if (ride.status !== "searching") {
-
-            return res.status(409).json({
-                success: false,
-                message:
-                    "Ride already accepted by another driver"
-            });
-
-        }
-
-
-        // Vehicle matching
-
-        if (
-            ride.ride_type.toLowerCase() !==
-            driver.vehicle_type.toLowerCase()
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Vehicle type does not match"
-            });
-
-        }
-
-
-        const { data: updatedRide, error } =
-            await supabase
-                .from("rides")
-                .update({
-
-                    driver_id: driverId,
-
-                    status: "accepted",
-
-                    driver_lat: driver.lat,
-
-                    driver_lng: driver.lng
-
-                })
-                .eq("id", rideId)
-                .eq("status", "searching")
-                .select()
-                .maybeSingle();
-
-
-        if (error) {
-
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
-
-        }
-
-
-        if (!updatedRide) {
-
-            return res.status(409).json({
-                success: false,
-                message:
-                    "Ride was already accepted"
-            });
-
-        }
-
-
-        res.json({
-
-            success: true,
-
-            message: "Ride accepted",
-
-            ride: updatedRide,
-
-            driver: {
-
-                id: driver.id,
-
-                name: driver.name,
-
-                vehicle_type:
-                    driver.vehicle_type,
-
-                vehicle_number:
-                    driver.vehicle_number,
-
-                rating:
-                    driver.rating,
-
-                lat:
-                    driver.lat,
-
-                lng:
-                    driver.lng
-
+            if (!driver_id) {
+                return res.status(400).json({
+                    error: "Driver ID required"
+                });
             }
 
-        });
-
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-
-    }
-
-});
-
-
-// ======================================================
-// REJECT RIDE
-// ======================================================
-
-app.post("/api/ride/:rideId/reject", async (req, res) => {
-
-    res.json({
-
-        success: true,
-
-        message: "Ride rejected"
-
-    });
-
-});
-
-
-// ======================================================
-// START RIDE
-// ======================================================
-
-app.post("/api/ride/:rideId/start", async (req, res) => {
-
-    try {
-
-        const rideId =
-            Number(req.params.rideId);
-
-        const driverId =
-            Number(req.body.driver_id);
-
-
-        const { data: ride } =
-            await supabase
-                .from("rides")
-                .select("*")
-                .eq("id", rideId)
-                .eq("driver_id", driverId)
-                .single();
-
-
-        if (!ride) {
-
-            return res.status(404).json({
-                success: false,
-                message: "Ride not found"
-            });
-
-        }
-
-
-        if (ride.status !== "accepted") {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Ride cannot be started"
-            });
-
-        }
-
-
-        const { data, error } =
-            await supabase
-                .from("rides")
-                .update({
-
-                    status: "started",
-
-                    started_at:
-                        new Date().toISOString()
-
-                })
-                .eq("id", rideId)
-                .select()
-                .single();
-
-
-        if (error) {
-
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
-
-        }
-
-
-        res.json({
-
-            success: true,
-
-            message: "Ride started",
-
-            ride: data
-
-        });
-
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-
-    }
-
-});
-
-
-// ======================================================
-// COMPLETE RIDE
-// ======================================================
-
-app.post("/api/ride/:rideId/complete", async (req, res) => {
-
-    try {
-
-        const rideId =
-            Number(req.params.rideId);
-
-        const driverId =
-            Number(req.body.driver_id);
-
-
-        const { data: ride } =
-            await supabase
-                .from("rides")
-                .select("*")
-                .eq("id", rideId)
-                .eq("driver_id", driverId)
-                .single();
-
-
-        if (!ride) {
-
-            return res.status(404).json({
-                success: false,
-                message: "Ride not found"
-            });
-
-        }
-
-
-        if (ride.status !== "started") {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Ride has not been started"
-            });
-
-        }
-
-
-        const { data, error } =
-            await supabase
-                .from("rides")
-                .update({
-
-                    status: "completed",
-
-                    completed_at:
-                        new Date().toISOString()
-
-                })
-                .eq("id", rideId)
-                .select()
-                .single();
-
-
-        if (error) {
-
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
-
-        }
-
-
-        res.json({
-
-            success: true,
-
-            message: "Ride completed",
-
-            ride: data
-
-        });
-
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-
-    }
-
-});
-
-
-// ======================================================
-// CANCEL RIDE
-// ======================================================
-
-app.post("/api/ride/:rideId/cancel", async (req, res) => {
-
-    try {
-
-        const rideId =
-            Number(req.params.rideId);
-
-
-        const { data, error } =
-            await supabase
-                .from("rides")
-                .update({
-
-                    status: "cancelled"
-
-                })
-                .eq("id", rideId)
-                .in("status", [
-                    "searching",
-                    "accepted"
-                ])
-                .select()
-                .maybeSingle();
-
-
-        if (error) {
-
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
-
-        }
-
-
-        if (!data) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Ride cannot be cancelled"
-            });
-
-        }
-
-
-        res.json({
-
-            success: true,
-
-            message: "Ride cancelled",
-
-            ride: data
-
-        });
-
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
-
-    }
-
-});
-
-
-// ======================================================
-// CUSTOMER RATING
-// ======================================================
-
-app.post("/api/ride/:rideId/rating", async (req, res) => {
-
-    try {
-
-        const rideId =
-            Number(req.params.rideId);
-
-        const rating =
-            Number(req.body.rating);
-
-        const review =
-            req.body.review
-                ? String(req.body.review)
-                : "";
-
-
-        if (
-            !Number.isInteger(rating) ||
-            rating < 1 ||
-            rating > 5
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Rating must be between 1 and 5"
-            });
-
-        }
-
-
-        const { data: ride } =
-            await supabase
-                .from("rides")
-                .select("*")
-                .eq("id", rideId)
-                .single();
-
-
-        if (!ride) {
-
-            return res.status(404).json({
-                success: false,
-                message: "Ride not found"
-            });
-
-        }
-
-
-        if (ride.status !== "completed") {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Ride is not completed"
-            });
-
-        }
-
-
-        const { data, error } =
-            await supabase
-                .from("rides")
-                .update({
-
-                    rating: rating,
-
-                    review: review
-
-                })
-                .eq("id", rideId)
-                .select()
-                .single();
-
-
-        if (error) {
-
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
-
-        }
-
-
-        // Update driver average rating
-
-        if (ride.driver_id) {
-
-            const { data: ratedRides } =
-                await supabase
-                    .from("rides")
-                    .select("rating")
-                    .eq(
-                        "driver_id",
-                        ride.driver_id
-                    )
-                    .not("rating", "is", null);
-
-
-            if (ratedRides && ratedRides.length) {
-
-                const total =
-                    ratedRides.reduce(
-                        (sum, item) =>
-                            sum + Number(item.rating),
-                        0
-                    );
-
-                const average =
-                    total / ratedRides.length;
-
-
+            const { data: driverData,
+                    error: driverError } =
                 await supabase
                     .from("drivers")
+                    .select("*")
+                    .eq("id", driver_id)
+                    .single();
+
+            if (
+                driverError ||
+                !driverData
+            ) {
+                return res.status(404).json({
+                    error: "Driver not found"
+                });
+            }
+
+            const driver =
+                await autoApproveDriver(
+                    driverData
+                );
+
+            if (driver.status !== "approved") {
+                return res.status(403).json({
+                    error: "Driver not approved"
+                });
+            }
+
+            if (!driver.online) {
+                return res.status(400).json({
+                    error: "Driver is offline"
+                });
+            }
+
+            const { data: ride,
+                    error: rideError } =
+                await supabase
+                    .from("rides")
+                    .select("*")
+                    .eq("id", rideId)
+                    .single();
+
+            if (
+                rideError ||
+                !ride
+            ) {
+                return res.status(404).json({
+                    error: "Ride not found"
+                });
+            }
+
+            if (ride.status !== "searching") {
+                return res.status(400).json({
+                    error: "Ride already accepted"
+                });
+            }
+
+            if (
+                ride.ride_type.toLowerCase() !==
+                driver.vehicle_type.toLowerCase()
+            ) {
+                return res.status(400).json({
+                    error:
+                        "Vehicle type does not match"
+                });
+            }
+
+            const { data, error } =
+                await supabase
+                    .from("rides")
                     .update({
+                        driver_id,
+                        status: "accepted",
+                        driver_lat:
+                            driver.lat,
+                        driver_lng:
+                            driver.lng
+                    })
+                    .eq("id", rideId)
+                    .eq(
+                        "status",
+                        "searching"
+                    )
+                    .select()
+                    .single();
 
-                        rating:
-                            Math.round(
-                                average * 10
-                            ) / 10
+            if (error) {
+                return res.status(500).json({
+                    error: error.message
+                });
+            }
 
+            res.json({
+                success: true,
+                ride: data
+            });
+
+        } catch (error) {
+
+            res.status(500).json({
+                error: error.message
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================
+   REJECT
+========================= */
+
+app.post(
+    "/api/ride/:rideId/reject",
+    async (req, res) => {
+
+        res.json({
+            success: true,
+            message: "Ride rejected"
+        });
+
+    }
+);
+
+
+/* =========================
+   START RIDE
+========================= */
+
+app.post(
+    "/api/ride/:rideId/start",
+    async (req, res) => {
+
+        try {
+
+            const rideId =
+                req.params.rideId;
+
+            const { driver_id } =
+                req.body;
+
+            const { data, error } =
+                await supabase
+                    .from("rides")
+                    .update({
+                        status: "started",
+                        started_at:
+                            new Date()
+                                .toISOString()
+                    })
+                    .eq("id", rideId)
+                    .eq(
+                        "driver_id",
+                        driver_id
+                    )
+                    .eq(
+                        "status",
+                        "accepted"
+                    )
+                    .select()
+                    .single();
+
+            if (error) {
+                return res.status(400).json({
+                    error: error.message
+                });
+            }
+
+            res.json({
+                success: true,
+                ride: data
+            });
+
+        } catch (error) {
+
+            res.status(500).json({
+                error: error.message
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================
+   COMPLETE RIDE
+========================= */
+
+app.post(
+    "/api/ride/:rideId/complete",
+    async (req, res) => {
+
+        try {
+
+            const rideId =
+                req.params.rideId;
+
+            const { driver_id } =
+                req.body;
+
+            const { data, error } =
+                await supabase
+                    .from("rides")
+                    .update({
+                        status: "completed",
+                        completed_at:
+                            new Date()
+                                .toISOString()
+                    })
+                    .eq("id", rideId)
+                    .eq(
+                        "driver_id",
+                        driver_id
+                    )
+                    .eq(
+                        "status",
+                        "started"
+                    )
+                    .select()
+                    .single();
+
+            if (error) {
+                return res.status(400).json({
+                    error: error.message
+                });
+            }
+
+            res.json({
+                success: true,
+                ride: data
+            });
+
+        } catch (error) {
+
+            res.status(500).json({
+                error: error.message
+            });
+
+        }
+
+    }
+);
+
+
+/* =========================
+   CANCEL RIDE
+========================= */
+
+app.post(
+    "/api/ride/:rideId/cancel",
+    async (req, res) => {
+
+        try {
+
+            const rideId =
+                req.params.rideId;
+
+            const { customer_id } =
+                req.body;
+
+            const { data, error } =
+                await supabase
+                    .from("rides")
+                    .update({
+                        status: "cancelled"
                     })
                     .eq(
                         "id",
-                        ride.driver_id
-                    );
+                        rideId
+                    )
+                    .eq(
+                        "customer_id",
+                        customer_id
+                    )
+                    .in(
+                        "status",
+                        [
+                            "searching",
+                            "accepted"
+                        ]
+                    )
+                    .select()
+                    .single();
 
+            if (error) {
+                return res.status(400).json({
+                    error: error.message
+                });
             }
+
+            res.json({
+                success: true,
+                ride: data
+            });
+
+        } catch (error) {
+
+            res.status(500).json({
+                error: error.message
+            });
 
         }
 
-
-        res.json({
-
-            success: true,
-
-            message: "Rating submitted",
-
-            ride: data
-
-        });
+    }
+);
 
 
-    } catch (error) {
+/* =========================
+   RATING
+========================= */
 
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+app.post(
+    "/api/ride/:rideId/rating",
+    async (req, res) => {
+
+        try {
+
+            const rideId =
+                req.params.rideId;
+
+            const {
+                customer_id,
+                rating,
+                review
+            } = req.body;
+
+            const ratingNumber =
+                Number(rating);
+
+            if (
+                !customer_id ||
+                !ratingNumber ||
+                ratingNumber < 1 ||
+                ratingNumber > 5
+            ) {
+                return res.status(400).json({
+                    error:
+                        "Valid rating required"
+                });
+            }
+
+            const { data: ride,
+                    error: rideError } =
+                await supabase
+                    .from("rides")
+                    .select("*")
+                    .eq(
+                        "id",
+                        rideId
+                    )
+                    .eq(
+                        "customer_id",
+                        customer_id
+                    )
+                    .single();
+
+            if (
+                rideError ||
+                !ride
+            ) {
+                return res.status(404).json({
+                    error: "Ride not found"
+                });
+            }
+
+            const { data, error } =
+                await supabase
+                    .from("rides")
+                    .update({
+                        rating:
+                            ratingNumber,
+                        review:
+                            review || null
+                    })
+                    .eq(
+                        "id",
+                        rideId
+                    )
+                    .select()
+                    .single();
+
+            if (error) {
+                return res.status(500).json({
+                    error: error.message
+                });
+            }
+
+            if (ride.driver_id) {
+
+                const { data: ratings } =
+                    await supabase
+                        .from("rides")
+                        .select("rating")
+                        .eq(
+                            "driver_id",
+                            ride.driver_id
+                        )
+                        .not(
+                            "rating",
+                            "is",
+                            null
+                        );
+
+                if (
+                    ratings &&
+                    ratings.length
+                ) {
+
+                    const total =
+                        ratings.reduce(
+                            (sum, item) =>
+                                sum +
+                                Number(
+                                    item.rating
+                                ),
+                            0
+                        );
+
+                    const average =
+                        total /
+                        ratings.length;
+
+                    await supabase
+                        .from("drivers")
+                        .update({
+                            rating:
+                                Number(
+                                    average
+                                        .toFixed(1)
+                                )
+                        })
+                        .eq(
+                            "id",
+                            ride.driver_id
+                        );
+
+                }
+
+            }
+
+            res.json({
+                success: true,
+                ride: data
+            });
+
+        } catch (error) {
+
+            res.status(500).json({
+                error: error.message
+            });
+
+        }
 
     }
+);
 
-});
 
+/* =========================
+   SERVER
+========================= */
 
-// ======================================================
-// SERVER START
-// ======================================================
+const PORT =
+    process.env.PORT || 10000;
 
 app.listen(
     PORT,
     "0.0.0.0",
     () => {
-
-        console.log("");
         console.log(
-            "======================================"
+            `RideMini server running on port ${PORT}`
         );
-
-        console.log(
-            "🚕 RideMini Backend Started"
-        );
-
-        console.log(
-            "======================================"
-        );
-
-        console.log(
-            "Port:",
-            PORT
-        );
-
-        console.log(
-            "Database: Supabase"
-        );
-
-        console.log(
-            "Status: ONLINE"
-        );
-
-        console.log("");
-
     }
 );
