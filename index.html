@@ -1,679 +1,546 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>RideMini</title>
 
 <style>
-*{
-    box-sizing:border-box;
-}
-
+*{box-sizing:border-box}
 body{
     margin:0;
-    font-family:Arial,sans-serif;
-    background:#f4f4f4;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f5f5f5;
     color:#111;
 }
-
-.app{
+.container{
     max-width:500px;
     margin:auto;
     min-height:100vh;
-    background:white;
+    background:#fff;
+    padding-bottom:30px;
 }
-
 .header{
     background:#111;
     color:white;
-    padding:22px 18px;
+    padding:22px 20px;
 }
-
 .header h1{
     margin:0;
     font-size:28px;
 }
-
 .header p{
     margin:7px 0 0;
     color:#bbb;
 }
-
-.content{
-    padding:16px;
-}
-
-.box{
-    background:white;
-    border:1px solid #e5e5e5;
+.card{
+    margin:15px;
+    padding:18px;
     border-radius:16px;
-    padding:16px;
-    margin-bottom:15px;
-    box-shadow:0 3px 12px rgba(0,0,0,.05);
+    background:#fff;
+    box-shadow:0 4px 18px rgba(0,0,0,.08);
 }
-
+h2{
+    margin-top:0;
+    font-size:20px;
+}
 input{
     width:100%;
     padding:14px;
+    margin:7px 0;
     border:1px solid #ddd;
     border-radius:10px;
     font-size:15px;
-    margin-bottom:10px;
     outline:none;
 }
-
 input:focus{
     border-color:#111;
 }
-
 button{
-    cursor:pointer;
-}
-
-.main-btn{
-    width:100%;
-    padding:15px;
     border:0;
-    border-radius:11px;
+    border-radius:10px;
+    padding:13px 16px;
+    font-weight:bold;
+    cursor:pointer;
     background:#111;
     color:white;
-    font-size:16px;
-    font-weight:bold;
 }
-
-.secondary-btn{
+button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+.full{
     width:100%;
-    padding:13px;
-    border:1px solid #ddd;
-    border-radius:11px;
-    background:white;
+}
+.secondary{
+    background:#eee;
     color:#111;
-    font-size:15px;
-    margin-top:8px;
 }
-
 .hidden{
-    display:none !important;
+    display:none!important;
 }
-
-.login-title{
-    margin-top:0;
+.error{
+    color:#d00;
+    font-size:14px;
+    margin-top:7px;
 }
-
-.otp-box{
-    text-align:center;
+.success{
+    color:#087a20;
+    font-size:14px;
+    margin-top:7px;
 }
-
-.otp-input{
-    text-align:center;
-    font-size:25px;
-    letter-spacing:8px;
-    font-weight:bold;
-}
-
-.test-otp{
-    background:#f1f1f1;
-    border:1px dashed #777;
+.testotp{
+    background:#fff3cd;
+    border:1px solid #ffe08a;
+    padding:14px;
     border-radius:10px;
-    padding:12px;
     margin:12px 0;
     font-weight:bold;
+    text-align:center;
 }
-
-.success{
-    color:#16803c;
-    font-weight:bold;
-}
-
-.error{
-    color:#d11;
-    font-weight:bold;
-}
-
-.user-bar{
-    background:#f5f5f5;
-    padding:12px;
-    border-radius:10px;
-    margin-bottom:15px;
-}
-
-.location-btn{
-    width:100%;
-    padding:12px;
-    border:1px solid #ddd;
-    background:white;
-    border-radius:10px;
-    margin-bottom:10px;
+.timer{
+    text-align:center;
     font-size:14px;
+    margin:10px 0;
+    color:#555;
 }
-
-.suggestions{
-    margin-top:-5px;
-    margin-bottom:10px;
-}
-
-.suggestion{
-    padding:12px;
-    border-bottom:1px solid #eee;
-    cursor:pointer;
-    font-size:14px;
-}
-
-.suggestion:hover{
-    background:#f5f5f5;
-}
-
-.ride-options{
-    display:flex;
-    gap:10px;
-}
-
-.ride{
-    flex:1;
-    padding:15px 5px;
-    border:1px solid #ddd;
-    background:white;
-    border-radius:12px;
-    font-size:15px;
-}
-
-.ride.active{
-    background:#111;
-    color:white;
-    border-color:#111;
-}
-
 .map{
-    height:180px;
-    border-radius:14px;
+    height:220px;
+    border-radius:15px;
     background:
-        linear-gradient(35deg,transparent 45%,#ddd 46%,#ddd 48%,transparent 49%),
-        linear-gradient(120deg,transparent 45%,#ddd 46%,#ddd 48%,transparent 49%),
-        #f1f1f1;
+      radial-gradient(circle at 20% 30%,#ddd 0 2px,transparent 3px),
+      radial-gradient(circle at 70% 65%,#ccc 0 2px,transparent 3px),
+      linear-gradient(125deg,transparent 47%,#ddd 48%,#ddd 51%,transparent 52%),
+      linear-gradient(35deg,transparent 47%,#ddd 48%,#ddd 51%,transparent 52%),
+      #f0f0f0;
     position:relative;
     overflow:hidden;
 }
-
-.map-title{
+.road{
     position:absolute;
-    top:12px;
-    left:12px;
-    background:white;
-    padding:8px 10px;
-    border-radius:8px;
-    font-size:12px;
+    width:130%;
+    height:8px;
+    background:#fff;
+    top:105px;
+    left:-15%;
+    transform:rotate(-15deg);
 }
-
-.map-pin{
+.marker{
     position:absolute;
-    left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
-    font-size:35px;
+    font-size:30px;
 }
-
-.fare{
-    font-size:28px;
-    font-weight:bold;
+.pickmarker{
+    left:25%;
+    top:55%;
 }
-
-.driver-card{
+.dropmarker{
+    right:22%;
+    top:20%;
+}
+.routeLine{
+    position:absolute;
+    width:55%;
+    height:4px;
     background:#111;
-    color:white;
-    padding:16px;
-    border-radius:15px;
+    left:30%;
+    top:47%;
+    transform:rotate(-25deg);
 }
-
-.driver-card small{
-    color:#bbb;
-}
-
-.history-item{
-    border-bottom:1px solid #eee;
-    padding:12px 0;
-}
-
-.history-item:last-child{
-    border-bottom:0;
-}
-
-.status{
+.locationInfo{
+    background:#f7f7f7;
     padding:10px;
     border-radius:10px;
-    background:#f4f4f4;
+    margin-top:8px;
+    font-size:13px;
+}
+.types{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+}
+.type{
+    border:1px solid #ddd;
+    padding:13px 5px;
+    border-radius:12px;
+    text-align:center;
+    cursor:pointer;
+}
+.type.active{
+    background:#111;
+    color:white;
+}
+.fare{
+    font-size:30px;
+    font-weight:bold;
+}
+.couponrow{
+    display:flex;
+    gap:8px;
+}
+.couponrow input{
+    margin:0;
+}
+.status{
+    padding:14px;
+    border-radius:12px;
+    background:#f1f1f1;
     margin-top:10px;
 }
-
-.rating{
-    display:flex;
-    gap:5px;
-    margin:12px 0;
+.driver{
+    border:1px solid #ddd;
+    padding:15px;
+    border-radius:12px;
+    margin-top:12px;
 }
-
-.star{
-    font-size:30px;
-    border:0;
-    background:none;
+.driver strong{
+    font-size:18px;
 }
-
-.footer{
-    text-align:center;
-    color:#999;
-    padding:25px;
+.historyItem{
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+    font-size:14px;
+}
+.logout{
+    background:#eee;
+    color:#111;
+    margin-top:10px;
+}
+.small{
     font-size:12px;
+    color:#666;
 }
 </style>
 </head>
 
 <body>
 
-<div class="app">
+<div class="container">
 
-    <div class="header">
-        <h1>🚕 RideMini</h1>
-        <p>Book your ride easily</p>
+<div class="header">
+    <h1>🚕 RideMini</h1>
+    <p>Ride anywhere, anytime.</p>
+</div>
+
+<!-- CUSTOMER LOGIN -->
+<div id="loginSection" class="card">
+    <h2>👤 Create Account</h2>
+
+    <input
+        id="customerName"
+        type="text"
+        placeholder="Enter your name"
+        autocomplete="name"
+    >
+
+    <input
+        id="customerPhone"
+        type="tel"
+        maxlength="10"
+        placeholder="10-digit mobile number"
+        inputmode="numeric"
+    >
+
+    <button class="full" onclick="sendOTP()">
+        Send OTP
+    </button>
+
+    <div id="loginError" class="error"></div>
+
+    <p class="small">
+        🇮🇳 Only Indian mobile numbers starting with 6, 7, 8 or 9 are accepted.
+    </p>
+</div>
+
+<!-- OTP -->
+<div id="otpSection" class="card hidden">
+    <h2>🔐 Verify Mobile</h2>
+
+    <div id="otpPhoneText" class="small"></div>
+
+    <div id="testOtpBox" class="testotp"></div>
+
+    <input
+        id="otpInput"
+        type="tel"
+        maxlength="6"
+        placeholder="Enter 6-digit OTP"
+        inputmode="numeric"
+    >
+
+    <button id="verifyBtn" class="full" onclick="verifyOTP()">
+        Verify OTP
+    </button>
+
+    <div id="otpError" class="error"></div>
+
+    <div id="otpTimer" class="timer"></div>
+
+    <button
+        id="resendBtn"
+        class="full secondary"
+        onclick="resendOTP()"
+        disabled
+    >
+        Resend OTP
+    </button>
+
+    <button class="full secondary" onclick="backToLogin()">
+        Change Number
+    </button>
+</div>
+
+<!-- APP -->
+<div id="appSection" class="hidden">
+
+    <div class="card">
+        <h2>👋 Hello, <span id="customerDisplay"></span></h2>
+        <div class="small">
+            +91 <span id="customerPhoneDisplay"></span>
+        </div>
+
+        <button class="logout full" onclick="logout()">
+            Logout
+        </button>
     </div>
 
-    <div class="content">
+    <!-- LOCATION -->
+    <div class="card">
+        <h2>📍 Where are you going?</h2>
 
-        <!-- LOGIN / REGISTER -->
-        <div id="loginSection" class="box">
+        <input
+            id="pickup"
+            type="text"
+            placeholder="Pickup location"
+            autocomplete="off"
+        >
 
-            <h2 class="login-title">👤 Customer Login</h2>
+        <button class="secondary full" onclick="useCurrentLocation('pickup')">
+            📍 Use My Current Location
+        </button>
 
-            <p style="color:#666;font-size:14px;">
-                Register karne ke liye mobile number verify karein.
+        <div id="pickupInfo" class="locationInfo hidden"></div>
+
+        <input
+            id="drop"
+            type="text"
+            placeholder="Drop location"
+            autocomplete="off"
+        >
+
+        <button class="secondary full" onclick="useCurrentLocation('drop')">
+            📍 Use My Current Location
+        </button>
+
+        <div id="dropInfo" class="locationInfo hidden"></div>
+    </div>
+
+    <!-- MAP -->
+    <div class="card">
+        <h2>🗺️ Route</h2>
+
+        <div class="map">
+            <div class="road"></div>
+            <div class="routeLine"></div>
+            <div class="marker pickmarker">📍</div>
+            <div class="marker dropmarker">🏁</div>
+        </div>
+
+        <div id="distanceText" class="locationInfo">
+            Enter pickup and drop location.
+        </div>
+    </div>
+
+    <!-- VEHICLE -->
+    <div class="card">
+        <h2>🚗 Choose Ride</h2>
+
+        <div class="types">
+
+            <div
+                id="bikeType"
+                class="type active"
+                onclick="selectRide('Bike')"
+            >
+                🏍️<br>
+                Bike
+            </div>
+
+            <div
+                id="autoType"
+                class="type"
+                onclick="selectRide('Auto')"
+            >
+                🛺<br>
+                Auto
+            </div>
+
+            <div
+                id="cabType"
+                class="type"
+                onclick="selectRide('Cab')"
+            >
+                🚕<br>
+                Cab
+            </div>
+
+        </div>
+    </div>
+
+    <!-- COUPON -->
+    <div class="card">
+        <h2>🎁 Coupon</h2>
+
+        <div class="couponrow">
+            <input
+                id="couponInput"
+                placeholder="Enter coupon"
+                autocomplete="off"
+            >
+            <button onclick="applyCoupon()">Apply</button>
+        </div>
+
+        <div id="couponMessage"></div>
+    </div>
+
+    <!-- FARE -->
+    <div class="card">
+        <h2>💰 Estimated Fare</h2>
+
+        <div class="fare">
+            ₹<span id="fare">0</span>
+        </div>
+
+        <div class="small">
+            Fare is calculated from actual road distance.
+        </div>
+
+        <button
+            id="bookBtn"
+            class="full"
+            onclick="bookRide()"
+            disabled
+        >
+            🚕 Book Ride
+        </button>
+    </div>
+
+    <!-- ACTIVE RIDE -->
+    <div id="rideSection" class="card hidden">
+
+        <h2>🚕 Your Ride</h2>
+
+        <div id="rideStatus" class="status">
+            Searching for driver...
+        </div>
+
+        <div id="driverBox" class="driver hidden">
+
+            <strong id="driverName">Driver</strong>
+
+            <p>
+                🚗 Vehicle:
+                <span id="driverVehicle">-</span>
             </p>
 
-            <input
-                type="text"
-                id="customerName"
-                placeholder="Your name"
-                maxlength="50"
-            >
+            <p>
+                ⭐ Rating:
+                <span id="driverRating">-</span>
+            </p>
 
-            <input
-                type="tel"
-                id="customerPhone"
-                placeholder="Mobile number"
-                maxlength="10"
-                inputmode="numeric"
-            >
-
-            <button class="main-btn" onclick="sendOTP()">
-                📱 Send OTP
-            </button>
-
-            <p id="loginMessage"></p>
+            <p>
+                📍 Driver Location:
+                <span id="driverLocation">Waiting...</span>
+            </p>
 
         </div>
 
-
-        <!-- OTP SECTION -->
-        <div id="otpSection" class="box otp-box hidden">
-
-            <h2>🔐 Verify Mobile</h2>
-
-            <p id="otpPhoneText" style="color:#666;"></p>
-
-            <input
-                type="tel"
-                id="otpInput"
-                class="otp-input"
-                placeholder="000000"
-                maxlength="6"
-                inputmode="numeric"
-            >
-
-            <!-- FREE TEST OTP -->
-            <div id="testOtpBox" class="test-otp"></div>
-
-            <button class="main-btn" onclick="verifyOTP()">
-                ✅ Verify OTP
-            </button>
-
-            <button class="secondary-btn" onclick="sendOTP()">
-                🔄 Resend OTP
-            </button>
-
-            <button class="secondary-btn" onclick="backToLogin()">
-                ← Change number
-            </button>
-
-            <p id="otpMessage"></p>
-
-        </div>
-
-
-        <!-- MAIN APP -->
-        <div id="appSection" class="hidden">
-
-            <div class="user-bar">
-                👋 Welcome,
-                <b id="customerDisplayName">Customer</b>
-                <br>
-                <small id="customerDisplayPhone"></small>
-            </div>
-
-
-            <!-- LOCATION -->
-            <div class="box">
-
-                <h3>📍 Your Ride</h3>
-
-                <input
-                    type="text"
-                    id="pickup"
-                    placeholder="Pickup location"
-                    autocomplete="off"
-                    oninput="searchLocation('pickup')"
-                >
-
-                <div id="pickupSuggestions" class="suggestions"></div>
-
-                <button class="location-btn" onclick="useCurrentLocation('pickup')">
-                    📍 Use My Location as Pickup
-                </button>
-
-
-                <input
-                    type="text"
-                    id="drop"
-                    placeholder="Where to?"
-                    autocomplete="off"
-                    oninput="searchLocation('drop')"
-                >
-
-                <div id="dropSuggestions" class="suggestions"></div>
-
-                <button class="location-btn" onclick="useCurrentLocation('drop')">
-                    📍 Use My Location as Drop
-                </button>
-
-            </div>
-
-
-            <!-- MAP -->
-            <div class="box">
-                <div class="map">
-                    <div class="map-title">🗺️ Route Preview</div>
-                    <div class="map-pin">📍</div>
-                </div>
-            </div>
-
-
-            <!-- RIDE TYPE -->
-            <div class="box">
-
-                <h3>Choose your ride</h3>
-
-                <div class="ride-options">
-
-                    <button
-                        id="bikeBtn"
-                        class="ride active"
-                        onclick="selectRide('Bike')"
-                    >
-                        🏍️<br>
-                        <b>Bike</b>
-                    </button>
-
-                    <button
-                        id="autoBtn"
-                        class="ride"
-                        onclick="selectRide('Auto')"
-                    >
-                        🛺<br>
-                        <b>Auto</b>
-                    </button>
-
-                    <button
-                        id="cabBtn"
-                        class="ride"
-                        onclick="selectRide('Cab')"
-                    >
-                        🚕<br>
-                        <b>Cab</b>
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- COUPON -->
-            <div class="box">
-
-                <h3>🎟️ Coupon</h3>
-
-                <input
-                    type="text"
-                    id="couponCode"
-                    placeholder="WELCOME50"
-                >
-
-                <button
-                    class="secondary-btn"
-                    onclick="applyCoupon()"
-                >
-                    Apply Coupon
-                </button>
-
-                <p id="couponMessage"></p>
-
-            </div>
-
-
-            <!-- FARE -->
-            <div class="box">
-
-                <h3>💰 Estimated Fare</h3>
-
-                <div class="fare" id="fare">
-                    ₹--
-                </div>
-
-                <p id="distanceText">
-                    Distance: --
-                </p>
-
-                <button
-                    class="secondary-btn"
-                    onclick="calculateRoute()"
-                >
-                    🧭 Calculate Fare
-                </button>
-
-            </div>
-
-
-            <!-- BOOK -->
-            <button
-                class="main-btn"
-                onclick="bookRide()"
-            >
-                🚕 Book Ride
-            </button>
-
-
-            <!-- ACTIVE RIDE -->
-            <div id="activeRideBox" class="box hidden">
-
-                <h3>🚕 Your Ride</h3>
-
-                <div id="rideStatus" class="status">
-                    Searching for driver...
-                </div>
-
-                <div id="driverCard" class="driver-card hidden">
-
-                    <h3 id="driverName">
-                        Driver
-                    </h3>
-
-                    <p>
-                        🚘 Vehicle:
-                        <b id="driverVehicle"></b>
-                    </p>
-
-                    <p>
-                        ⭐ Rating:
-                        <b id="driverRating"></b>
-                    </p>
-
-                    <small>
-                        📍 Driver location:
-                        <span id="driverLocation"></span>
-                    </small>
-
-                </div>
-
-                <button
-                    class="secondary-btn"
-                    onclick="cancelRide()"
-                >
-                    ❌ Cancel Ride
-                </button>
-
-            </div>
-
-
-            <!-- RATING -->
-            <div id="ratingBox" class="box hidden">
-
-                <h3>⭐ Rate your ride</h3>
-
-                <div class="rating">
-
-                    <button class="star" onclick="setRating(1)">⭐</button>
-                    <button class="star" onclick="setRating(2)">⭐</button>
-                    <button class="star" onclick="setRating(3)">⭐</button>
-                    <button class="star" onclick="setRating(4)">⭐</button>
-                    <button class="star" onclick="setRating(5)">⭐</button>
-
-                </div>
-
-                <input
-                    type="text"
-                    id="review"
-                    placeholder="Write a review (optional)"
-                >
-
-                <button
-                    class="main-btn"
-                    onclick="submitRating()"
-                >
-                    Submit Rating
-                </button>
-
-                <p id="ratingMessage"></p>
-
-            </div>
-
-
-            <!-- HISTORY -->
-            <div class="box">
-
-                <h3>📜 My Ride History</h3>
-
-                <button
-                    class="secondary-btn"
-                    onclick="loadHistory()"
-                >
-                    🔄 Refresh History
-                </button>
-
-                <div id="history">
-                    No rides yet.
-                </div>
-
-            </div>
-
-
-            <!-- LOGOUT -->
-            <button
-                class="secondary-btn"
-                onclick="logout()"
-            >
-                🚪 Logout
-            </button>
-
-        </div>
+        <button
+            id="cancelBtn"
+            class="full secondary"
+            onclick="cancelRide()"
+        >
+            Cancel Ride
+        </button>
 
     </div>
 
-    <div class="footer">
-        RideMini © 2026
+    <!-- RATING -->
+    <div id="ratingSection" class="card hidden">
+
+        <h2>⭐ Rate Your Ride</h2>
+
+        <select
+            id="rating"
+            style="width:100%;padding:13px;border-radius:10px;border:1px solid #ddd"
+        >
+            <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+            <option value="4">⭐⭐⭐⭐ Good</option>
+            <option value="3">⭐⭐⭐ Average</option>
+            <option value="2">⭐⭐ Poor</option>
+            <option value="1">⭐ Bad</option>
+        </select>
+
+        <input
+            id="review"
+            placeholder="Write a review (optional)"
+        >
+
+        <button class="full" onclick="submitRating()">
+            Submit Rating
+        </button>
+
+    </div>
+
+    <!-- HISTORY -->
+    <div class="card">
+
+        <h2>📜 Ride History</h2>
+
+        <div id="history">
+            Loading history...
+        </div>
+
     </div>
 
 </div>
 
+</div>
 
 <script>
 
-/* =========================
-   CONFIG
-========================= */
-
 const API = "https://ridemini.onrender.com";
 
-let selectedRide = "Bike";
-let selectedCoupon = 0;
+let otpCode = "";
+let otpPhone = "";
+let otpName = "";
+
+let otpExpiresAt = 0;
+let resendAvailableAt = 0;
+let otpAttempts = 0;
+
+let timerInterval = null;
+
+let customer = JSON.parse(
+    localStorage.getItem("ridemini_customer") || "null"
+);
+
+let activeRideId =
+    localStorage.getItem("ridemini_active_ride") || null;
 
 let pickupCoords = null;
 let dropCoords = null;
 
-let currentDistance = 0;
-let currentFare = 0;
+let selectedRide = "Bike";
+let distanceKm = 0;
+let discount = 0;
 
-let activeRideId = localStorage.getItem("activeRideId");
-
-let currentRating = 0;
-
-let otpCode = null;
-let otpPhone = null;
-let otpName = null;
+let pickupTimer = null;
+let dropTimer = null;
 
 
 /* =========================
-   TELEGRAM
-========================= */
-
-if(window.Telegram && Telegram.WebApp){
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-}
-
-
-/* =========================
-   START
-========================= */
-
-window.onload = function(){
-
-    const customer =
-        JSON.parse(localStorage.getItem("rideCustomer") || "null");
-
-    if(customer){
-
-        showApp(customer);
-
-        if(activeRideId){
-            document.getElementById("activeRideBox")
-                .classList.remove("hidden");
-
-            pollRide();
-        }
-
-        loadHistory();
-    }
-
-};
-
-
-/* =========================
-   SEND OTP
+   OTP
 ========================= */
 
 function sendOTP(){
@@ -682,65 +549,165 @@ function sendOTP(){
         document.getElementById("customerName").value.trim();
 
     const phone =
-        document.getElementById("customerPhone").value
+        document
+        .getElementById("customerPhone")
+        .value
         .replace(/\D/g,"");
 
+    const error =
+        document.getElementById("loginError");
+
+    error.innerText = "";
 
     if(name.length < 2){
-
-        showMessage(
-            "loginMessage",
-            "❌ Please enter your name.",
-            "error"
-        );
-
+        error.innerText = "❌ Please enter a valid name.";
         return;
     }
 
-
-    if(phone.length !== 10){
-
-        showMessage(
-            "loginMessage",
-            "❌ Enter a valid 10 digit mobile number.",
-            "error"
-        );
-
+    /*
+      Indian mobile number format:
+      first digit must be 6,7,8,9
+      total 10 digits
+    */
+    if(!/^[6-9][0-9]{9}$/.test(phone)){
+        error.innerText =
+            "❌ Invalid Indian mobile number.";
         return;
     }
-
 
     otpCode =
-        Math.floor(100000 + Math.random() * 900000).toString();
+        Math.floor(
+            100000 +
+            Math.random() * 900000
+        ).toString();
 
     otpPhone = phone;
     otpName = name;
 
+    otpAttempts = 0;
 
-    document.getElementById("loginSection")
+    otpExpiresAt =
+        Date.now() + (5 * 60 * 1000);
+
+    resendAvailableAt =
+        Date.now() + (30 * 1000);
+
+    document
+        .getElementById("loginSection")
         .classList.add("hidden");
 
-    document.getElementById("otpSection")
+    document
+        .getElementById("otpSection")
         .classList.remove("hidden");
 
-
-    document.getElementById("otpPhoneText").innerText =
+    document
+        .getElementById("otpPhoneText")
+        .innerText =
         "OTP verification for +91 " + phone;
 
-
     /*
-       FREE TEST OTP
-       Real SMS abhi nahi bheja ja raha.
+      TEST OTP ONLY.
+      Real SMS will be added later.
     */
-
-    document.getElementById("testOtpBox").innerText =
+    document
+        .getElementById("testOtpBox")
+        .innerText =
         "🧪 TEST OTP: " + otpCode;
 
+    document
+        .getElementById("otpInput")
+        .value = "";
 
-    document.getElementById("otpInput").value = "";
+    document
+        .getElementById("otpError")
+        .innerText = "";
 
-    document.getElementById("otpInput").focus();
+    document
+        .getElementById("verifyBtn")
+        .disabled = false;
 
+    document
+        .getElementById("otpInput")
+        .focus();
+
+    startOtpTimer();
+}
+
+
+/* =========================
+   OTP TIMER
+========================= */
+
+function startOtpTimer(){
+
+    clearInterval(timerInterval);
+
+    timerInterval =
+        setInterval(function(){
+
+            const now = Date.now();
+
+            const remaining =
+                Math.max(
+                    0,
+                    Math.floor(
+                        (otpExpiresAt - now) / 1000
+                    )
+                );
+
+            const minutes =
+                Math.floor(remaining / 60);
+
+            const seconds =
+                remaining % 60;
+
+            document
+                .getElementById("otpTimer")
+                .innerText =
+                remaining > 0
+                ?
+                "⏱️ OTP expires in " +
+                minutes + ":" +
+                String(seconds).padStart(2,"0")
+                :
+                "❌ OTP expired.";
+
+            const resendRemaining =
+                Math.max(
+                    0,
+                    Math.floor(
+                        (resendAvailableAt - now) / 1000
+                    )
+                );
+
+            const resendBtn =
+                document.getElementById("resendBtn");
+
+            if(resendRemaining <= 0){
+
+                resendBtn.disabled = false;
+                resendBtn.innerText =
+                    "🔄 Resend OTP";
+
+            }else{
+
+                resendBtn.disabled = true;
+                resendBtn.innerText =
+                    "Resend OTP (" +
+                    resendRemaining +
+                    "s)";
+            }
+
+            if(remaining <= 0){
+
+                clearInterval(timerInterval);
+
+                document
+                    .getElementById("verifyBtn")
+                    .disabled = true;
+            }
+
+        },1000);
 }
 
 
@@ -751,211 +718,215 @@ function sendOTP(){
 async function verifyOTP(){
 
     const entered =
-        document.getElementById("otpInput").value.trim();
+        document
+        .getElementById("otpInput")
+        .value
+        .trim();
 
+    const error =
+        document
+        .getElementById("otpError");
 
-    if(entered.length !== 6){
+    error.innerText = "";
 
-        showMessage(
-            "otpMessage",
-            "❌ 6 digit OTP enter karo.",
-            "error"
-        );
+    if(Date.now() > otpExpiresAt){
+
+        error.innerText =
+            "❌ OTP expired. Please resend.";
+
+        document
+            .getElementById("verifyBtn")
+            .disabled = true;
 
         return;
     }
 
+    if(otpAttempts >= 5){
+
+        error.innerText =
+            "🚫 Too many wrong attempts. Please resend OTP.";
+
+        document
+            .getElementById("verifyBtn")
+            .disabled = true;
+
+        return;
+    }
+
+    if(!/^[0-9]{6}$/.test(entered)){
+
+        error.innerText =
+            "❌ Enter a valid 6-digit OTP.";
+
+        return;
+    }
 
     if(entered !== otpCode){
 
-        showMessage(
-            "otpMessage",
-            "❌ Wrong OTP. Please try again.",
-            "error"
-        );
+        otpAttempts++;
+
+        const left =
+            5 - otpAttempts;
+
+        error.innerText =
+            "❌ Wrong OTP. " +
+            left +
+            " attempt(s) left.";
+
+        if(otpAttempts >= 5){
+
+            document
+                .getElementById("verifyBtn")
+                .disabled = true;
+
+            error.innerText =
+                "🚫 5 wrong attempts. Please resend OTP.";
+        }
 
         return;
     }
 
-
-    showMessage(
-        "otpMessage",
-        "✅ Mobile verified! Registering...",
-        "success"
-    );
-
+    /*
+      OTP correct.
+      Now register/login customer.
+    */
 
     try{
 
-        const response = await fetch(
-            API + "/api/customer/register",
-            {
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify({
-                    name:otpName,
-                    phone:otpPhone
-                })
-            }
-        );
-
-
-        const data = await response.json();
-
-
-        if(!response.ok || !data.success){
-
-            showMessage(
-                "otpMessage",
-                "❌ Registration failed: " +
-                (data.message || "Unknown error"),
-                "error"
+        const response =
+            await fetch(
+                API + "/api/customer/register",
+                {
+                    method:"POST",
+                    headers:{
+                        "Content-Type":
+                        "application/json"
+                    },
+                    body:JSON.stringify({
+                        name:otpName,
+                        phone:otpPhone
+                    })
+                }
             );
+
+        const data =
+            await response.json();
+
+        if(!response.ok){
+
+            error.innerText =
+                "❌ " +
+                (data.error ||
+                "Registration failed.");
 
             return;
         }
 
+        customer = data.customer || data;
 
         localStorage.setItem(
-            "rideCustomer",
-            JSON.stringify(data.customer)
+            "ridemini_customer",
+            JSON.stringify(customer)
         );
 
+        clearInterval(timerInterval);
 
-        document.getElementById("otpSection")
+        document
+            .getElementById("otpSection")
             .classList.add("hidden");
 
+        document
+            .getElementById("appSection")
+            .classList.remove("hidden");
 
-        showApp(data.customer);
-
+        showCustomer();
 
         loadHistory();
 
+        if(activeRideId){
+            startRidePolling();
+        }
 
-    }catch(error){
+    }catch(err){
 
-        showMessage(
-            "otpMessage",
-            "❌ Server connection problem.",
-            "error"
-        );
+        console.error(err);
 
-        console.error(error);
-
+        error.innerText =
+            "❌ Server connection problem.";
     }
-
 }
 
 
 /* =========================
-   SHOW APP
+   RESEND
 ========================= */
 
-function showApp(customer){
+function resendOTP(){
 
-    document.getElementById("loginSection")
-        .classList.add("hidden");
+    if(Date.now() < resendAvailableAt){
+        return;
+    }
 
-    document.getElementById("otpSection")
-        .classList.add("hidden");
-
-    document.getElementById("appSection")
-        .classList.remove("hidden");
-
-
-    document.getElementById("customerDisplayName")
-        .innerText = customer.name;
-
-
-    document.getElementById("customerDisplayPhone")
-        .innerText = "+91 " + customer.phone;
-
+    sendOTP();
 }
 
 
 /* =========================
-   BACK LOGIN
+   BACK
 ========================= */
 
 function backToLogin(){
 
-    document.getElementById("otpSection")
-        .classList.add("hidden");
-
-    document.getElementById("loginSection")
-        .classList.remove("hidden");
-
-}
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-function logout(){
-
-    localStorage.removeItem("rideCustomer");
-
-    localStorage.removeItem("activeRideId");
-
-    location.reload();
-
-}
-
-
-/* =========================
-   RIDE SELECT
-========================= */
-
-function selectRide(type){
-
-    selectedRide = type;
-
+    clearInterval(timerInterval);
 
     document
-        .querySelectorAll(".ride")
-        .forEach(btn => btn.classList.remove("active"));
+        .getElementById("otpSection")
+        .classList.add("hidden");
 
-
-    if(type === "Bike")
-        document.getElementById("bikeBtn")
-            .classList.add("active");
-
-
-    if(type === "Auto")
-        document.getElementById("autoBtn")
-            .classList.add("active");
-
-
-    if(type === "Cab")
-        document.getElementById("cabBtn")
-            .classList.add("active");
-
-
-    calculateFare();
-
+    document
+        .getElementById("loginSection")
+        .classList.remove("hidden");
 }
 
 
 /* =========================
-   CURRENT LOCATION
+   CUSTOMER
+========================= */
+
+function showCustomer(){
+
+    if(!customer) return;
+
+    document
+        .getElementById("customerDisplay")
+        .innerText =
+        customer.name || "";
+
+    document
+        .getElementById("customerPhoneDisplay")
+        .innerText =
+        customer.phone || "";
+}
+
+
+/* =========================
+   LOCATION
 ========================= */
 
 function useCurrentLocation(type){
 
     if(!navigator.geolocation){
 
-        alert("Location is not supported by this browser.");
+        alert(
+            "Location is not supported by this browser."
+        );
 
         return;
     }
 
-
     navigator.geolocation.getCurrentPosition(
 
-        async position => {
+        async function(position){
 
             const lat =
                 position.coords.latitude;
@@ -963,75 +934,61 @@ function useCurrentLocation(type){
             const lng =
                 position.coords.longitude;
 
-
             try{
 
                 const response =
                     await fetch(
-                        "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat="
-                        + lat +
+                        "https://nominatim.openstreetmap.org/reverse?format=json&lat=" +
+                        lat +
                         "&lon=" +
-                        lng
+                        lng +
+                        "&zoom=18&addressdetails=1",
+                        {
+                            headers:{
+                                "Accept-Language":"en"
+                            }
+                        }
                     );
-
 
                 const data =
                     await response.json();
 
-
                 const address =
                     data.display_name ||
-                    "Current Location";
+                    (lat + "," + lng);
 
+                setLocation(
+                    type,
+                    address,
+                    lat,
+                    lng
+                );
 
-                if(type === "pickup"){
+            }catch(err){
 
-                    document.getElementById("pickup")
-                        .value = address;
-
-                    pickupCoords = {
-                        lat:lat,
-                        lng:lng
-                    };
-
-                }else{
-
-                    document.getElementById("drop")
-                        .value = address;
-
-                    dropCoords = {
-                        lat:lat,
-                        lng:lng
-                    };
-
-                }
-
-
-                calculateRoute();
-
-            }catch(error){
-
-                alert("Location address nahi mil paya.");
-
+                setLocation(
+                    type,
+                    lat + "," + lng,
+                    lat,
+                    lng
+                );
             }
-
         },
 
-        error => {
+        function(error){
 
             alert(
-                "Location permission allow karo."
+                "Unable to get current location."
             );
 
         },
 
         {
             enableHighAccuracy:true,
-            timeout:15000
+            timeout:15000,
+            maximumAge:0
         }
-
     );
-
 }
 
 
@@ -1039,111 +996,182 @@ function useCurrentLocation(type){
    LOCATION SEARCH
 ========================= */
 
-let searchTimer = null;
+document
+.getElementById("pickup")
+.addEventListener(
+    "input",
+    function(){
 
-function searchLocation(type){
+        clearTimeout(pickupTimer);
 
-    clearTimeout(searchTimer);
+        const value =
+            this.value.trim();
 
-
-    const input =
-        document.getElementById(type).value.trim();
-
-
-    if(input.length < 3){
-
-        document.getElementById(
-            type + "Suggestions"
-        ).innerHTML = "";
-
-        return;
-    }
-
-
-    searchTimer = setTimeout(async function(){
-
-        try{
-
-            const url =
-                "https://nominatim.openstreetmap.org/search" +
-                "?format=jsonv2" +
-                "&limit=5" +
-                "&countrycodes=in" +
-                "&q=" +
-                encodeURIComponent(input);
-
-
-            const response =
-                await fetch(url);
-
-
-            const results =
-                await response.json();
-
-
-            const box =
-                document.getElementById(
-                    type + "Suggestions"
-                );
-
-
-            box.innerHTML = "";
-
-
-            results.forEach(item => {
-
-                const div =
-                    document.createElement("div");
-
-
-                div.className = "suggestion";
-
-                div.innerText =
-                    item.display_name;
-
-
-                div.onclick = function(){
-
-                    document.getElementById(type).value =
-                        item.display_name;
-
-
-                    if(type === "pickup"){
-
-                        pickupCoords = {
-                            lat:Number(item.lat),
-                            lng:Number(item.lon)
-                        };
-
-                    }else{
-
-                        dropCoords = {
-                            lat:Number(item.lat),
-                            lng:Number(item.lon)
-                        };
-
-                    }
-
-
-                    box.innerHTML = "";
-
-                    calculateRoute();
-
-                };
-
-
-                box.appendChild(div);
-
-            });
-
-        }catch(error){
-
-            console.log(error);
-
+        if(value.length < 3){
+            return;
         }
 
-    },500);
+        pickupTimer =
+            setTimeout(
+                function(){
+                    searchLocation(
+                        value,
+                        "pickup"
+                    );
+                },
+                700
+            );
+    }
+);
 
+
+document
+.getElementById("drop")
+.addEventListener(
+    "input",
+    function(){
+
+        clearTimeout(dropTimer);
+
+        const value =
+            this.value.trim();
+
+        if(value.length < 3){
+            return;
+        }
+
+        dropTimer =
+            setTimeout(
+                function(){
+                    searchLocation(
+                        value,
+                        "drop"
+                    );
+                },
+                700
+            );
+    }
+);
+
+
+async function searchLocation(
+    query,
+    type
+){
+
+    try{
+
+        const response =
+            await fetch(
+                "https://nominatim.openstreetmap.org/search?format=json&limit=5&q=" +
+                encodeURIComponent(query),
+                {
+                    headers:{
+                        "Accept-Language":"en"
+                    }
+                }
+            );
+
+        const results =
+            await response.json();
+
+        if(!results.length){
+            return;
+        }
+
+        const first =
+            results[0];
+
+        /*
+          Automatically select best result.
+          Current location button can be used
+          when exact location is needed.
+        */
+
+        const lat =
+            parseFloat(first.lat);
+
+        const lng =
+            parseFloat(first.lon);
+
+        setLocation(
+            type,
+            first.display_name,
+            lat,
+            lng
+        );
+
+    }catch(err){
+
+        console.log(
+            "Location search failed",
+            err
+        );
+    }
+}
+
+
+/* =========================
+   SET LOCATION
+========================= */
+
+function setLocation(
+    type,
+    address,
+    lat,
+    lng
+){
+
+    if(type === "pickup"){
+
+        pickupCoords = {
+            lat:lat,
+            lng:lng
+        };
+
+        document
+            .getElementById("pickup")
+            .value = address;
+
+        const info =
+            document.getElementById(
+                "pickupInfo"
+            );
+
+        info.innerText =
+            "📍 Selected: " +
+            address;
+
+        info.classList.remove(
+            "hidden"
+        );
+
+    }else{
+
+        dropCoords = {
+            lat:lat,
+            lng:lng
+        };
+
+        document
+            .getElementById("drop")
+            .value = address;
+
+        const info =
+            document.getElementById(
+                "dropInfo"
+            );
+
+        info.innerText =
+            "🏁 Selected: " +
+            address;
+
+        info.classList.remove(
+            "hidden"
+        );
+    }
+
+    calculateRoute();
 }
 
 
@@ -1155,55 +1183,112 @@ async function calculateRoute(){
 
     if(!pickupCoords || !dropCoords){
 
-        calculateFare();
+        document
+            .getElementById("bookBtn")
+            .disabled = true;
 
         return;
     }
-
 
     try{
 
         const url =
             "https://router.project-osrm.org/route/v1/driving/" +
             pickupCoords.lng + "," +
-            pickupCoords.lat + ";" +
+            pickupCoords.lat +
+            ";" +
             dropCoords.lng + "," +
             dropCoords.lat +
             "?overview=false";
 
-
         const response =
             await fetch(url);
-
 
         const data =
             await response.json();
 
-
-        if(data.routes && data.routes.length){
-
-            currentDistance =
-                data.routes[0].distance / 1000;
-
-
-            document.getElementById(
-                "distanceText"
-            ).innerText =
-                "Distance: " +
-                currentDistance.toFixed(2) +
-                " km";
-
-
-            calculateFare();
-
+        if(
+            !data.routes ||
+            !data.routes.length
+        ){
+            throw new Error(
+                "Route not found"
+            );
         }
 
-    }catch(error){
+        distanceKm =
+            data.routes[0].distance /
+            1000;
 
-        console.log(error);
+        document
+            .getElementById("distanceText")
+            .innerText =
+            "🛣️ Road distance: " +
+            distanceKm.toFixed(2) +
+            " km";
 
+        calculateFare();
+
+        document
+            .getElementById("bookBtn")
+            .disabled = false;
+
+    }catch(err){
+
+        console.error(err);
+
+        document
+            .getElementById("distanceText")
+            .innerText =
+            "❌ Could not calculate route.";
+
+        document
+            .getElementById("bookBtn")
+            .disabled = true;
+    }
+}
+
+
+/* =========================
+   RIDE TYPE
+========================= */
+
+function selectRide(type){
+
+    selectedRide = type;
+
+    document
+        .getElementById("bikeType")
+        .classList.remove("active");
+
+    document
+        .getElementById("autoType")
+        .classList.remove("active");
+
+    document
+        .getElementById("cabType")
+        .classList.remove("active");
+
+    if(type === "Bike"){
+
+        document
+            .getElementById("bikeType")
+            .classList.add("active");
+
+    }else if(type === "Auto"){
+
+        document
+            .getElementById("autoType")
+            .classList.add("active");
+
+    }else{
+
+        document
+            .getElementById("cabType")
+            .classList.add("active");
     }
 
+    calculateFare();
 }
 
 
@@ -1213,57 +1298,54 @@ async function calculateRoute(){
 
 function calculateFare(){
 
-    let distance =
-        currentDistance || 3;
+    if(!distanceKm){
 
+        document
+            .getElementById("fare")
+            .innerText = "0";
+
+        return;
+    }
 
     let base = 0;
     let perKm = 0;
 
-
     if(selectedRide === "Bike"){
 
         base = 30;
-        perKm = 10;
+        perKm = 9;
 
-    }
-
-
-    if(selectedRide === "Auto"){
+    }else if(selectedRide === "Auto"){
 
         base = 40;
-        perKm = 13;
+        perKm = 12;
 
+    }else{
+
+        base = 60;
+        perKm = 16;
     }
 
+    let total =
+        base +
+        (distanceKm * perKm);
 
-    if(selectedRide === "Cab"){
+    total =
+        Math.max(30,total);
 
-        base = 70;
-        perKm = 18;
+    total =
+        Math.max(
+            0,
+            total - discount
+        );
 
-    }
+    total =
+        Math.round(total);
 
-
-    let fare =
-        base + (distance * perKm);
-
-
-    fare -= selectedCoupon;
-
-
-    if(fare < 20)
-        fare = 20;
-
-
-    currentFare =
-        Math.round(fare);
-
-
-    document.getElementById("fare")
+    document
+        .getElementById("fare")
         .innerText =
-        "₹" + currentFare;
-
+        total;
 }
 
 
@@ -1274,64 +1356,60 @@ function calculateFare(){
 function applyCoupon(){
 
     const code =
-        document.getElementById("couponCode")
+        document
+        .getElementById("couponInput")
         .value
         .trim()
         .toUpperCase();
 
+    const message =
+        document
+        .getElementById(
+            "couponMessage"
+        );
 
-    selectedCoupon = 0;
-
+    discount = 0;
 
     if(code === "WELCOME50"){
 
-        selectedCoupon = 50;
+        discount = 50;
 
-        showMessage(
-            "couponMessage",
-            "✅ WELCOME50 applied! ₹50 off",
-            "success"
-        );
+        message.className =
+            "success";
 
+        message.innerText =
+            "✅ WELCOME50 applied — ₹50 OFF";
+
+    }else if(code === "RIDE20"){
+
+        discount = 20;
+
+        message.className =
+            "success";
+
+        message.innerText =
+            "✅ RIDE20 applied — ₹20 OFF";
+
+    }else if(code === "FIRST100"){
+
+        discount = 100;
+
+        message.className =
+            "success";
+
+        message.innerText =
+            "✅ FIRST100 applied — ₹100 OFF";
+
+    }else{
+
+        message.className =
+            "error";
+
+        message.innerText =
+            "❌ Invalid coupon.";
     }
-
-    else if(code === "RIDE20"){
-
-        selectedCoupon = 20;
-
-        showMessage(
-            "couponMessage",
-            "✅ RIDE20 applied! ₹20 off",
-            "success"
-        );
-
-    }
-
-    else if(code === "FIRST100"){
-
-        selectedCoupon = 100;
-
-        showMessage(
-            "couponMessage",
-            "✅ FIRST100 applied! ₹100 off",
-            "success"
-        );
-
-    }
-
-    else{
-
-        showMessage(
-            "couponMessage",
-            "❌ Invalid coupon",
-            "error"
-        );
-
-    }
-
 
     calculateFare();
-
 }
 
 
@@ -1341,52 +1419,48 @@ function applyCoupon(){
 
 async function bookRide(){
 
-    const customer =
-        JSON.parse(
-            localStorage.getItem("rideCustomer") || "null"
-        );
-
-
     if(!customer){
 
-        alert("Please login first.");
-
-        return;
-    }
-
-
-    const pickup =
-        document.getElementById("pickup")
-        .value.trim();
-
-
-    const drop =
-        document.getElementById("drop")
-        .value.trim();
-
-
-    if(!pickup || !drop){
-
         alert(
-            "Pickup aur Drop dono select karo."
+            "Please login first."
         );
 
         return;
     }
 
-
-    if(pickup === drop){
+    if(!pickupCoords || !dropCoords){
 
         alert(
-            "Pickup aur Drop same nahi ho sakte."
+            "Please select pickup and drop."
         );
 
         return;
     }
 
+    const fare =
+        parseInt(
+            document
+            .getElementById("fare")
+            .innerText
+        ) || 0;
 
-    calculateFare();
+    if(fare <= 0){
 
+        alert(
+            "Fare is not available."
+        );
+
+        return;
+    }
+
+    const button =
+        document
+        .getElementById("bookBtn");
+
+    button.disabled = true;
+
+    button.innerText =
+        "Booking...";
 
     try{
 
@@ -1396,281 +1470,339 @@ async function bookRide(){
                 {
                     method:"POST",
                     headers:{
-                        "Content-Type":"application/json"
+                        "Content-Type":
+                        "application/json"
                     },
                     body:JSON.stringify({
 
-                        customer_id:customer.id,
+                        customer_id:
+                            customer.id,
 
-                        pickup:pickup,
+                        pickup:
+                            document
+                            .getElementById(
+                                "pickup"
+                            )
+                            .value,
 
-                        drop_location:drop,
+                        drop_location:
+                            document
+                            .getElementById(
+                                "drop"
+                            )
+                            .value,
 
-                        ride_type:selectedRide,
+                        ride_type:
+                            selectedRide,
 
                         distance_km:
-                            currentDistance,
+                            distanceKm,
 
-                        fare:
-                            currentFare,
+                        fare:fare,
 
                         pickup_lat:
-                            pickupCoords ?
-                            pickupCoords.lat :
-                            null,
+                            pickupCoords.lat,
 
                         pickup_lng:
-                            pickupCoords ?
-                            pickupCoords.lng :
-                            null,
+                            pickupCoords.lng,
 
                         drop_lat:
-                            dropCoords ?
-                            dropCoords.lat :
-                            null,
+                            dropCoords.lat,
 
                         drop_lng:
-                            dropCoords ?
-                            dropCoords.lng :
-                            null
-
+                            dropCoords.lng
                     })
                 }
             );
 
+        const data =
+            await response.json();
+
+        if(!response.ok){
+
+            throw new Error(
+                data.error ||
+                "Booking failed"
+            );
+        }
+
+        activeRideId =
+            data.ride.id;
+
+        localStorage.setItem(
+            "ridemini_active_ride",
+            activeRideId
+        );
+
+        document
+            .getElementById(
+                "rideSection"
+            )
+            .classList.remove("hidden");
+
+        document
+            .getElementById(
+                "rideStatus"
+            )
+            .innerText =
+            "🔎 Searching for nearby driver...";
+
+        startRidePolling();
+
+    }catch(err){
+
+        console.error(err);
+
+        alert(
+            "❌ " + err.message
+        );
+
+        button.disabled = false;
+
+        button.innerText =
+            "🚕 Book Ride";
+    }
+}
+
+
+/* =========================
+   RIDE POLLING
+========================= */
+
+let ridePolling = null;
+
+function startRidePolling(){
+
+    clearInterval(
+        ridePolling
+    );
+
+    checkRideStatus();
+
+    ridePolling =
+        setInterval(
+            checkRideStatus,
+            3000
+        );
+}
+
+
+async function checkRideStatus(){
+
+    if(!activeRideId){
+        return;
+    }
+
+    try{
+
+        const response =
+            await fetch(
+                API +
+                "/api/ride/" +
+                activeRideId
+            );
 
         const data =
             await response.json();
 
-
-        if(!response.ok || !data.success){
-
-            alert(
-                data.message ||
-                "Ride booking failed."
-            );
-
+        if(!response.ok){
             return;
         }
 
+        const ride =
+            data.ride || data;
 
-        activeRideId =
-            data.ride_id;
+        updateRideUI(ride);
 
+    }catch(err){
 
-        localStorage.setItem(
-            "activeRideId",
-            activeRideId
+        console.log(
+            "Ride polling error",
+            err
         );
-
-
-        document.getElementById(
-            "activeRideBox"
-        ).classList.remove("hidden");
-
-
-        document.getElementById(
-            "rideStatus"
-        ).innerText =
-            "🔎 Searching for nearby driver...";
-
-
-        pollRide();
-
-
-    }catch(error){
-
-        console.error(error);
-
-        alert(
-            "Server connection problem."
-        );
-
     }
-
 }
 
 
 /* =========================
-   POLL RIDE
-========================= */
-
-let rideTimer = null;
-
-async function pollRide(){
-
-    if(!activeRideId)
-        return;
-
-
-    clearInterval(rideTimer);
-
-
-    async function checkRide(){
-
-        try{
-
-            const response =
-                await fetch(
-                    API +
-                    "/api/ride/" +
-                    activeRideId
-                );
-
-
-            const data =
-                await response.json();
-
-
-            if(!data.success)
-                return;
-
-
-            const ride =
-                data.ride;
-
-
-            updateRideUI(ride);
-
-
-        }catch(error){
-
-            console.log(error);
-
-        }
-
-    }
-
-
-    await checkRide();
-
-
-    rideTimer =
-        setInterval(checkRide,3000);
-
-}
-
-
-/* =========================
-   RIDE UI
+   UPDATE RIDE UI
 ========================= */
 
 function updateRideUI(ride){
 
     const status =
-        document.getElementById("rideStatus");
+        document
+        .getElementById(
+            "rideStatus"
+        );
 
-
-    const driverCard =
-        document.getElementById("driverCard");
-
+    const driverBox =
+        document
+        .getElementById(
+            "driverBox"
+        );
 
     if(ride.status === "searching"){
 
         status.innerText =
             "🔎 Searching for driver...";
 
-        driverCard.classList.add("hidden");
+        driverBox
+            .classList.add("hidden");
 
-    }
+    }else if(
+        ride.status === "accepted"
+    ){
 
+        status.innerText =
+            "✅ Driver accepted your ride.";
 
-    if(
-        ride.status === "accepted" ||
+        driverBox
+            .classList.remove("hidden");
+
+        showDriver(ride);
+
+    }else if(
         ride.status === "started"
     ){
 
         status.innerText =
-            ride.status === "started"
-            ? "🛵 Ride Started"
-            : "✅ Driver Accepted";
+            "🟢 Ride started. Driver is on the way.";
 
-        if(ride.driver){
+        driverBox
+            .classList.remove("hidden");
 
-            driverCard.classList.remove("hidden");
+        showDriver(ride);
 
-
-            document.getElementById("driverName")
-                .innerText =
-                "👨‍✈️ " + ride.driver.name;
-
-
-            document.getElementById("driverVehicle")
-                .innerText =
-                ride.driver.vehicle_type +
-                " • " +
-                ride.driver.vehicle_number;
-
-
-            document.getElementById("driverRating")
-                .innerText =
-                ride.driver.rating || "5.0";
-
-
-            if(
-                ride.driver.lat != null &&
-                ride.driver.lng != null
-            ){
-
-                document.getElementById(
-                    "driverLocation"
-                ).innerText =
-                    Number(ride.driver.lat).toFixed(5) +
-                    ", " +
-                    Number(ride.driver.lng).toFixed(5);
-
-            }
-
-        }
-
-    }
-
-
-    if(ride.status === "completed"){
-
-        clearInterval(rideTimer);
-
+    }else if(
+        ride.status === "completed"
+    ){
 
         status.innerText =
-            "✅ Ride Completed";
+            "🏁 Ride completed.";
 
+        driverBox
+            .classList.remove("hidden");
 
-        document.getElementById(
-            "ratingBox"
-        ).classList.remove("hidden");
+        showDriver(ride);
 
+        document
+            .getElementById(
+                "cancelBtn"
+            )
+            .classList.add("hidden");
 
-        localStorage.removeItem(
-            "activeRideId"
+        document
+            .getElementById(
+                "ratingSection"
+            )
+            .classList.remove("hidden");
+
+        clearInterval(
+            ridePolling
         );
-
-
-        activeRideId = null;
-
 
         loadHistory();
 
-    }
-
-
-    if(ride.status === "cancelled"){
-
-        clearInterval(rideTimer);
-
+    }else if(
+        ride.status === "cancelled"
+    ){
 
         status.innerText =
-            "❌ Ride Cancelled";
+            "❌ Ride cancelled.";
 
+        driverBox
+            .classList.add("hidden");
 
-        localStorage.removeItem(
-            "activeRideId"
+        document
+            .getElementById(
+                "cancelBtn"
+            )
+            .classList.add("hidden");
+
+        clearInterval(
+            ridePolling
         );
 
+        localStorage.removeItem(
+            "ridemini_active_ride"
+        );
 
         activeRideId = null;
 
-    }
+    }else{
 
+        status.innerText =
+            "Ride status: " +
+            ride.status;
+    }
+}
+
+
+/* =========================
+   DRIVER
+========================= */
+
+function showDriver(ride){
+
+    const driver =
+        ride.driver ||
+        {};
+
+    document
+        .getElementById(
+            "driverName"
+        )
+        .innerText =
+        driver.name ||
+        ride.driver_name ||
+        "Driver";
+
+    document
+        .getElementById(
+            "driverVehicle"
+        )
+        .innerText =
+        driver.vehicle_number ||
+        ride.vehicle_number ||
+        "-";
+
+    document
+        .getElementById(
+            "driverRating"
+        )
+        .innerText =
+        driver.rating ||
+        ride.driver_rating ||
+        "5.0";
+
+    if(
+        ride.driver_lat &&
+        ride.driver_lng
+    ){
+
+        document
+            .getElementById(
+                "driverLocation"
+            )
+            .innerText =
+            Number(
+                ride.driver_lat
+            ).toFixed(6) +
+            ", " +
+            Number(
+                ride.driver_lng
+            ).toFixed(6);
+
+    }else{
+
+        document
+            .getElementById(
+                "driverLocation"
+            )
+            .innerText =
+            "Waiting for GPS...";
+    }
 }
 
 
@@ -1680,15 +1812,17 @@ function updateRideUI(ride){
 
 async function cancelRide(){
 
-    if(!activeRideId)
+    if(!activeRideId){
         return;
+    }
 
-
-    if(!confirm(
-        "Ride cancel karna hai?"
-    ))
+    if(
+        !confirm(
+            "Cancel this ride?"
+        )
+    ){
         return;
-
+    }
 
     try{
 
@@ -1703,46 +1837,44 @@ async function cancelRide(){
                 }
             );
 
-
         const data =
             await response.json();
 
-
-        if(data.success){
-
-            document.getElementById(
-                "rideStatus"
-            ).innerText =
-                "❌ Ride Cancelled";
-
-
-            clearInterval(rideTimer);
-
-
-            localStorage.removeItem(
-                "activeRideId"
-            );
-
-
-            activeRideId = null;
-
-        }else{
+        if(!response.ok){
 
             alert(
-                data.message ||
-                "Cancel failed."
+                data.error ||
+                "Could not cancel ride."
             );
 
+            return;
         }
 
-    }catch(error){
+        document
+            .getElementById(
+                "rideStatus"
+            )
+            .innerText =
+            "❌ Ride cancelled.";
 
-        alert(
-            "Server connection problem."
+        clearInterval(
+            ridePolling
         );
 
-    }
+        localStorage.removeItem(
+            "ridemini_active_ride"
+        );
 
+        activeRideId = null;
+
+        loadHistory();
+
+    }catch(err){
+
+        alert(
+            "Server connection error."
+        );
+    }
 }
 
 
@@ -1750,66 +1882,28 @@ async function cancelRide(){
    RATING
 ========================= */
 
-function setRating(value){
-
-    currentRating = value;
-
-
-    document
-        .querySelectorAll(".star")
-        .forEach((star,index)=>{
-
-            star.style.opacity =
-                index < value ? "1" : "0.3";
-
-        });
-
-}
-
-
 async function submitRating(){
 
-    if(!currentRating){
-
-        alert("Rating select karo.");
-
+    if(!activeRideId){
         return;
     }
 
-
-    if(!activeRideId){
-
-        /*
-          Completed ride id history se
-          temporarily use karne ke liye.
-        */
-
-        const saved =
-            localStorage.getItem(
-                "lastCompletedRideId"
-            );
-
-
-        if(!saved){
-
-            alert(
-                "Ride ID nahi mila."
-            );
-
-            return;
-        }
-
-
-        activeRideId = saved;
-
-    }
-
+    const rating =
+        parseInt(
+            document
+            .getElementById(
+                "rating"
+            )
+            .value
+        );
 
     const review =
-        document.getElementById(
+        document
+        .getElementById(
             "review"
-        ).value.trim();
-
+        )
+        .value
+        .trim();
 
     try{
 
@@ -1823,59 +1917,52 @@ async function submitRating(){
                     method:"POST",
                     headers:{
                         "Content-Type":
-                            "application/json"
+                        "application/json"
                     },
                     body:JSON.stringify({
-
-                        rating:
-                            currentRating,
-
-                        review:
-                            review
-
+                        rating:rating,
+                        review:review
                     })
                 }
             );
 
-
         const data =
             await response.json();
 
+        if(!response.ok){
 
-        if(data.success){
-
-            showMessage(
-                "ratingMessage",
-                "✅ Rating saved. Thank you!",
-                "success"
+            alert(
+                data.error ||
+                "Rating failed."
             );
 
-
-            document.getElementById(
-                "ratingBox"
-            ).classList.add("hidden");
-
-
-            loadHistory();
-
-        }else{
-
-            showMessage(
-                "ratingMessage",
-                "❌ " +
-                (data.message ||
-                "Rating failed."),
-                "error"
-            );
-
+            return;
         }
 
-    }catch(error){
+        alert(
+            "⭐ Thank you for rating!"
+        );
 
-        console.log(error);
+        document
+            .getElementById(
+                "ratingSection"
+            )
+            .classList.add("hidden");
 
+        localStorage.removeItem(
+            "ridemini_active_ride"
+        );
+
+        activeRideId = null;
+
+        loadHistory();
+
+    }catch(err){
+
+        alert(
+            "Server connection error."
+        );
     }
-
 }
 
 
@@ -1885,17 +1972,14 @@ async function submitRating(){
 
 async function loadHistory(){
 
-    const customer =
-        JSON.parse(
-            localStorage.getItem(
-                "rideCustomer"
-            ) || "null"
-        );
-
-
-    if(!customer)
+    if(!customer){
         return;
+    }
 
+    const box =
+        document.getElementById(
+            "history"
+        );
 
     try{
 
@@ -1907,113 +1991,125 @@ async function loadHistory(){
                 "/rides"
             );
 
-
         const data =
             await response.json();
 
-
-        if(!data.success)
-            return;
-
-
-        const history =
-            document.getElementById(
-                "history"
+        if(!response.ok){
+            throw new Error(
+                "History failed"
             );
-
-
-        if(!data.rides.length){
-
-            history.innerHTML =
-                "No rides yet.";
-
-            return;
-
         }
 
+        const rides =
+            data.rides || data || [];
 
-        history.innerHTML = "";
+        if(!rides.length){
 
+            box.innerHTML =
+                "<div class='small'>No rides yet.</div>";
 
-        data.rides.forEach(ride => {
+            return;
+        }
 
-            const item =
-                document.createElement("div");
+        box.innerHTML =
+            rides.map(
+                function(ride){
 
+                    return `
+                    <div class="historyItem">
+                        <b>
+                            ${ride.ride_type || "Ride"}
+                        </b>
+                        <br>
+                        📍 ${ride.pickup || "-"}
+                        <br>
+                        🏁 ${ride.drop_location || "-"}
+                        <br>
+                        💰 ₹${ride.fare || 0}
+                        <br>
+                        <span class="small">
+                            Status: ${ride.status || "-"}
+                        </span>
+                    </div>
+                    `;
+                }
+            ).join("");
 
-            item.className =
-                "history-item";
+    }catch(err){
 
-
-            item.innerHTML = `
-                <b>🚕 ${escapeHtml(ride.ride_type)}</b>
-                <br>
-                <small>
-                    ${escapeHtml(ride.pickup)}
-                </small>
-                <br>
-                ↓
-                <br>
-                <small>
-                    ${escapeHtml(ride.drop_location)}
-                </small>
-                <br><br>
-                💰 ₹${ride.fare || 0}
-                &nbsp; • &nbsp;
-                ${escapeHtml(ride.status)}
-            `;
-
-
-            history.appendChild(item);
-
-        });
-
-
-    }catch(error){
-
-        console.log(error);
-
+        box.innerHTML =
+            "<div class='small'>Unable to load history.</div>";
     }
-
 }
 
 
 /* =========================
-   HELPERS
+   LOGOUT
 ========================= */
 
-function showMessage(
-    id,
-    message,
-    type
-){
+function logout(){
 
-    const element =
-        document.getElementById(id);
+    localStorage.removeItem(
+        "ridemini_customer"
+    );
 
+    localStorage.removeItem(
+        "ridemini_active_ride"
+    );
 
-    element.innerText =
-        message;
+    customer = null;
+    activeRideId = null;
 
+    clearInterval(
+        ridePolling
+    );
 
-    element.className =
-        type || "";
-
+    location.reload();
 }
 
 
-function escapeHtml(value){
+/* =========================
+   START APP
+========================= */
 
-    return String(value || "")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+if(customer){
 
+    document
+        .getElementById(
+            "loginSection"
+        )
+        .classList.add("hidden");
+
+    document
+        .getElementById(
+            "otpSection"
+        )
+        .classList.add("hidden");
+
+    document
+        .getElementById(
+            "appSection"
+        )
+        .classList.remove("hidden");
+
+    showCustomer();
+
+    loadHistory();
+
+    if(activeRideId){
+
+        document
+            .getElementById(
+                "rideSection"
+            )
+            .classList.remove("hidden");
+
+        startRidePolling();
+    }
 }
 
 </script>
 
 </body>
 </html>
+```
